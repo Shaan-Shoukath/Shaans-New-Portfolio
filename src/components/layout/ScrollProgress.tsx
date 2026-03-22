@@ -1,14 +1,34 @@
 "use client";
 
-import { motion, useScroll, useSpring } from "framer-motion";
+import { useEffect, useRef } from "react";
+import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export function ScrollProgress() {
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, {
+  const progress = useMotionValue(0);
+  const scaleX = useSpring(progress, {
     stiffness: 100,
     damping: 30,
     restDelta: 0.001,
   });
+
+  const rafRef = useRef<number>();
+
+  useEffect(() => {
+    const shell = document.getElementById("content-shell");
+    if (!shell) return;
+
+    const onScroll = () => {
+      const scrollTop = shell.scrollTop;
+      const scrollHeight = shell.scrollHeight - shell.clientHeight;
+      progress.set(scrollHeight > 0 ? scrollTop / scrollHeight : 0);
+    };
+
+    shell.addEventListener("scroll", onScroll, { passive: true });
+    return () => {
+      shell.removeEventListener("scroll", onScroll);
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+    };
+  }, [progress]);
 
   return (
     <motion.div

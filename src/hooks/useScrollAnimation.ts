@@ -13,7 +13,8 @@ export function useScrollAnimation(options: ScrollAnimationOptions = {}) {
 
   const { scrollYProgress } = useScroll({
     target: ref,
-    offset: offset as unknown as [string, string],
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    offset: offset as any,
   });
 
   return { ref, scrollYProgress };
