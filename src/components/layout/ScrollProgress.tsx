@@ -11,7 +11,7 @@ export function ScrollProgress() {
     restDelta: 0.001,
   });
 
-  const rafRef = useRef<number>();
+  const rafRef = useRef<number | undefined>(undefined);
 
   useEffect(() => {
     const shell = document.getElementById("content-shell");
