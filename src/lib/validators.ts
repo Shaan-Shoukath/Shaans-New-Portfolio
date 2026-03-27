@@ -1,15 +1,21 @@
 import { z } from "zod";
+import { DOMAIN_TONES, DEFAULT_DOMAIN_TONE } from "@/lib/domain-tones";
 
 export const aboutSchema = z.object({
   name: z.string().min(1, "Name is required"),
   tagline: z.string().optional(),
   quote: z.string().optional(),
   profile_image_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  hero_floating_words: z.array(z.string()).default([]),
 });
 
 export const domainSchema = z.object({
   title: z.string().min(1, "Title is required"),
   icon: z.string().optional(),
+  description: z.string().optional(),
+  background_tone: z
+    .enum(DOMAIN_TONES.map((tone) => tone.value) as [string, ...string[]])
+    .default(DEFAULT_DOMAIN_TONE),
   tools: z.array(z.string()).default([]),
   order_index: z.number().int().default(0),
 });

@@ -1,11 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
 import { aboutSchema, type AboutFormData } from "@/lib/validators";
-import type { About } from "@/lib/types";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -17,7 +16,8 @@ import { Save, Loader2 } from "lucide-react";
 export default function AboutEditor() {
   const [loading, setLoading] = useState(true);
   const [aboutId, setAboutId] = useState<string | null>(null);
-  const supabase = createClient();
+  const [floatingWordsInput, setFloatingWordsInput] = useState("");
+  const supabase = useRef(createClient()).current;
 
   const {
     register,
@@ -25,7 +25,11 @@ export default function AboutEditor() {
     reset,
     formState: { errors, isSubmitting },
   } = useForm<AboutFormData>({
-    resolver: zodResolver(aboutSchema),
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    resolver: zodResolver(aboutSchema) as any,
+    defaultValues: {
+      hero_floating_words: [],
+    },
   });
 
   useEffect(() => {
@@ -38,18 +42,26 @@ export default function AboutEditor() {
           tagline: data.tagline || "",
           quote: data.quote || "",
           profile_image_url: data.profile_image_url || "",
+          hero_floating_words: data.hero_floating_words || [],
         });
+        setFloatingWordsInput((data.hero_floating_words || []).join(", "));
       }
       setLoading(false);
     }
-    fetchAbout();
-  }, []);
+    void fetchAbout();
+  }, [reset, supabase]);
 
   const onSubmit = async (formData: AboutFormData) => {
     try {
+      const heroFloatingWords = floatingWordsInput
+        .split(",")
+        .map((word) => word.trim())
+        .filter(Boolean);
+
       const payload = {
         ...formData,
         profile_image_url: formData.profile_image_url || null,
+        hero_floating_words: heroFloatingWords,
         updated_at: new Date().toISOString(),
       };
 
@@ -113,10 +125,25 @@ export default function AboutEditor() {
             <Label htmlFor="tagline">Tagline</Label>
             <Input
               id="tagline"
-              placeholder="e.g. Full-Stack Developer & IoT Enthusiast"
+              placeholder="A bold one-line statement for the editorial hero"
               className="bg-white/5 border-white/10 focus:border-indigo-500/50"
               {...register("tagline")}
             />
+          </div>
+
+          <div className="space-y-2">
+            <Label htmlFor="hero_floating_words">Floating Hero Words</Label>
+            <Textarea
+              id="hero_floating_words"
+              placeholder="Creative Direction, Systems, Motion, Strategy"
+              rows={2}
+              className="bg-white/5 border-white/10 focus:border-indigo-500/50 resize-none"
+              value={floatingWordsInput}
+              onChange={(event) => setFloatingWordsInput(event.target.value)}
+            />
+            <p className="text-xs text-muted-foreground">
+              Comma-separated words that float around the hero name.
+            </p>
           </div>
 
           <div className="space-y-2">

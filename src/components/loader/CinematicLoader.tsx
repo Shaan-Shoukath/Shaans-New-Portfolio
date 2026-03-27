@@ -1,178 +1,161 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
+import { useEffect, useState } from "react";
+import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+
+const loaderRadius = 128;
+const loaderCircumference = 2 * Math.PI * loaderRadius;
 
 export function CinematicLoader({ onComplete }: { onComplete: () => void }) {
-  const [phase, setPhase] = useState<"circles" | "text" | "exit">("circles");
+  const [progress, setProgress] = useState(0);
+  const [isExiting, setIsExiting] = useState(false);
+  const pointerX = useMotionValue(0);
+  const pointerY = useMotionValue(0);
+  const ringX = useSpring(pointerX, {
+    stiffness: 85,
+    damping: 18,
+    mass: 0.7,
+  });
+  const ringY = useSpring(pointerY, {
+    stiffness: 85,
+    damping: 18,
+    mass: 0.7,
+  });
+  const haloX = useTransform(ringX, (value) => value * 1.55);
+  const haloY = useTransform(ringY, (value) => value * 1.25);
 
   useEffect(() => {
-    const t1 = setTimeout(() => setPhase("text"), 800);
-    const t2 = setTimeout(() => setPhase("exit"), 2200);
-    const t3 = setTimeout(onComplete, 3000);
+    let frameId = 0;
+    let exitTimeout = 0;
+    let completeTimeout = 0;
+    const start = performance.now();
+    const duration = 2400;
+
+    const tick = (timestamp: number) => {
+      const elapsed = Math.min((timestamp - start) / duration, 1);
+      const eased = 1 - Math.pow(1 - elapsed, 3);
+
+      setProgress(Math.round(eased * 100));
+
+      if (elapsed < 1) {
+        frameId = window.requestAnimationFrame(tick);
+        return;
+      }
+
+      exitTimeout = window.setTimeout(() => setIsExiting(true), 120);
+      completeTimeout = window.setTimeout(onComplete, 760);
+    };
+
+    frameId = window.requestAnimationFrame(tick);
+
     return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
+      window.cancelAnimationFrame(frameId);
+      window.clearTimeout(exitTimeout);
+      window.clearTimeout(completeTimeout);
     };
   }, [onComplete]);
 
+  useEffect(() => {
+    const prefersReducedMotion = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    const allowsFinePointer = window.matchMedia("(pointer: fine)").matches;
+
+    if (prefersReducedMotion || !allowsFinePointer) {
+      return;
+    }
+
+    const handlePointerMove = (event: PointerEvent) => {
+      pointerX.set(((event.clientX / window.innerWidth) - 0.5) * 28);
+      pointerY.set(((event.clientY / window.innerHeight) - 0.5) * 24);
+    };
+
+    const resetPointer = () => {
+      pointerX.set(0);
+      pointerY.set(0);
+    };
+
+    window.addEventListener("pointermove", handlePointerMove);
+    window.addEventListener("pointerleave", resetPointer);
+
+    return () => {
+      window.removeEventListener("pointermove", handlePointerMove);
+      window.removeEventListener("pointerleave", resetPointer);
+    };
+  }, [pointerX, pointerY]);
+
   return (
-    <AnimatePresence>
-      {phase !== "exit" ? null : undefined}
+    <motion.div
+      className="loader-stage"
+      initial={{ opacity: 1 }}
+      animate={
+        isExiting
+          ? { opacity: 0, scale: 1.02, filter: "blur(3px)" }
+          : { opacity: 1, scale: 1, filter: "blur(0px)" }
+      }
+      transition={{ duration: 0.64, ease: [0.22, 1, 0.36, 1] }}
+    >
+      <div className="film-grain" />
+
+      <motion.div className="loader-stage__halo" style={{ x: haloX, y: haloY }} />
+
+      <div className="loader-stage__brand">SHAAN SHOUKATH</div>
+
       <motion.div
-        key="loader"
-        className="fixed inset-0 z-[100] flex items-center justify-center bg-[#050505]"
-        exit={{ opacity: 0 }}
-        transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        className="loader-stage__ring-system"
+        style={{ x: ringX, y: ringY }}
       >
-        {/* Film grain */}
-        <div className="film-grain" />
-
-        {/* Animated circles */}
-        <div className="relative w-[300px] h-[300px] md:w-[400px] md:h-[400px]">
-          {/* Outer circle */}
-          <motion.div
-            className="absolute inset-0 rounded-full border border-white/20"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{
-              scale: phase === "exit" ? 3 : 1,
-              opacity: phase === "exit" ? 0 : 1,
-              rotate: 360,
-            }}
-            transition={{
-              scale: { duration: phase === "exit" ? 0.8 : 1, ease: [0.22, 1, 0.36, 1] },
-              opacity: { duration: 0.6 },
-              rotate: { duration: 20, repeat: Infinity, ease: "linear" },
-            }}
-          >
-            {/* Tick marks */}
-            {[...Array(12)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="absolute top-0 left-1/2 -translate-x-1/2 w-[1px] h-3 bg-white/30"
-                style={{ transformOrigin: "50% 150px", rotate: `${i * 30}deg` }}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 0.3 }}
-                transition={{ delay: 0.1 * i }}
-              />
-            ))}
-          </motion.div>
-
-          {/* Inner circle */}
-          <motion.div
-            className="absolute inset-8 md:inset-12 rounded-full border border-red-600/40"
-            initial={{ scale: 0, opacity: 0 }}
-            animate={{
-              scale: phase === "exit" ? 4 : 1,
-              opacity: phase === "exit" ? 0 : 1,
-              rotate: -360,
-            }}
-            transition={{
-              scale: {
-                duration: phase === "exit" ? 0.8 : 1.2,
-                delay: 0.2,
-                ease: [0.22, 1, 0.36, 1],
-              },
-              opacity: { duration: 0.6, delay: 0.2 },
-              rotate: { duration: 15, repeat: Infinity, ease: "linear" },
-            }}
-          />
-
-          {/* Red dot accent */}
-          <motion.div
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-2 h-2 rounded-full bg-red-600"
-            initial={{ scale: 0 }}
-            animate={{
-              scale: phase === "exit" ? 0 : [0, 1, 0.8, 1],
-            }}
-            transition={{ duration: 0.5, delay: 0.5 }}
-          />
-
-          {/* Floating UI fragments */}
-          {["INIT", "SYS", "OK"].map((text, i) => (
-            <motion.div
-              key={text}
-              className="absolute text-[10px] tracking-[0.3em] text-white/20 font-mono uppercase"
-              style={{
-                top: `${20 + i * 30}%`,
-                left: i % 2 === 0 ? "-20%" : "80%",
-              }}
-              initial={{ opacity: 0, x: i % 2 === 0 ? -20 : 20 }}
-              animate={{
-                opacity: phase === "text" ? 0.4 : 0,
-                x: 0,
-                y: [0, -5, 0],
-              }}
-              transition={{
-                opacity: { duration: 0.5, delay: i * 0.15 },
-                y: { duration: 3, repeat: Infinity, ease: "easeInOut" },
-              }}
-            >
-              [{text}]
-            </motion.div>
-          ))}
-
-          {/* Center text */}
-          <motion.div
-            className="absolute inset-0 flex flex-col items-center justify-center"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: phase === "text" || phase === "exit" ? 1 : 0 }}
-            transition={{ duration: 0.6 }}
-          >
-            <motion.span
-              className="text-2xl md:text-3xl font-bold tracking-[0.2em] uppercase font-[family-name:var(--font-heading)]"
-              initial={{ y: 20, opacity: 0 }}
-              animate={{
-                y: phase === "exit" ? -20 : 0,
-                opacity: phase === "exit" ? 0 : 1,
-              }}
-              transition={{ duration: 0.6, delay: 0.1 }}
-            >
-              SHAAN
-            </motion.span>
-            <motion.div
-              className="w-12 h-[1px] bg-red-600 my-3"
-              initial={{ scaleX: 0 }}
-              animate={{ scaleX: phase === "exit" ? 0 : 1 }}
-              transition={{ duration: 0.5, delay: 0.3 }}
-            />
-            <motion.span
-              className="text-[10px] tracking-[0.4em] text-white/40 uppercase"
-              initial={{ y: 10, opacity: 0 }}
-              animate={{
-                y: phase === "exit" ? 10 : 0,
-                opacity: phase === "exit" ? 0 : 1,
-              }}
-              transition={{ duration: 0.5, delay: 0.4 }}
-            >
-              PORTFOLIO
-            </motion.span>
-          </motion.div>
+        <div className="loader-stage__ring-copy">
+          <span>PORTFOLIO LOADING</span>
+          <span>[MOTION / SYSTEMS / INTERFACE]</span>
         </div>
 
-        {/* Bottom progress */}
-        <motion.div
-          className="absolute bottom-12 left-1/2 -translate-x-1/2 flex items-center gap-3"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: phase === "text" ? 1 : 0 }}
-          transition={{ duration: 0.4, delay: 0.5 }}
-        >
-          <motion.div
-            className="w-24 h-[1px] bg-white/10 overflow-hidden"
-          >
-            <motion.div
-              className="h-full bg-red-600/60"
-              initial={{ width: "0%" }}
-              animate={{ width: "100%" }}
-              transition={{ duration: 1.4, ease: "easeInOut" }}
+        <div className="loader-stage__ring-shell">
+          {Array.from({ length: 18 }).map((_, index) => (
+            <span
+              key={`loader-tick-${index}`}
+              className="loader-stage__tick"
+              style={{ transform: `rotate(${index * 20}deg)` }}
             />
-          </motion.div>
-          <span className="text-[9px] tracking-[0.3em] text-white/20 font-mono">
-            LOADING
-          </span>
-        </motion.div>
+          ))}
+
+          <svg viewBox="0 0 320 320" className="loader-stage__svg" aria-hidden="true">
+            <circle
+              className="loader-stage__track"
+              cx="160"
+              cy="160"
+              r={loaderRadius}
+            />
+            <circle
+              className="loader-stage__fill"
+              cx="160"
+              cy="160"
+              r={loaderRadius}
+              strokeDasharray={loaderCircumference}
+              strokeDashoffset={
+                loaderCircumference - (progress / 100) * loaderCircumference
+              }
+            />
+            <circle
+              className="loader-stage__inner-ring"
+              cx="160"
+              cy="160"
+              r="102"
+            />
+          </svg>
+
+          <div className="loader-stage__core">
+            <span className="loader-stage__progress">
+              [{String(progress).padStart(2, "0")}%]
+            </span>
+            <span className="loader-stage__label">ENTERING THE SITE</span>
+          </div>
+        </div>
       </motion.div>
-    </AnimatePresence>
+
+      <div className="loader-stage__footer">
+        A cinematic portfolio with a single coordinated scroll flow.
+      </div>
+    </motion.div>
   );
 }

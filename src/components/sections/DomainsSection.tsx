@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -10,19 +10,19 @@ import type { Domain } from "@/lib/types";
 gsap.registerPlugin(ScrollTrigger);
 
 const fallbackDomains = [
-  { id: "1", title: "Web Development", icon: "globe", tools: ["Next.js", "React", "TypeScript", "Node.js"], order_index: 0, created_at: "" },
-  { id: "2", title: "Mobile Apps", icon: "smartphone", tools: ["React Native", "Flutter", "Swift", "Kotlin"], order_index: 1, created_at: "" },
-  { id: "3", title: "IoT / Embedded", icon: "cpu", tools: ["Arduino", "Raspberry Pi", "MQTT", "ESP32"], order_index: 2, created_at: "" },
-  { id: "4", title: "UAV / Robotics", icon: "wifi", tools: ["ROS", "PX4", "Computer Vision", "SLAM"], order_index: 3, created_at: "" },
-  { id: "5", title: "AI / ML", icon: "layers", tools: ["Python", "TensorFlow", "PyTorch", "LLMs"], order_index: 4, created_at: "" },
+  { id: "1", title: "Web Development", icon: "globe", description: "Crafting high-performance web applications with modern frameworks, server-side rendering, and seamless user experiences across all devices.", background_tone: "ember", tools: ["Next.js", "React", "TypeScript", "Node.js"], order_index: 0, created_at: "" },
+  { id: "2", title: "App Development", icon: "smartphone", description: "Building polished cross-platform apps with Flutter and React Native, with strong interaction patterns and production-ready architecture.", background_tone: "midnight", tools: ["Flutter", "React Native"], order_index: 1, created_at: "" },
+  { id: "4", title: "UAV and Robotics", icon: "wifi", description: "Developing autonomous systems with advanced computer vision, path planning algorithms, and real-time control architectures.", background_tone: "graphite", tools: ["ROS", "PX4", "Computer Vision", "SLAM"], order_index: 2, created_at: "" },
+  { id: "5", title: "AI and ML", icon: "layers", description: "Implementing intelligent systems leveraging deep learning, natural language processing, and large language model integration.", background_tone: "plum", tools: ["Python", "TensorFlow", "PyTorch", "LLMs"], order_index: 3, created_at: "" },
+  { id: "3", title: "IoT and Embedded", icon: "cpu", description: "Engineering connected hardware systems with real-time telemetry, edge computing, and industrial-grade communication protocols.", background_tone: "moss", tools: ["Arduino", "Raspberry Pi", "MQTT", "ESP32"], order_index: 4, created_at: "" },
 ];
 
 const domainDescriptions: Record<string, string> = {
   "Web Development": "Crafting high-performance web applications with modern frameworks, server-side rendering, and seamless user experiences across all devices.",
-  "Mobile Apps": "Building native and cross-platform mobile applications that deliver fluid, responsive interaction patterns and offline-first capabilities.",
-  "IoT / Embedded": "Engineering connected hardware systems with real-time telemetry, edge computing, and industrial-grade communication protocols.",
-  "UAV / Robotics": "Developing autonomous systems with advanced computer vision, path planning algorithms, and real-time control architectures.",
-  "AI / ML": "Implementing intelligent systems leveraging deep learning, natural language processing, and large language model integration.",
+  "App Development": "Building polished cross-platform apps with Flutter and React Native, with strong interaction patterns and production-ready architecture.",
+  "UAV and Robotics": "Developing autonomous systems with advanced computer vision, path planning algorithms, and real-time control architectures.",
+  "AI and ML": "Implementing intelligent systems leveraging deep learning, natural language processing, and large language model integration.",
+  "IoT and Embedded": "Engineering connected hardware systems with real-time telemetry, edge computing, and industrial-grade communication protocols.",
 };
 
 export function DomainsSection() {

@@ -1,15 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
 import { domainSchema, type DomainFormData } from "@/lib/validators";
 import type { Domain } from "@/lib/types";
+import { DEFAULT_DOMAIN_TONE, DOMAIN_TONES } from "@/lib/domain-tones";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/shared/GlassCard";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import {
   Dialog,
   DialogContent,
@@ -44,7 +53,6 @@ import {
   Trash2,
   Save,
   Loader2,
-  GripVertical,
 } from "lucide-react";
 
 export default function DomainsManager() {
@@ -53,7 +61,8 @@ export default function DomainsManager() {
   const [dialogOpen, setDialogOpen] = useState(false);
   const [editingId, setEditingId] = useState<string | null>(null);
   const [toolsInput, setToolsInput] = useState("");
-  const supabase = createClient();
+  const [backgroundTone, setBackgroundTone] = useState(DEFAULT_DOMAIN_TONE);
+  const supabase = useRef(createClient()).current;
 
   const {
     register,
@@ -64,26 +73,39 @@ export default function DomainsManager() {
   } = useForm<DomainFormData>({
     // eslint-disable-next-line @typescript-eslint/no-explicit-any
     resolver: zodResolver(domainSchema) as any,
-    defaultValues: { tools: [], order_index: 0 },
+    defaultValues: {
+      tools: [],
+      order_index: 0,
+      description: "",
+      background_tone: DEFAULT_DOMAIN_TONE,
+    },
   });
 
-  async function fetchDomains() {
+  const fetchDomains = useCallback(async () => {
     const { data } = await supabase
       .from("domains")
       .select("*")
       .order("order_index", { ascending: true });
     if (data) setDomains(data);
     setLoading(false);
-  }
+  }, [supabase]);
 
   useEffect(() => {
-    fetchDomains();
-  }, []);
+    void fetchDomains();
+  }, [fetchDomains]);
 
   function openCreate() {
     setEditingId(null);
-    reset({ title: "", icon: "", tools: [], order_index: domains.length });
+    reset({
+      title: "",
+      icon: "",
+      description: "",
+      background_tone: DEFAULT_DOMAIN_TONE,
+      tools: [],
+      order_index: domains.length,
+    });
     setToolsInput("");
+    setBackgroundTone(DEFAULT_DOMAIN_TONE);
     setDialogOpen(true);
   }
 
@@ -92,10 +114,13 @@ export default function DomainsManager() {
     reset({
       title: domain.title,
       icon: domain.icon || "",
+      description: domain.description || "",
+      background_tone: domain.background_tone || DEFAULT_DOMAIN_TONE,
       tools: domain.tools,
       order_index: domain.order_index,
     });
     setToolsInput(domain.tools.join(", "));
+    setBackgroundTone(domain.background_tone || DEFAULT_DOMAIN_TONE);
     setDialogOpen(true);
   }
 
@@ -106,7 +131,12 @@ export default function DomainsManager() {
         .map((t) => t.trim())
         .filter(Boolean);
 
-      const payload = { ...formData, tools };
+      const payload = {
+        ...formData,
+        description: formData.description || null,
+        background_tone: backgroundTone,
+        tools,
+      };
 
       if (editingId) {
         const { error } = await supabase
@@ -121,7 +151,7 @@ export default function DomainsManager() {
         toast.success("Domain created!");
       }
       setDialogOpen(false);
-      fetchDomains();
+      void fetchDomains();
     } catch (err: unknown) {
       toast.error((err as Error).message || "Failed to save");
     }
@@ -133,7 +163,7 @@ export default function DomainsManager() {
       toast.error("Failed to delete");
     } else {
       toast.success("Domain deleted");
-      fetchDomains();
+      void fetchDomains();
     }
   }
 
@@ -195,6 +225,41 @@ export default function DomainsManager() {
                   className="bg-white/5 border-white/10"
                   {...register("icon")}
                 />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  rows={4}
+                  placeholder="Describe how this domain shows up in the work."
+                  className="bg-white/5 border-white/10 resize-none"
+                  {...register("description")}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="background_tone">Background Tone</Label>
+                <Select
+                  value={backgroundTone}
+                  onValueChange={(value) => {
+                    const nextTone = value || DEFAULT_DOMAIN_TONE;
+                    setBackgroundTone(nextTone);
+                    setValue("background_tone", nextTone, { shouldValidate: true });
+                  }}
+                >
+                  <SelectTrigger
+                    id="background_tone"
+                    className="w-full bg-white/5 border-white/10"
+                  >
+                    <SelectValue placeholder="Select a dark tone" />
+                  </SelectTrigger>
+                  <SelectContent className="bg-[#0f1629] border-white/10">
+                    {DOMAIN_TONES.map((tone) => (
+                      <SelectItem key={tone.value} value={tone.value}>
+                        {tone.label}
+                      </SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
               </div>
               <div className="space-y-2">
                 <Label htmlFor="tools">Tools (comma-separated)</Label>

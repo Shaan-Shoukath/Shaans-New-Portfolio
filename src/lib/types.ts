@@ -11,6 +11,7 @@ export interface About {
   tagline: string | null;
   quote: string | null;
   profile_image_url: string | null;
+  hero_floating_words: string[];
   updated_at: string;
 }
 
@@ -18,6 +19,8 @@ export interface Domain {
   id: string;
   title: string;
   icon: string | null;
+  description: string | null;
+  background_tone: string | null;
   tools: string[];
   order_index: number;
   created_at: string;

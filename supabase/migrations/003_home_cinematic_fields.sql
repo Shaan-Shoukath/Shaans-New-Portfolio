@@ -1,0 +1,6 @@
+ALTER TABLE about
+ADD COLUMN IF NOT EXISTS hero_floating_words TEXT[] DEFAULT '{}';
+
+ALTER TABLE domains
+ADD COLUMN IF NOT EXISTS description TEXT,
+ADD COLUMN IF NOT EXISTS background_tone TEXT DEFAULT 'ember';

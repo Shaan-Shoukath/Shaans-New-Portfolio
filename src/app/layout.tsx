@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { Inter, Space_Grotesk } from "next/font/google";
+import { DM_Mono, Inter, Space_Grotesk } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
 import "./globals.css";
 
@@ -12,6 +12,13 @@ const inter = Inter({
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-heading",
   subsets: ["latin"],
+  display: "swap",
+});
+
+const dmMono = DM_Mono({
+  variable: "--font-mono-ui",
+  subsets: ["latin"],
+  weight: ["400", "500"],
   display: "swap",
 });
 
@@ -39,7 +46,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
+      className={`${inter.variable} ${spaceGrotesk.variable} ${dmMono.variable} antialiased`}
     >
       <body
         suppressHydrationWarning

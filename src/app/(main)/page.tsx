@@ -1,22 +1,14 @@
 "use client";
 
-import { useState, useCallback } from "react";
+import { useCallback, useState } from "react";
 import dynamic from "next/dynamic";
 import { CinematicLoader } from "@/components/loader/CinematicLoader";
 import { ScrollEngine } from "@/components/cinema/ScrollEngine";
 
-const HeroSection = dynamic(
+const HeroDomainsSequence = dynamic(
   () =>
-    import("@/components/sections/HeroSection").then((mod) => ({
-      default: mod.HeroSection,
-    })),
-  { ssr: false }
-);
-
-const DomainsSection = dynamic(
-  () =>
-    import("@/components/sections/DomainsSection").then((mod) => ({
-      default: mod.DomainsSection,
+    import("@/components/sections/HeroDomainsSequence").then((mod) => ({
+      default: mod.HeroDomainsSequence,
     })),
   { ssr: false }
 );
@@ -58,21 +50,9 @@ export default function HomePage() {
 
       {loaderDone && (
         <ScrollEngine>
-          {/* Section 1: Hero (Dulcedo-style) — full viewport */}
-          <section id="hero">
-            <HeroSection />
-          </section>
-
-          {/* Section 2: Domains — Manages its own horizontal entrance + vertical split scroll internally */}
-          <DomainsSection />
-
-          {/* Section 3: Experience/Journey — Uses its own horizontal entrance */}
+          <HeroDomainsSequence />
           <ExperienceSection />
-
-          {/* Section 4: Projects */}
           <ProjectsSection />
-
-          {/* Section 5: Contact */}
           <ContactSection />
         </ScrollEngine>
       )}
