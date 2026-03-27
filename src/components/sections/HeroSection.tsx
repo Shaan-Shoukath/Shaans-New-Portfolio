@@ -1,13 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { createClient } from "@/lib/supabase/client";
 import type { About } from "@/lib/types";
+
+gsap.registerPlugin(ScrollTrigger);
 
 export function HeroSection() {
   const [about, setAbout] = useState<About | null>(null);
   const supabase = createClient();
+  const sectionRef = useRef<HTMLDivElement>(null);
+  const taglineRef = useRef<HTMLDivElement>(null);
+  const portraitRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     async function fetchAbout() {
@@ -22,92 +29,150 @@ export function HeroSection() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const displayName = about?.name || "SHAAN";
+  // Scroll-driven tagline reveal & parallax
+  useEffect(() => {
+    const section = sectionRef.current;
+    const tagline = taglineRef.current;
+    const portrait = portraitRef.current;
+    if (!section || !tagline || !portrait) return;
+
+    // Tagline slides up as user scrolls
+    gsap.fromTo(
+      tagline,
+      { y: 80, opacity: 0 },
+      {
+        y: 0,
+        opacity: 1,
+        ease: "none",
+        scrollTrigger: {
+          trigger: section,
+          start: "top top",
+          end: "bottom top",
+          scrub: 1,
+        },
+      }
+    );
+
+    // Portrait subtle parallax
+    gsap.to(portrait, {
+      y: -40,
+      ease: "none",
+      scrollTrigger: {
+        trigger: section,
+        start: "top top",
+        end: "bottom top",
+        scrub: 1,
+      },
+    });
+
+    return () => {
+      ScrollTrigger.getAll()
+        .filter((t) => t.trigger === section)
+        .forEach((t) => t.kill());
+    };
+  }, [about]);
+
+  const tagline = about?.tagline || "Building digital systems across web, mobile, IoT, UAV & AI";
 
   return (
-    <div className="cinema-panel flex items-center justify-center relative">
-      {/* Background grid */}
-      <div
-        className="absolute inset-0 opacity-[0.03]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: "80px 80px",
-        }}
+    <div ref={sectionRef} className="hero-dulcedo">
+      {/* Decorative arcs */}
+      <motion.div
+        className="hero-arc hero-arc--lg"
+        initial={{ scale: 0.8, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.5, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      />
+      <motion.div
+        className="hero-arc hero-arc--xl"
+        initial={{ scale: 0.7, opacity: 0 }}
+        animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 1.8, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
       />
 
+      {/* Subtle ambient glow */}
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/[0.03] rounded-full blur-[180px] pointer-events-none" />
+
       {/* Corner HUD markers */}
-      <div className="absolute top-8 left-8 text-[9px] tracking-[0.3em] text-white/15 font-mono">
+      <motion.div
+        className="absolute top-8 left-8 text-[9px] tracking-[0.3em] text-white/10 font-mono"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.2 }}
+      >
         [SYS.PORTFOLIO]
-      </div>
-      <div className="absolute top-8 right-8 text-[9px] tracking-[0.3em] text-white/15 font-mono">
+      </motion.div>
+      <motion.div
+        className="absolute top-8 right-8 text-[9px] tracking-[0.3em] text-white/10 font-mono"
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 1.3 }}
+      >
         [v2.0]
-      </div>
-      <div className="absolute bottom-8 left-8 text-[9px] tracking-[0.3em] text-white/15 font-mono">
-        [001]
-      </div>
+      </motion.div>
 
-      {/* Subtle red glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[600px] bg-red-600/[0.03] rounded-full blur-[150px]" />
+      {/* Left flank text — SHAAN */}
+      <motion.div
+        className="hero-dulcedo__flank hero-dulcedo__flank--left"
+        initial={{ opacity: 0, x: -30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span className="hero-dulcedo__flank-text">SHAAN</span>
+      </motion.div>
 
-      {/* Main Content */}
-      <div className="relative z-10 text-center max-w-5xl mx-auto px-6">
-        {/* Role tag */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-          className="inline-flex items-center gap-3 mb-10"
-        >
-          <div className="w-8 h-[1px] bg-red-600/60" />
-          <span className="text-[11px] tracking-[0.35em] text-white/40 uppercase font-mono">
-            Full-Stack Developer & Innovator
-          </span>
-          <div className="w-8 h-[1px] bg-red-600/60" />
-        </motion.div>
+      {/* Center portrait */}
+      <motion.div
+        ref={portraitRef}
+        className="hero-dulcedo__portrait"
+        initial={{ opacity: 0, y: 40, scale: 0.95 }}
+        animate={{ opacity: 1, y: 0, scale: 1 }}
+        transition={{ duration: 1.2, delay: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      >
+        {about?.profile_image_url ? (
+          <img
+            src={about.profile_image_url}
+            alt={about.name || "Portrait"}
+          />
+        ) : (
+          /* Stylized placeholder when no image */
+          <div className="w-full h-full bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center relative overflow-hidden">
+            {/* Geometric pattern */}
+            <div className="absolute inset-0 opacity-[0.06]"
+              style={{
+                backgroundImage: `radial-gradient(rgba(220, 38, 38, 0.5) 1px, transparent 1px)`,
+                backgroundSize: "20px 20px",
+              }}
+            />
+            <span className="text-7xl font-bold font-[family-name:var(--font-heading)] text-white/[0.06]">
+              S
+            </span>
+            {/* Red accent line */}
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
+          </div>
+        )}
+      </motion.div>
 
-        {/* Name */}
-        <motion.h1
-          initial={{ opacity: 0, y: 60 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 1, delay: 0.5, ease: [0.22, 1, 0.36, 1] }}
-          className="text-6xl sm:text-7xl md:text-8xl lg:text-9xl font-bold font-[family-name:var(--font-heading)] leading-[0.95] mb-8 tracking-tight"
-        >
-          <span className="text-white">{displayName}</span>
-        </motion.h1>
+      {/* Right flank text — SHOUKATH */}
+      <motion.div
+        className="hero-dulcedo__flank hero-dulcedo__flank--right"
+        initial={{ opacity: 0, x: 30 }}
+        animate={{ opacity: 1, x: 0 }}
+        transition={{ duration: 1, delay: 0.6, ease: [0.22, 1, 0.36, 1] }}
+      >
+        <span className="hero-dulcedo__flank-text">SHOUKATH</span>
+      </motion.div>
 
-        {/* Tagline */}
-        <motion.p
-          initial={{ opacity: 0, y: 30 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.7, delay: 0.7 }}
-          className="text-base sm:text-lg text-white/30 max-w-xl mx-auto mb-12 leading-relaxed"
-        >
-          {about?.tagline || "Building digital systems across web, mobile, IoT, UAV & AI"}
-        </motion.p>
-
-        {/* CTA */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 }}
-          className="flex items-center justify-center gap-6"
-        >
-          <a
-            href="#domains"
-            className="group flex items-center gap-3 text-[11px] tracking-[0.3em] text-white/50 uppercase hover:text-white transition-colors duration-300"
-          >
-            <span>Explore</span>
-            <svg className="w-4 h-4 group-hover:translate-x-1 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M17 8l4 4m0 0l-4 4m4-4H3" />
-            </svg>
-          </a>
-        </motion.div>
+      {/* Bottom tagline — reveals on scroll */}
+      <div ref={taglineRef} className="hero-dulcedo__tagline">
+        <h2 className="font-[family-name:var(--font-heading)]">
+          {tagline}
+        </h2>
       </div>
 
       {/* Scroll indicator */}
       <motion.div
-        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2"
+        className="absolute bottom-8 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 z-20"
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         transition={{ delay: 1.5 }}
@@ -117,6 +182,9 @@ export function HeroSection() {
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />
+        <span className="text-[8px] tracking-[0.4em] text-white/15 uppercase font-mono">
+          scroll
+        </span>
       </motion.div>
     </div>
   );

@@ -1,9 +1,13 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import { useEffect, useState, useRef, useCallback } from "react";
+import { motion } from "framer-motion";
+import { gsap } from "gsap";
+import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { createClient } from "@/lib/supabase/client";
 import type { Domain } from "@/lib/types";
+
+gsap.registerPlugin(ScrollTrigger);
 
 const fallbackDomains = [
   { id: "1", title: "Web Development", icon: "globe", tools: ["Next.js", "React", "TypeScript", "Node.js"], order_index: 0, created_at: "" },
@@ -13,9 +17,21 @@ const fallbackDomains = [
   { id: "5", title: "AI / ML", icon: "layers", tools: ["Python", "TensorFlow", "PyTorch", "LLMs"], order_index: 4, created_at: "" },
 ];
 
+const domainDescriptions: Record<string, string> = {
+  "Web Development": "Crafting high-performance web applications with modern frameworks, server-side rendering, and seamless user experiences across all devices.",
+  "Mobile Apps": "Building native and cross-platform mobile applications that deliver fluid, responsive interaction patterns and offline-first capabilities.",
+  "IoT / Embedded": "Engineering connected hardware systems with real-time telemetry, edge computing, and industrial-grade communication protocols.",
+  "UAV / Robotics": "Developing autonomous systems with advanced computer vision, path planning algorithms, and real-time control architectures.",
+  "AI / ML": "Implementing intelligent systems leveraging deep learning, natural language processing, and large language model integration.",
+};
+
 export function DomainsSection() {
   const [domains, setDomains] = useState<Domain[]>([]);
+  const [activeIndex, setActiveIndex] = useState(0);
   const supabase = createClient();
+  const containerRef = useRef<HTMLDivElement>(null);
+  const rightContentRef = useRef<HTMLDivElement>(null);
+  const progressRef = useRef<SVGCircleElement>(null);
 
   useEffect(() => {
     async function fetchDomains() {
@@ -34,151 +50,205 @@ export function DomainsSection() {
   }, []);
 
   const displayDomains = domains.length > 0 ? domains : fallbackDomains;
+  const total = displayDomains.length;
+
+  // Circle dimensions
+  const circleRadius = 180;
+  const circumference = 2 * Math.PI * circleRadius;
+
+  // GSAP scroll-driven vertical scroll inside right panel
+  useEffect(() => {
+    const container = containerRef.current;
+    const rightContent = rightContentRef.current;
+    if (!container || !rightContent || total === 0) return;
+
+    // Create scroll trigger that pins the split layout and scrolls the right content
+    const scrollHeight = total * window.innerHeight * 0.6;
+
+    const tl = gsap.timeline({
+      scrollTrigger: {
+        trigger: container,
+        pin: true,
+        scrub: 1,
+        start: "top top",
+        end: () => "+=" + scrollHeight,
+        invalidateOnRefresh: true,
+        onUpdate: (self) => {
+          const progress = self.progress;
+          const newIndex = Math.min(
+            Math.floor(progress * total),
+            total - 1
+          );
+          setActiveIndex(newIndex);
+
+          // Update progress circle
+          if (progressRef.current) {
+            const offset = circumference - (progress * circumference);
+            progressRef.current.style.strokeDashoffset = String(offset);
+          }
+        },
+      },
+    });
+
+    // Scroll the right content panel
+    tl.to(rightContent, {
+      y: () => -(rightContent.scrollHeight - window.innerHeight),
+      ease: "none",
+    });
+
+    return () => {
+      tl.kill();
+      ScrollTrigger.getAll()
+        .filter((t) => t.trigger === container)
+        .forEach((t) => t.kill());
+    };
+  }, [total, circumference]);
 
   return (
-    <>
-      {displayDomains.map((domain, i) => (
-        <DomainPanel
-          key={domain.id}
-          domain={domain}
-          index={i}
-          total={displayDomains.length}
-        />
-      ))}
-    </>
+    <div ref={containerRef} className="designation-split" id="domains">
+      {/* Vertical divider */}
+      <div className="designation-divider" />
+
+      {/* ─── LEFT HALF ─── */}
+      <div className="designation-left">
+        <div className="designation-left__bg" />
+
+        {/* Progress Circle */}
+        <motion.div
+          className="progress-circle"
+          initial={{ scale: 0.8, opacity: 0 }}
+          whileInView={{ scale: 1, opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {/* SVG circle */}
+          <svg viewBox="0 0 400 400">
+            <circle
+              className="progress-circle__track"
+              cx="200"
+              cy="200"
+              r={circleRadius}
+            />
+            <circle
+              ref={progressRef}
+              className="progress-circle__fill"
+              cx="200"
+              cy="200"
+              r={circleRadius}
+              strokeDasharray={circumference}
+              strokeDashoffset={circumference}
+            />
+          </svg>
+
+          {/* Inner content */}
+          <div className="progress-circle__inner">
+            {/* Tick line at top */}
+            <div className="absolute top-[14%] left-1/2 -translate-x-1/2 w-[1px] h-4 bg-white/20" />
+
+            {/* Counter */}
+            <span className="progress-circle__counter">
+              [{String(activeIndex + 1).padStart(2, "0")}]&nbsp;&nbsp;&nbsp;/ [{String(total).padStart(2, "0")}]
+            </span>
+
+            {/* Scroll label */}
+            <span className="progress-circle__scroll">SCROLL</span>
+
+            {/* Bottom tick marks */}
+            <div className="absolute bottom-[18%] left-[25%] w-[6px] h-[1px] bg-white/15 -rotate-45" />
+            <div className="absolute bottom-[22%] right-[25%] w-[6px] h-[1px] bg-white/15 rotate-45" />
+          </div>
+        </motion.div>
+
+        {/* Section title at bottom-left */}
+        <div className="designation-title">
+          <div className="designation-title__sub">GUIDING PRINCIPLES</div>
+          <div className="designation-title__main font-[family-name:var(--font-heading)]">
+            MY<br />DOMAINS
+          </div>
+        </div>
+      </div>
+
+      {/* ─── RIGHT HALF ─── */}
+      <div className="designation-right">
+        <div className="designation-right__bg" />
+
+        <div ref={rightContentRef} className="will-change-transform">
+          {displayDomains.map((domain, i) => (
+            <DesignationItem
+              key={domain.id}
+              domain={domain}
+              index={i}
+              total={total}
+              isActive={i === activeIndex}
+            />
+          ))}
+        </div>
+      </div>
+    </div>
   );
 }
 
-function DomainPanel({
+function DesignationItem({
   domain,
   index,
   total,
+  isActive,
 }: {
   domain: Domain;
   index: number;
   total: number;
+  isActive: boolean;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { amount: 0.5 });
+  const description =
+    domainDescriptions[domain.title] ||
+    `Expertise in ${domain.title.toLowerCase()} with proficiency across ${domain.tools.join(", ")}.`;
 
   return (
     <div
-      ref={ref}
-      className="cinema-panel flex items-center justify-center relative"
+      className="designation-item"
+      style={{ minHeight: `${100 / Math.min(total, 3)}vh` }}
     >
-      {/* Background gradient based on scroll */}
-      <div className="absolute inset-0 bg-[#050505]" />
-      
-      {/* Subtle red wash on alternate panels */}
-      {index % 2 === 0 && (
-        <div className="absolute inset-0 bg-gradient-to-br from-red-950/[0.04] to-transparent" />
-      )}
-
-      {/* Grid pattern */}
-      <div
-        className="absolute inset-0 opacity-[0.02]"
-        style={{
-          backgroundImage: `radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)`,
-          backgroundSize: "40px 40px",
-        }}
-      />
-
-      {/* Section index - left side */}
-      <motion.div
-        className="absolute left-8 md:left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-4"
-        initial={{ opacity: 0, x: -30 }}
-        animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
-        transition={{ duration: 0.6 }}
-      >
-        <span className="text-[11px] tracking-[0.3em] text-red-600/70 font-mono">
-          [{String(index + 1).padStart(2, "0")}]
-        </span>
-        <div className="w-[1px] h-20 bg-gradient-to-b from-red-600/30 to-transparent" />
-        <span className="text-[9px] tracking-[0.2em] text-white/20 font-mono rotate-90 origin-center whitespace-nowrap">
-          DOMAIN
-        </span>
-      </motion.div>
-
-      {/* Section counter - right side */}
-      <motion.div
-        className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 hidden md:block"
-        initial={{ opacity: 0, x: 30 }}
-        animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
-        transition={{ duration: 0.6, delay: 0.2 }}
-      >
-        <div className="text-right">
-          <span className="text-4xl font-bold font-[family-name:var(--font-heading)] text-white/10">
-            {String(index + 1).padStart(2, "0")}
-          </span>
-          <span className="text-lg text-white/5 font-[family-name:var(--font-heading)]">
-            /{String(total).padStart(2, "0")}
-          </span>
-        </div>
-      </motion.div>
-
-      {/* Center content */}
-      <div className="relative z-10 text-center max-w-3xl mx-auto px-6">
-        {/* Title */}
-        <motion.h2
-          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold font-[family-name:var(--font-heading)] mb-8 leading-[0.95] tracking-tight"
-          initial={{ opacity: 0, y: 60, scale: 1.05 }}
-          animate={
-            isInView
-              ? { opacity: 1, y: 0, scale: 1 }
-              : { opacity: 0, y: 60, scale: 1.05 }
-          }
-          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
-        >
-          {domain.title.split(" ").map((word, wi) => (
-            <span key={wi}>
-              {wi === 0 ? (
-                <span className="text-white">{word}</span>
-              ) : (
-                <span className="text-white/40"> {word}</span>
-              )}
-            </span>
-          ))}
-        </motion.h2>
-
-        {/* Divider */}
-        <motion.div
-          className="w-16 h-[1px] bg-red-600/50 mx-auto mb-8"
-          initial={{ scaleX: 0 }}
-          animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
-          transition={{ duration: 0.6, delay: 0.3 }}
-        />
-
-        {/* Tools - glass pills */}
-        <motion.div
-          className="flex flex-wrap justify-center gap-3"
-          initial={{ opacity: 0, y: 20 }}
-          animate={
-            isInView
-              ? { opacity: 1, y: 0 }
-              : { opacity: 0, y: 20 }
-          }
-          transition={{ duration: 0.6, delay: 0.5 }}
-        >
-          {domain.tools.map((tool, ti) => (
-            <motion.span
-              key={tool}
-              className="px-4 py-2 rounded-full text-[11px] tracking-[0.15em] uppercase glass border-white/[0.06] text-white/50 hover:text-white hover:border-red-600/20 transition-all duration-300 cursor-default"
-              initial={{ opacity: 0, y: 10 }}
-              animate={
-                isInView
-                  ? { opacity: 1, y: 0 }
-                  : { opacity: 0, y: 10 }
-              }
-              transition={{ duration: 0.4, delay: 0.6 + ti * 0.08 }}
-            >
-              {tool}
-            </motion.span>
-          ))}
-        </motion.div>
+      {/* Index */}
+      <div className="designation-item__index">
+        [{String(index + 1).padStart(2, "0")}]
       </div>
 
-      {/* Bottom edge line */}
-      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
+      {/* Title */}
+      <h3
+        className="designation-item__title font-[family-name:var(--font-heading)]"
+        style={{
+          opacity: isActive ? 1 : 0.4,
+          transition: "opacity 0.5s ease",
+        }}
+      >
+        {domain.title}
+      </h3>
+
+      {/* Description */}
+      <p
+        className="designation-item__desc"
+        style={{
+          opacity: isActive ? 1 : 0.2,
+          transition: "opacity 0.5s ease",
+        }}
+      >
+        {description}
+      </p>
+
+      {/* Tools */}
+      <div
+        className="designation-item__tools"
+        style={{
+          opacity: isActive ? 1 : 0.3,
+          transition: "opacity 0.5s ease",
+        }}
+      >
+        {domain.tools.map((tool) => (
+          <span key={tool} className="designation-item__tool">
+            {tool}
+          </span>
+        ))}
+      </div>
     </div>
   );
 }

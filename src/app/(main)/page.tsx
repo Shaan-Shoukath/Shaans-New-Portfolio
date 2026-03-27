@@ -4,7 +4,6 @@ import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
 import { CinematicLoader } from "@/components/loader/CinematicLoader";
 import { ScrollEngine } from "@/components/cinema/ScrollEngine";
-import { VerticalLockSection } from "@/components/cinema/VerticalLockSection";
 
 const HeroSection = dynamic(
   () =>
@@ -59,17 +58,15 @@ export default function HomePage() {
 
       {loaderDone && (
         <ScrollEngine>
-          {/* Section 1: Hero */}
+          {/* Section 1: Hero (Dulcedo-style) — full viewport */}
           <section id="hero">
             <HeroSection />
           </section>
 
-          {/* Section 2: Domains - Vertical Lock (5 fullscreen panels) */}
-          <VerticalLockSection id="domains" panelCount={5}>
-            <DomainsSection />
-          </VerticalLockSection>
+          {/* Section 2: Domains — Manages its own horizontal entrance + vertical split scroll internally */}
+          <DomainsSection />
 
-          {/* Section 3: Experience - Vertical Story */}
+          {/* Section 3: Experience/Journey — Uses its own horizontal entrance */}
           <ExperienceSection />
 
           {/* Section 4: Projects */}
