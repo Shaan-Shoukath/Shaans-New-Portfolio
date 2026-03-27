@@ -1,5 +1,35 @@
 "use client";
 
+/**
+ * =============================================================================
+ * ADMIN LOGIN PAGE
+ * =============================================================================
+ * 
+ * This is the authentication entry point for admin access.
+ * Users enter their credentials to sign in to the admin dashboard.
+ * 
+ * LOGIN FLOW:
+ * -----------
+ * 1. User enters email and password
+ * 2. Form validates input using Zod schema
+ * 3. signIn() called with credentials
+ * 4. Supabase validates against Auth database
+ * 5. On success: redirect to /admin
+ * 6. On failure: show error message
+ * 
+ * VALIDATION:
+ * -----------
+ * - Email: Must be valid email format
+ * - Password: Minimum 6 characters
+ * 
+ * SECURITY:
+ * ---------
+ * - Error messages are generic ("Invalid email or password")
+ *   to prevent user enumeration attacks
+ * - Middleware prevents access to login when already authenticated
+ * =============================================================================
+ */
+
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
@@ -13,10 +43,16 @@ import { Loader2, LogIn, ArrowLeft } from "lucide-react";
 import Link from "next/link";
 
 export default function AdminLoginPage() {
+  // Error state for displaying login failures
   const [error, setError] = useState("");
+  
+  // Next.js router for navigation after successful login
   const router = useRouter();
+  
+  // Get signIn function from useAuth hook
   const { signIn } = useAuth();
 
+  // React Hook Form setup with Zod validation
   const {
     register,
     handleSubmit,
@@ -25,6 +61,14 @@ export default function AdminLoginPage() {
     resolver: zodResolver(loginSchema),
   });
 
+  /**
+   * Handle form submission
+   * -------------------
+   * 1. Clear any previous errors
+   * 2. Attempt to sign in with credentials
+   * 3. On success: redirect to admin dashboard
+   * 4. On failure: display generic error message
+   */
   const onSubmit = async (data: LoginFormData) => {
     setError("");
     try {
@@ -66,12 +110,14 @@ export default function AdminLoginPage() {
           </div>
 
           <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            {/* Error display */}
             {error && (
               <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-sm text-red-400 text-center">
                 {error}
               </div>
             )}
 
+            {/* Email field */}
             <div className="space-y-2">
               <Label htmlFor="email">Email</Label>
               <Input
@@ -86,6 +132,7 @@ export default function AdminLoginPage() {
               )}
             </div>
 
+            {/* Password field */}
             <div className="space-y-2">
               <Label htmlFor="password">Password</Label>
               <Input
@@ -102,6 +149,7 @@ export default function AdminLoginPage() {
               )}
             </div>
 
+            {/* Submit button */}
             <Button
               type="submit"
               disabled={isSubmitting}

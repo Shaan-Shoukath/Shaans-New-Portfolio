@@ -1,5 +1,34 @@
 "use client";
 
+/**
+ * =============================================================================
+ * ADMIN LAYOUT
+ * =============================================================================
+ * 
+ * This is the main layout wrapper for all admin pages.
+ * It handles:
+ * - Authentication check and route guarding
+ * - Sidebar navigation
+ * - User display and sign out
+ * 
+ * PROTECTION MECHANISM:
+ * --------------------
+ * Uses useAdminGuard hook to ensure only authenticated
+ * users can access admin pages. Unauthenticated users
+ * are redirected to /admin/login.
+ * 
+ * LOADING STATE:
+ * --------------
+ * While checking authentication, shows a loading spinner.
+ * This prevents flash of content or unauthorized access.
+ * 
+ * USER SESSION:
+ * -------------
+ * Displays the logged-in user's email in the sidebar.
+ * Provides a sign out button that calls supabase.auth.signOut().
+ * =============================================================================
+ */
+
 import { useState } from "react";
 import { usePathname } from "next/navigation";
 import Link from "next/link";
@@ -20,6 +49,7 @@ import {
   ChevronLeft,
 } from "lucide-react";
 
+// Navigation items for the admin sidebar
 const sidebarItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
   { label: "About", href: "/admin/about", icon: User },
@@ -34,17 +64,27 @@ export default function AdminLayout({
 }: {
   children: React.ReactNode;
 }) {
+  // Get current route path
   const pathname = usePathname();
+  
+  // Get auth functions from useAuth
   const { user, loading, signOut } = useAuth();
+  
+  // Mobile sidebar state
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  
+  // Check if on login page
   const isLoginPage = pathname === "/admin/login";
 
+  // Activate route guard - redirects if not authenticated
   useAdminGuard();
 
+  // If on login page, render without sidebar
   if (isLoginPage) {
     return <>{children}</>;
   }
 
+  // Show loading spinner while checking auth
   if (loading) {
     return (
       <div className="min-h-screen flex items-center justify-center bg-[#050505]">
@@ -53,11 +93,12 @@ export default function AdminLayout({
     );
   }
 
+  // If no user (shouldn't happen due to guard), return nothing
   if (!user) return null;
 
   return (
     <div className="min-h-screen bg-[#050505] flex">
-      {/* Mobile overlay */}
+      {/* Mobile overlay - closes sidebar when clicked */}
       {sidebarOpen && (
         <div
           className="fixed inset-0 bg-black/60 z-30 lg:hidden"
@@ -65,14 +106,14 @@ export default function AdminLayout({
         />
       )}
 
-      {/* Sidebar */}
+      {/* Sidebar navigation */}
       <aside
         className={cn(
           "fixed top-0 left-0 bottom-0 w-64 bg-[#0a0a0a] border-r border-white/[0.04] z-40 flex flex-col transition-transform duration-300 lg:translate-x-0",
           sidebarOpen ? "translate-x-0" : "-translate-x-full"
         )}
       >
-        {/* Header */}
+        {/* Header with logo */}
         <div className="p-6 border-b border-white/[0.04]">
           <div className="flex items-center justify-between">
             <Link href="/admin" className="flex items-center gap-3">
@@ -83,6 +124,7 @@ export default function AdminLayout({
                 Admin
               </span>
             </Link>
+            {/* Mobile close button */}
             <button
               onClick={() => setSidebarOpen(false)}
               className="lg:hidden p-1 rounded hover:bg-white/5 cursor-pointer"
@@ -92,7 +134,7 @@ export default function AdminLayout({
           </div>
         </div>
 
-        {/* Nav */}
+        {/* Navigation links */}
         <nav className="flex-1 p-4 space-y-1">
           {sidebarItems.map((item) => {
             const isActive =
@@ -117,8 +159,9 @@ export default function AdminLayout({
           })}
         </nav>
 
-        {/* Bottom */}
+        {/* Bottom section with user info and logout */}
         <div className="p-4 border-t border-white/[0.04]">
+          {/* Back to site link */}
           <Link
             href="/"
             className="flex items-center gap-2 px-4 py-2 rounded-lg text-sm text-white/30 hover:text-white/60 hover:bg-white/[0.03] transition-all mb-2 cursor-pointer"
@@ -126,6 +169,8 @@ export default function AdminLayout({
             <ChevronLeft className="w-4 h-4" />
             Back to site
           </Link>
+          
+          {/* User email display */}
           <div className="flex items-center gap-3 px-4 py-3 rounded-lg bg-white/[0.02] mb-3">
             <div className="w-8 h-8 rounded-full bg-red-600/20 border border-red-600/20 flex items-center justify-center text-xs font-medium text-red-400">
               {user.email?.[0]?.toUpperCase() || "A"}
@@ -136,6 +181,8 @@ export default function AdminLayout({
               </p>
             </div>
           </div>
+          
+          {/* Sign out button */}
           <Button
             variant="ghost"
             onClick={signOut}
@@ -147,9 +194,9 @@ export default function AdminLayout({
         </div>
       </aside>
 
-      {/* Main content */}
+      {/* Main content area */}
       <div className="flex-1 lg:ml-64">
-        {/* Top bar */}
+        {/* Top bar with mobile menu toggle */}
         <header className="sticky top-0 z-20 px-4 sm:px-6 h-16 flex items-center gap-4 border-b border-white/[0.04] bg-[#050505]/80 backdrop-blur-xl">
           <button
             onClick={() => setSidebarOpen(true)}
@@ -164,7 +211,7 @@ export default function AdminLayout({
           </h1>
         </header>
 
-        {/* Content */}
+        {/* Page content */}
         <main className="p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
