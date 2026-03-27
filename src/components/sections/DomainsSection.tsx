@@ -1,51 +1,20 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import type { Domain } from "@/lib/types";
-import { SectionWrapper } from "@/components/shared/SectionWrapper";
-import { AnimatedHeading } from "@/components/shared/AnimatedHeading";
-import { GlassCard } from "@/components/shared/GlassCard";
-import { SkeletonCard } from "@/components/shared/SkeletonCard";
-import { Badge } from "@/components/ui/badge";
-import {
-  Cpu,
-  Globe,
-  Smartphone,
-  Wifi,
-  Code2,
-  Database,
-  Cloud,
-  Layers,
-} from "lucide-react";
 
-const iconMap: Record<string, React.ElementType> = {
-  cpu: Cpu,
-  globe: Globe,
-  smartphone: Smartphone,
-  wifi: Wifi,
-  code: Code2,
-  database: Database,
-  cloud: Cloud,
-  layers: Layers,
-};
-
-/* gradient accent per card index */
-const gradients = [
-  "from-indigo-500 to-cyan-400",
-  "from-violet-500 to-fuchsia-400",
-  "from-amber-400 to-orange-500",
-  "from-emerald-400 to-teal-500",
-  "from-rose-400 to-pink-500",
-  "from-sky-400 to-blue-500",
-  "from-lime-400 to-green-500",
-  "from-purple-400 to-indigo-500",
+const fallbackDomains = [
+  { id: "1", title: "Web Development", icon: "globe", tools: ["Next.js", "React", "TypeScript", "Node.js"], order_index: 0, created_at: "" },
+  { id: "2", title: "Mobile Apps", icon: "smartphone", tools: ["React Native", "Flutter", "Swift", "Kotlin"], order_index: 1, created_at: "" },
+  { id: "3", title: "IoT / Embedded", icon: "cpu", tools: ["Arduino", "Raspberry Pi", "MQTT", "ESP32"], order_index: 2, created_at: "" },
+  { id: "4", title: "UAV / Robotics", icon: "wifi", tools: ["ROS", "PX4", "Computer Vision", "SLAM"], order_index: 3, created_at: "" },
+  { id: "5", title: "AI / ML", icon: "layers", tools: ["Python", "TensorFlow", "PyTorch", "LLMs"], order_index: 4, created_at: "" },
 ];
 
 export function DomainsSection() {
   const [domains, setDomains] = useState<Domain[]>([]);
-  const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
@@ -54,91 +23,162 @@ export function DomainsSection() {
         .from("domains")
         .select("*")
         .order("order_index", { ascending: true });
-      if (data) setDomains(data);
-      setLoading(false);
+      if (data && data.length > 0) {
+        setDomains(data);
+      } else {
+        setDomains(fallbackDomains);
+      }
     }
     fetchDomains();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const displayDomains = domains.length > 0 ? domains : fallbackDomains;
+
   return (
-    <SectionWrapper id="domains">
-      <AnimatedHeading subtitle="Technologies and skill areas I specialize in">
-        Skills &amp; Domains
-      </AnimatedHeading>
+    <>
+      {displayDomains.map((domain, i) => (
+        <DomainPanel
+          key={domain.id}
+          domain={domain}
+          index={i}
+          total={displayDomains.length}
+        />
+      ))}
+    </>
+  );
+}
 
-      {loading ? (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {[...Array(4)].map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-          {domains.map((domain, i) => {
-            const IconComponent =
-              iconMap[domain.icon?.toLowerCase() || ""] || Layers;
-            const grad = gradients[i % gradients.length];
+function DomainPanel({
+  domain,
+  index,
+  total,
+}: {
+  domain: Domain;
+  index: number;
+  total: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { amount: 0.5 });
 
-            return (
-              <GlassCard
-                key={domain.id}
-                initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                whileInView={{ opacity: 1, y: 0, scale: 1 }}
-                transition={{ duration: 0.5, delay: i * 0.1 }}
-                viewport={{ once: true }}
-                whileHover={{ y: -8, scale: 1.02 }}
-                className="group relative overflow-hidden"
-              >
-                {/* top-edge gradient bar */}
-                <div
-                  className={`absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r ${grad} opacity-60 group-hover:opacity-100 transition-opacity`}
-                />
-
-                {/* corner glow bloom on hover */}
-                <div
-                  className={`pointer-events-none absolute -top-16 -right-16 w-36 h-36 rounded-full bg-gradient-to-br ${grad} opacity-0 group-hover:opacity-[0.08] blur-3xl transition-opacity duration-500`}
-                />
-
-                <div className="flex flex-col items-start gap-4">
-                  {/* icon container with animated ring */}
-                  <div className="relative">
-                    <div
-                      className={`p-3 rounded-xl bg-gradient-to-br ${grad} bg-opacity-15 border border-white/10 group-hover:border-white/25 transition-all duration-300 group-hover:shadow-lg`}
-                      style={{
-                        background: `linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))`,
-                      }}
-                    >
-                      <IconComponent
-                        className={`w-6 h-6 text-white/80 group-hover:text-white transition-colors duration-300`}
-                      />
-                    </div>
-                    {/* animated ring on hover */}
-                    <div
-                      className={`absolute inset-0 rounded-xl border border-transparent group-hover:border-white/20 group-hover:scale-110 transition-all duration-500`}
-                    />
-                  </div>
-
-                  <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)] group-hover:text-white transition-colors">
-                    {domain.title}
-                  </h3>
-
-                  <div className="flex flex-wrap gap-2">
-                    {domain.tools.map((tool, ti) => (
-                      <Badge
-                        key={tool}
-                        variant="secondary"
-                        className="bg-white/[0.04] text-xs text-muted-foreground border-white/[0.08] hover:bg-white/[0.08] hover:text-white/90 transition-all duration-200"
-                      >
-                        {tool}
-                      </Badge>
-                    ))}
-                  </div>
-                </div>
-              </GlassCard>
-            );
-          })}
-        </div>
+  return (
+    <div
+      ref={ref}
+      className="cinema-panel flex items-center justify-center relative"
+    >
+      {/* Background gradient based on scroll */}
+      <div className="absolute inset-0 bg-[#050505]" />
+      
+      {/* Subtle red wash on alternate panels */}
+      {index % 2 === 0 && (
+        <div className="absolute inset-0 bg-gradient-to-br from-red-950/[0.04] to-transparent" />
       )}
-    </SectionWrapper>
+
+      {/* Grid pattern */}
+      <div
+        className="absolute inset-0 opacity-[0.02]"
+        style={{
+          backgroundImage: `radial-gradient(rgba(255,255,255,0.3) 1px, transparent 1px)`,
+          backgroundSize: "40px 40px",
+        }}
+      />
+
+      {/* Section index - left side */}
+      <motion.div
+        className="absolute left-8 md:left-16 top-1/2 -translate-y-1/2 hidden md:flex flex-col items-center gap-4"
+        initial={{ opacity: 0, x: -30 }}
+        animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: -30 }}
+        transition={{ duration: 0.6 }}
+      >
+        <span className="text-[11px] tracking-[0.3em] text-red-600/70 font-mono">
+          [{String(index + 1).padStart(2, "0")}]
+        </span>
+        <div className="w-[1px] h-20 bg-gradient-to-b from-red-600/30 to-transparent" />
+        <span className="text-[9px] tracking-[0.2em] text-white/20 font-mono rotate-90 origin-center whitespace-nowrap">
+          DOMAIN
+        </span>
+      </motion.div>
+
+      {/* Section counter - right side */}
+      <motion.div
+        className="absolute right-8 md:right-16 top-1/2 -translate-y-1/2 hidden md:block"
+        initial={{ opacity: 0, x: 30 }}
+        animate={isInView ? { opacity: 1, x: 0 } : { opacity: 0, x: 30 }}
+        transition={{ duration: 0.6, delay: 0.2 }}
+      >
+        <div className="text-right">
+          <span className="text-4xl font-bold font-[family-name:var(--font-heading)] text-white/10">
+            {String(index + 1).padStart(2, "0")}
+          </span>
+          <span className="text-lg text-white/5 font-[family-name:var(--font-heading)]">
+            /{String(total).padStart(2, "0")}
+          </span>
+        </div>
+      </motion.div>
+
+      {/* Center content */}
+      <div className="relative z-10 text-center max-w-3xl mx-auto px-6">
+        {/* Title */}
+        <motion.h2
+          className="text-5xl sm:text-6xl md:text-7xl lg:text-8xl font-bold font-[family-name:var(--font-heading)] mb-8 leading-[0.95] tracking-tight"
+          initial={{ opacity: 0, y: 60, scale: 1.05 }}
+          animate={
+            isInView
+              ? { opacity: 1, y: 0, scale: 1 }
+              : { opacity: 0, y: 60, scale: 1.05 }
+          }
+          transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
+        >
+          {domain.title.split(" ").map((word, wi) => (
+            <span key={wi}>
+              {wi === 0 ? (
+                <span className="text-white">{word}</span>
+              ) : (
+                <span className="text-white/40"> {word}</span>
+              )}
+            </span>
+          ))}
+        </motion.h2>
+
+        {/* Divider */}
+        <motion.div
+          className="w-16 h-[1px] bg-red-600/50 mx-auto mb-8"
+          initial={{ scaleX: 0 }}
+          animate={isInView ? { scaleX: 1 } : { scaleX: 0 }}
+          transition={{ duration: 0.6, delay: 0.3 }}
+        />
+
+        {/* Tools - glass pills */}
+        <motion.div
+          className="flex flex-wrap justify-center gap-3"
+          initial={{ opacity: 0, y: 20 }}
+          animate={
+            isInView
+              ? { opacity: 1, y: 0 }
+              : { opacity: 0, y: 20 }
+          }
+          transition={{ duration: 0.6, delay: 0.5 }}
+        >
+          {domain.tools.map((tool, ti) => (
+            <motion.span
+              key={tool}
+              className="px-4 py-2 rounded-full text-[11px] tracking-[0.15em] uppercase glass border-white/[0.06] text-white/50 hover:text-white hover:border-red-600/20 transition-all duration-300 cursor-default"
+              initial={{ opacity: 0, y: 10 }}
+              animate={
+                isInView
+                  ? { opacity: 1, y: 0 }
+                  : { opacity: 0, y: 10 }
+              }
+              transition={{ duration: 0.4, delay: 0.6 + ti * 0.08 }}
+            >
+              {tool}
+            </motion.span>
+          ))}
+        </motion.div>
+      </div>
+
+      {/* Bottom edge line */}
+      <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-white/[0.05] to-transparent" />
+    </div>
   );
 }

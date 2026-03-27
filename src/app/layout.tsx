@@ -16,14 +16,17 @@ const spaceGrotesk = Space_Grotesk({
 });
 
 export const metadata: Metadata = {
-  title: "Portfolio | Full-Stack Developer",
+  title: "SHAAN | Portfolio",
   description:
-    "Full-stack developer portfolio — projects, blog, and more. Built with Next.js & Supabase.",
+    "Full-stack developer portfolio — Web, Mobile, IoT, UAV & AI. Built with precision.",
   keywords: [
     "developer",
     "portfolio",
     "full-stack",
     "web development",
+    "IoT",
+    "UAV",
+    "AI",
     "Next.js",
   ],
 };
@@ -36,9 +39,12 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${inter.variable} ${spaceGrotesk.variable} h-full antialiased`}
+      className={`${inter.variable} ${spaceGrotesk.variable} antialiased`}
     >
-      <body className="min-h-full flex flex-col bg-background text-foreground font-sans">
+      <body
+        suppressHydrationWarning
+        className="min-h-full bg-background text-foreground font-sans"
+      >
         {children}
         <Toaster richColors position="bottom-right" />
       </body>

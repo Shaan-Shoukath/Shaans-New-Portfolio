@@ -46,3 +46,17 @@ export interface Blog {
   tags: string[];
   created_at: string;
 }
+
+export interface Experience {
+  id: string;
+  title: string;
+  company: string;
+  description: string | null;
+  type: "professional" | "social" | "education" | "freelance";
+  start_date: string;
+  end_date: string | null;
+  tags: string[];
+  published: boolean;
+  order_index: number;
+  created_at: string;
+}

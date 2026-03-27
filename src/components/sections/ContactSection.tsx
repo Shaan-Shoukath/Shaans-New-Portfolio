@@ -5,59 +5,11 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactFormData } from "@/lib/validators";
-import { SectionWrapper } from "@/components/shared/SectionWrapper";
-import { AnimatedHeading } from "@/components/shared/AnimatedHeading";
-import { GlassCard } from "@/components/shared/GlassCard";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
-import {
-  Send,
-  Mail,
-  MapPin,
-  Github,
-  Linkedin,
-  CheckCircle2,
-  Loader2,
-  ArrowUpRight,
-  Sparkles,
-} from "lucide-react";
-
-const contactInfo = [
-  {
-    icon: Mail,
-    label: "Email",
-    value: "hello@example.com",
-    href: "mailto:hello@example.com",
-    accent: "from-indigo-500 to-cyan-400",
-    accentColor: "text-indigo-400",
-  },
-  {
-    icon: MapPin,
-    label: "Location",
-    value: "Remote / Worldwide",
-    href: "#",
-    accent: "from-emerald-400 to-teal-500",
-    accentColor: "text-emerald-400",
-  },
-  {
-    icon: Github,
-    label: "GitHub",
-    value: "github.com/user",
-    href: "https://github.com",
-    accent: "from-violet-500 to-fuchsia-400",
-    accentColor: "text-violet-400",
-  },
-  {
-    icon: Linkedin,
-    label: "LinkedIn",
-    value: "linkedin.com/in/user",
-    href: "https://linkedin.com",
-    accent: "from-sky-400 to-blue-500",
-    accentColor: "text-sky-400",
-  },
-];
+import { Send, CheckCircle2, Loader2 } from "lucide-react";
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -82,64 +34,53 @@ export function ContactSection() {
   };
 
   return (
-    <SectionWrapper id="contact">
-      <AnimatedHeading subtitle="Let's build something amazing together">
-        Get In Touch
-      </AnimatedHeading>
+    <section id="contact" className="relative min-h-screen flex items-center justify-center py-32">
+      {/* Background */}
+      <div className="absolute inset-0 bg-[#050505]" />
+      <div className="absolute inset-0 bg-gradient-to-t from-red-950/[0.03] to-transparent" />
 
-      <div className="grid grid-cols-1 lg:grid-cols-5 gap-8">
-        {/* Contact Info */}
-        <div className="lg:col-span-2 space-y-4">
-          {contactInfo.map((item, i) => (
-            <motion.a
-              key={item.label}
-              href={item.href}
-              target={item.href.startsWith("http") ? "_blank" : undefined}
-              rel={
-                item.href.startsWith("http") ? "noopener noreferrer" : undefined
-              }
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              transition={{ duration: 0.5, delay: i * 0.1 }}
-              viewport={{ once: true }}
-              whileHover={{ x: 6 }}
-              className="group relative flex items-center gap-4 p-4 rounded-xl glass hover:bg-white/[0.08] transition-all overflow-hidden"
-            >
-              {/* Left edge accent */}
-              <div
-                className={`absolute left-0 top-0 bottom-0 w-[2px] bg-gradient-to-b ${item.accent} opacity-0 group-hover:opacity-100 transition-opacity duration-300`}
-              />
+      {/* Grid */}
+      <div
+        className="absolute inset-0 opacity-[0.015]"
+        style={{
+          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
+                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
+          backgroundSize: "100px 100px",
+        }}
+      />
 
-              <div
-                className="p-2.5 rounded-xl border border-white/10 group-hover:border-white/20 shrink-0 transition-all duration-300"
-                style={{
-                  background: `linear-gradient(135deg, rgba(255,255,255,0.06), rgba(255,255,255,0.02))`,
-                }}
-              >
-                <item.icon
-                  className={`w-5 h-5 ${item.accentColor} transition-transform duration-300 group-hover:scale-110`}
-                />
-              </div>
-              <div className="flex-1 min-w-0">
-                <p className="text-xs text-muted-foreground">{item.label}</p>
-                <p className="text-sm font-medium truncate">{item.value}</p>
-              </div>
-              <ArrowUpRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-all duration-300 group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </motion.a>
-          ))}
-        </div>
+      <div className="relative z-10 max-w-2xl mx-auto px-6 w-full">
+        {/* Header */}
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center mb-16"
+        >
+          <span className="text-[11px] tracking-[0.4em] text-red-600/60 uppercase font-mono block mb-4">
+            [CONTACT]
+          </span>
+          <h2 className="text-5xl md:text-7xl font-bold font-[family-name:var(--font-heading)] tracking-tight mb-4">
+            <span className="text-white">Let&apos;s Talk</span>
+          </h2>
+          <div className="w-12 h-[1px] bg-red-600/40 mx-auto mb-6" />
+          <p className="text-sm text-white/25 max-w-md mx-auto">
+            Have a project in mind? Let&apos;s build something remarkable together.
+          </p>
+        </motion.div>
 
-        {/* Contact Form */}
-        <GlassCard
+        {/* Form */}
+        <motion.div
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
           viewport={{ once: true }}
-          hover={false}
-          className="lg:col-span-3 relative overflow-hidden"
+          transition={{ duration: 0.6, delay: 0.2 }}
+          className="glass-card rounded-lg p-8 relative overflow-hidden"
         >
-          {/* Decorative corner glow */}
-          <div className="pointer-events-none absolute -top-20 -right-20 w-40 h-40 rounded-full bg-gradient-to-br from-indigo-500/10 to-violet-500/10 blur-3xl" />
+          {/* Corner accents */}
+          <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-red-600/20" />
+          <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-red-600/20" />
 
           {submitted ? (
             <motion.div
@@ -147,87 +88,92 @@ export function ContactSection() {
               animate={{ opacity: 1, scale: 1 }}
               className="flex flex-col items-center justify-center py-12 text-center"
             >
-              <div className="relative">
-                <CheckCircle2 className="w-16 h-16 text-emerald-400 mb-4" />
-                <Sparkles className="w-6 h-6 text-emerald-300 absolute -top-1 -right-1 animate-pulse" />
-              </div>
-              <h3 className="text-xl font-semibold mb-2">Message Sent!</h3>
-              <p className="text-muted-foreground">
-                Thank you for reaching out. I&apos;ll get back to you soon.
+              <CheckCircle2 className="w-12 h-12 text-red-500/70 mb-4" />
+              <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)] text-white mb-2">
+                Message Sent
+              </h3>
+              <p className="text-sm text-white/30">
+                Thank you. I&apos;ll respond soon.
               </p>
             </motion.div>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-5">
+            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div className="space-y-2">
-                  <Label htmlFor="name" className="text-sm text-white/80">
+                  <Label htmlFor="contact-name" className="text-[11px] tracking-[0.2em] text-white/40 uppercase">
                     Name
                   </Label>
                   <Input
-                    id="name"
+                    id="contact-name"
                     placeholder="Your name"
-                    className="bg-white/5 border-white/10 focus:border-indigo-500/50 focus:bg-white/[0.07] transition-all"
+                    className="bg-white/[0.03] border-white/[0.06] focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
                     {...register("name")}
                   />
                   {errors.name && (
-                    <p className="text-xs text-red-400">{errors.name.message}</p>
+                    <p className="text-xs text-red-500/70">{errors.name.message}</p>
                   )}
                 </div>
                 <div className="space-y-2">
-                  <Label htmlFor="email" className="text-sm text-white/80">
+                  <Label htmlFor="contact-email" className="text-[11px] tracking-[0.2em] text-white/40 uppercase">
                     Email
                   </Label>
                   <Input
-                    id="email"
+                    id="contact-email"
                     type="email"
                     placeholder="your@email.com"
-                    className="bg-white/5 border-white/10 focus:border-indigo-500/50 focus:bg-white/[0.07] transition-all"
+                    className="bg-white/[0.03] border-white/[0.06] focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
                     {...register("email")}
                   />
                   {errors.email && (
-                    <p className="text-xs text-red-400">
-                      {errors.email.message}
-                    </p>
+                    <p className="text-xs text-red-500/70">{errors.email.message}</p>
                   )}
                 </div>
               </div>
               <div className="space-y-2">
-                <Label htmlFor="message" className="text-sm text-white/80">
+                <Label htmlFor="contact-message" className="text-[11px] tracking-[0.2em] text-white/40 uppercase">
                   Message
                 </Label>
                 <Textarea
-                  id="message"
+                  id="contact-message"
                   placeholder="Tell me about your project..."
                   rows={5}
-                  className="bg-white/5 border-white/10 focus:border-indigo-500/50 focus:bg-white/[0.07] resize-none transition-all"
+                  className="bg-white/[0.03] border-white/[0.06] focus:border-red-600/30 text-white placeholder:text-white/15 resize-none rounded transition-all"
                   {...register("message")}
                 />
                 {errors.message && (
-                  <p className="text-xs text-red-400">
-                    {errors.message.message}
-                  </p>
+                  <p className="text-xs text-red-500/70">{errors.message.message}</p>
                 )}
               </div>
               <Button
                 type="submit"
                 disabled={sending}
-                className="w-full relative overflow-hidden bg-gradient-to-r from-indigo-500 to-violet-500 hover:shadow-lg hover:shadow-indigo-500/25 transition-all duration-300 group"
+                className="w-full bg-white/[0.06] hover:bg-red-600/20 border border-white/[0.08] hover:border-red-600/30 text-white transition-all duration-300 rounded cursor-pointer"
               >
-                {/* Shine sweep on hover */}
-                <div className="absolute inset-0 -translate-x-full group-hover:translate-x-full transition-transform duration-700 bg-gradient-to-r from-transparent via-white/15 to-transparent" />
                 {sending ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin relative z-10" />
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
                 ) : (
-                  <Send className="w-4 h-4 mr-2 relative z-10" />
+                  <Send className="w-4 h-4 mr-2" />
                 )}
-                <span className="relative z-10">
-                  {sending ? "Sending..." : "Send Message"}
-                </span>
+                {sending ? "Sending..." : "Send Message"}
               </Button>
             </form>
           )}
-        </GlassCard>
+        </motion.div>
+
+        {/* Footer line */}
+        <motion.div
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.5 }}
+          className="text-center mt-16"
+        >
+          <div className="w-16 h-[1px] bg-white/[0.06] mx-auto mb-4" />
+          <p className="text-[9px] tracking-[0.3em] text-white/15 uppercase font-mono">
+            © {new Date().getFullYear()} — Built with precision
+          </p>
+        </motion.div>
       </div>
-    </SectionWrapper>
+    </section>
   );
 }

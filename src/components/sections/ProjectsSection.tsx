@@ -1,25 +1,13 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion } from "framer-motion";
+import { useEffect, useState, useRef } from "react";
+import { motion, useInView } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import type { Project } from "@/lib/types";
-import { SectionWrapper } from "@/components/shared/SectionWrapper";
-import { AnimatedHeading } from "@/components/shared/AnimatedHeading";
-import { GlassCard } from "@/components/shared/GlassCard";
-import { SkeletonCard } from "@/components/shared/SkeletonCard";
-import { Badge } from "@/components/ui/badge";
-import {
-  Github,
-  ExternalLink,
-  Star,
-  ArrowUpRight,
-  Folder,
-} from "lucide-react";
+import { Github, ExternalLink, ArrowUpRight } from "lucide-react";
 
 export function ProjectsSection() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [loading, setLoading] = useState(true);
   const supabase = createClient();
 
   useEffect(() => {
@@ -30,130 +18,182 @@ export function ProjectsSection() {
         .eq("published", true)
         .order("created_at", { ascending: false });
       if (data) setProjects(data);
-      setLoading(false);
     }
     fetchProjects();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return (
-    <SectionWrapper id="projects">
-      <AnimatedHeading subtitle="A selection of projects I've built and contributed to">
-        Featured Projects
-      </AnimatedHeading>
+    <section id="projects" className="relative py-32 min-h-screen">
+      {/* Background */}
+      <div className="absolute inset-0 bg-[#050505]" />
 
-      {loading ? (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {[...Array(6)].map((_, i) => (
-            <SkeletonCard key={i} />
-          ))}
-        </div>
-      ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+      {/* Section header */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6 mb-20">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.8 }}
+          className="text-center"
+        >
+          <span className="text-[11px] tracking-[0.4em] text-red-600/60 uppercase font-mono block mb-4">
+            [PROJECTS]
+          </span>
+          <h2 className="text-5xl md:text-7xl font-bold font-[family-name:var(--font-heading)] tracking-tight mb-4">
+            <span className="text-white">Work</span>
+          </h2>
+          <div className="w-12 h-[1px] bg-red-600/40 mx-auto" />
+        </motion.div>
+      </div>
+
+      {/* Projects grid */}
+      <div className="relative z-10 max-w-6xl mx-auto px-6">
+        {/* Connecting line */}
+        <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-white/[0.04] to-transparent hidden lg:block" />
+
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {projects.map((project, i) => (
-            <GlassCard
-              key={project.id}
-              initial={{ opacity: 0, y: 40, scale: 0.96 }}
-              whileInView={{ opacity: 1, y: 0, scale: 1 }}
-              transition={{ duration: 0.5, delay: i * 0.08 }}
-              viewport={{ once: true }}
-              whileHover={{ y: -6 }}
-              className="group relative overflow-hidden"
-            >
-              {/* Featured badge */}
-              {project.featured && (
-                <div className="absolute top-4 right-4 z-10">
-                  <div className="flex items-center gap-1 px-2.5 py-1 rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 text-amber-300 text-xs backdrop-blur-sm">
-                    <Star className="w-3 h-3 fill-amber-300" />
-                    Featured
-                  </div>
-                </div>
-              )}
-
-              {/* Project Image */}
-              {project.image_url ? (
-                <div className="relative h-48 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-xl">
-                  <img
-                    src={project.image_url}
-                    alt={project.title}
-                    className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
-                  />
-                  <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/40 to-transparent" />
-                  {/* Hover overlay with icon */}
-                  <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                    <div className="p-3 rounded-full bg-white/10 backdrop-blur-sm border border-white/20">
-                      <ArrowUpRight className="w-6 h-6 text-white" />
-                    </div>
-                  </div>
-                </div>
-              ) : (
-                <div className="h-32 -mx-6 -mt-6 mb-4 rounded-t-xl bg-gradient-to-br from-indigo-500/10 to-violet-500/10 flex items-center justify-center">
-                  <Folder className="w-12 h-12 text-indigo-400/40" />
-                </div>
-              )}
-
-              {/* Content */}
-              <div className="space-y-3">
-                <h3 className="text-xl font-semibold font-[family-name:var(--font-heading)] group-hover:text-white transition-colors duration-300">
-                  {project.title}
-                </h3>
-                <p className="text-sm text-muted-foreground line-clamp-3 leading-relaxed">
-                  {project.description}
-                </p>
-
-                {/* Tech Stack */}
-                <div className="flex flex-wrap gap-1.5 pt-1">
-                  {project.tech_stack.map((tech) => (
-                    <Badge
-                      key={tech}
-                      variant="secondary"
-                      className="bg-indigo-500/[0.08] text-indigo-300/90 border-indigo-500/15 text-xs hover:bg-indigo-500/15 transition-colors"
-                    >
-                      {tech}
-                    </Badge>
-                  ))}
-                </div>
-
-                {/* Links */}
-                <div className="flex items-center gap-3 pt-3 border-t border-white/[0.06]">
-                  {project.github_url && (
-                    <a
-                      href={project.github_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-sm text-muted-foreground hover:text-white transition-colors duration-200"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      <Github className="w-4 h-4" />
-                      Code
-                    </a>
-                  )}
-                  {project.live_url && (
-                    <a
-                      href={project.live_url}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex items-center gap-1.5 text-sm text-indigo-400 hover:text-indigo-300 transition-colors duration-200 ml-auto group/link"
-                      onClick={(e) => e.stopPropagation()}
-                    >
-                      Live Demo
-                      <ArrowUpRight className="w-4 h-4 transition-transform group-hover/link:translate-x-0.5 group-hover/link:-translate-y-0.5" />
-                    </a>
-                  )}
-                </div>
-              </div>
-            </GlassCard>
+            <ProjectCard key={project.id} project={project} index={i} />
           ))}
         </div>
-      )}
 
-      {!loading && projects.length === 0 && (
-        <div className="text-center py-20">
-          <Folder className="w-12 h-12 text-muted-foreground/30 mx-auto mb-4" />
-          <p className="text-muted-foreground">
-            No projects yet. Add some in the admin dashboard!
-          </p>
+        {projects.length === 0 && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            viewport={{ once: true }}
+            className="text-center py-20"
+          >
+            <p className="text-white/20 text-sm">
+              Projects will appear here. Add them from the admin panel.
+            </p>
+          </motion.div>
+        )}
+      </div>
+    </section>
+  );
+}
+
+function ProjectCard({
+  project,
+  index,
+}: {
+  project: Project;
+  index: number;
+}) {
+  const ref = useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { once: true, amount: 0.2 });
+
+  return (
+    <motion.div
+      ref={ref}
+      className="group relative"
+      initial={{ opacity: 0, y: 50 }}
+      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
+      transition={{ duration: 0.7, delay: index * 0.1 }}
+    >
+      {/* Glass card */}
+      <div className="glass-card rounded-lg overflow-hidden p-0 cursor-pointer">
+        {/* Image */}
+        {project.image_url ? (
+          <div className="relative h-52 overflow-hidden">
+            <img
+              src={project.image_url}
+              alt={project.title}
+              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
+            />
+            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
+            
+            {/* Hover overlay */}
+            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+              <div className="p-3 rounded-full glass border-white/10">
+                <ArrowUpRight className="w-5 h-5 text-white" />
+              </div>
+            </div>
+
+            {/* Index */}
+            <div className="absolute top-4 left-4 text-[9px] tracking-[0.3em] text-white/30 font-mono">
+              [{String(index + 1).padStart(2, "0")}]
+            </div>
+
+            {/* Featured badge */}
+            {project.featured && (
+              <div className="absolute top-4 right-4">
+                <span className="text-[9px] tracking-[0.2em] text-red-500/70 uppercase font-mono">
+                  ★ FEATURED
+                </span>
+              </div>
+            )}
+          </div>
+        ) : (
+          <div className="h-40 bg-gradient-to-br from-white/[0.02] to-transparent flex items-center justify-center">
+            <span className="text-white/10 text-5xl font-bold font-[family-name:var(--font-heading)]">
+              {String(index + 1).padStart(2, "0")}
+            </span>
+          </div>
+        )}
+
+        {/* Content */}
+        <div className="p-6 space-y-4">
+          <h3 className="text-lg font-bold font-[family-name:var(--font-heading)] text-white group-hover:text-white/90 transition-colors tracking-tight">
+            {project.title}
+          </h3>
+
+          {project.description && (
+            <p className="text-sm text-white/25 line-clamp-2 leading-relaxed">
+              {project.description}
+            </p>
+          )}
+
+          {/* Tech stack */}
+          <div className="flex flex-wrap gap-2">
+            {project.tech_stack.map((tech) => (
+              <span
+                key={tech}
+                className="text-[9px] tracking-[0.15em] uppercase text-white/20 px-2 py-1 rounded border border-white/[0.04]"
+              >
+                {tech}
+              </span>
+            ))}
+          </div>
+
+          {/* Links */}
+          <div className="flex items-center gap-4 pt-2 border-t border-white/[0.04]">
+            {project.github_url && (
+              <a
+                href={project.github_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-[11px] text-white/30 hover:text-white transition-colors"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <Github className="w-3.5 h-3.5" />
+                <span>Source</span>
+              </a>
+            )}
+            {project.live_url && (
+              <a
+                href={project.live_url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center gap-1.5 text-[11px] text-red-500/70 hover:text-red-400 transition-colors ml-auto"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <span>Live</span>
+                <ExternalLink className="w-3.5 h-3.5" />
+              </a>
+            )}
+          </div>
         </div>
-      )}
-    </SectionWrapper>
+      </div>
+
+      {/* Connecting line from card to center */}
+      <div className="absolute top-1/2 -translate-y-1/2 w-8 h-[1px] bg-white/[0.04] hidden lg:block"
+        style={{
+          [index % 2 === 0 ? 'right' : 'left']: '-2rem',
+        }}
+      />
+    </motion.div>
   );
 }

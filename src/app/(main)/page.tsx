@@ -1,6 +1,10 @@
 "use client";
 
+import { useState, useCallback } from "react";
 import dynamic from "next/dynamic";
+import { CinematicLoader } from "@/components/loader/CinematicLoader";
+import { ScrollEngine } from "@/components/cinema/ScrollEngine";
+import { VerticalLockSection } from "@/components/cinema/VerticalLockSection";
 
 const HeroSection = dynamic(
   () =>
@@ -9,6 +13,7 @@ const HeroSection = dynamic(
     })),
   { ssr: false }
 );
+
 const DomainsSection = dynamic(
   () =>
     import("@/components/sections/DomainsSection").then((mod) => ({
@@ -16,6 +21,15 @@ const DomainsSection = dynamic(
     })),
   { ssr: false }
 );
+
+const ExperienceSection = dynamic(
+  () =>
+    import("@/components/sections/ExperienceSection").then((mod) => ({
+      default: mod.ExperienceSection,
+    })),
+  { ssr: false }
+);
+
 const ProjectsSection = dynamic(
   () =>
     import("@/components/sections/ProjectsSection").then((mod) => ({
@@ -23,6 +37,7 @@ const ProjectsSection = dynamic(
     })),
   { ssr: false }
 );
+
 const ContactSection = dynamic(
   () =>
     import("@/components/sections/ContactSection").then((mod) => ({
@@ -32,12 +47,38 @@ const ContactSection = dynamic(
 );
 
 export default function HomePage() {
+  const [loaderDone, setLoaderDone] = useState(false);
+
+  const handleLoaderComplete = useCallback(() => {
+    setLoaderDone(true);
+  }, []);
+
   return (
     <>
-      <HeroSection />
-      <DomainsSection />
-      <ProjectsSection />
-      <ContactSection />
+      {!loaderDone && <CinematicLoader onComplete={handleLoaderComplete} />}
+
+      {loaderDone && (
+        <ScrollEngine>
+          {/* Section 1: Hero */}
+          <section id="hero">
+            <HeroSection />
+          </section>
+
+          {/* Section 2: Domains - Vertical Lock (5 fullscreen panels) */}
+          <VerticalLockSection id="domains" panelCount={5}>
+            <DomainsSection />
+          </VerticalLockSection>
+
+          {/* Section 3: Experience - Vertical Story */}
+          <ExperienceSection />
+
+          {/* Section 4: Projects */}
+          <ProjectsSection />
+
+          {/* Section 5: Contact */}
+          <ContactSection />
+        </ScrollEngine>
+      )}
     </>
   );
 }
