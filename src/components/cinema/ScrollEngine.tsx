@@ -40,7 +40,8 @@ export function ScrollEngine({ children }: ScrollEngineProps) {
       lenis.destroy();
       gsap.ticker.remove(ticker);
       window.cancelAnimationFrame(refreshId);
-      ScrollTrigger.getAll().forEach((trigger) => trigger.kill());
+      // Individual section components clean up their own ScrollTriggers
+      // via gsap.context().revert(). Do NOT kill all triggers globally here.
     };
   }, []);
 

@@ -40,6 +40,7 @@ export const blogSchema = z.object({
   tags: z.array(z.string()).default([]),
 });
 
+
 export const loginSchema = z.object({
   email: z.string().email("Valid email is required"),
   password: z.string().min(6, "Password must be at least 6 characters"),
@@ -51,9 +52,17 @@ export const contactSchema = z.object({
   message: z.string().min(10, "Message must be at least 10 characters"),
 });
 
+export const heroImageSchema = z.object({
+  image_url: z.string().url("Must be a valid URL").min(1, "Image URL is required"),
+  alt_text: z.string().default(""),
+  order_index: z.number().int().default(0),
+  active: z.boolean().default(true),
+});
+
 export type AboutFormData = z.infer<typeof aboutSchema>;
 export type DomainFormData = z.infer<typeof domainSchema>;
 export type ProjectFormData = z.infer<typeof projectSchema>;
 export type BlogFormData = z.infer<typeof blogSchema>;
 export type LoginFormData = z.infer<typeof loginSchema>;
 export type ContactFormData = z.infer<typeof contactSchema>;
+export type HeroImageFormData = z.infer<typeof heroImageSchema>;

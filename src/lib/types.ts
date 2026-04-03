@@ -55,11 +55,21 @@ export interface Experience {
   title: string;
   company: string;
   description: string | null;
+  image_url: string | null;
   type: "professional" | "social" | "education" | "freelance";
   start_date: string;
   end_date: string | null;
   tags: string[];
   published: boolean;
   order_index: number;
+  created_at: string;
+}
+
+export interface HeroImage {
+  id: string;
+  image_url: string;
+  alt_text: string;
+  order_index: number;
+  active: boolean;
   created_at: string;
 }

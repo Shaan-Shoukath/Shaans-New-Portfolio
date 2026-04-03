@@ -1,40 +1,28 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { motion, useMotionValue, useSpring, useTransform } from "framer-motion";
+import { useEffect, useState, useCallback } from "react";
+import { motion } from "framer-motion";
 
-const loaderRadius = 128;
-const loaderCircumference = 2 * Math.PI * loaderRadius;
-
-export function CinematicLoader({ onComplete }: { onComplete: () => void }) {
+export function CinematicLoader({
+  onComplete,
+}: {
+  onComplete: () => void;
+}) {
   const [progress, setProgress] = useState(0);
-  const [isExiting, setIsExiting] = useState(false);
-  const pointerX = useMotionValue(0);
-  const pointerY = useMotionValue(0);
-  const ringX = useSpring(pointerX, {
-    stiffness: 85,
-    damping: 18,
-    mass: 0.7,
-  });
-  const ringY = useSpring(pointerY, {
-    stiffness: 85,
-    damping: 18,
-    mass: 0.7,
-  });
-  const haloX = useTransform(ringX, (value) => value * 1.55);
-  const haloY = useTransform(ringY, (value) => value * 1.25);
+  const [phase, setPhase] = useState<"loading" | "expanding" | "done">(
+    "loading"
+  );
+
+  const stableOnComplete = useCallback(onComplete, [onComplete]);
 
   useEffect(() => {
     let frameId = 0;
-    let exitTimeout = 0;
-    let completeTimeout = 0;
     const start = performance.now();
-    const duration = 2400;
+    const duration = 2600;
 
     const tick = (timestamp: number) => {
       const elapsed = Math.min((timestamp - start) / duration, 1);
       const eased = 1 - Math.pow(1 - elapsed, 3);
-
       setProgress(Math.round(eased * 100));
 
       if (elapsed < 1) {
@@ -42,120 +30,73 @@ export function CinematicLoader({ onComplete }: { onComplete: () => void }) {
         return;
       }
 
-      exitTimeout = window.setTimeout(() => setIsExiting(true), 120);
-      completeTimeout = window.setTimeout(onComplete, 760);
+      setTimeout(() => setPhase("expanding"), 150);
+      setTimeout(() => {
+        setPhase("done");
+        stableOnComplete();
+      }, 950);
     };
 
     frameId = window.requestAnimationFrame(tick);
+    return () => window.cancelAnimationFrame(frameId);
+  }, [stableOnComplete]);
 
-    return () => {
-      window.cancelAnimationFrame(frameId);
-      window.clearTimeout(exitTimeout);
-      window.clearTimeout(completeTimeout);
-    };
-  }, [onComplete]);
+  const isExpanding = phase === "expanding";
+  const isDone = phase === "done";
 
-  useEffect(() => {
-    const prefersReducedMotion = window.matchMedia(
-      "(prefers-reduced-motion: reduce)"
-    ).matches;
-    const allowsFinePointer = window.matchMedia("(pointer: fine)").matches;
-
-    if (prefersReducedMotion || !allowsFinePointer) {
-      return;
-    }
-
-    const handlePointerMove = (event: PointerEvent) => {
-      pointerX.set(((event.clientX / window.innerWidth) - 0.5) * 28);
-      pointerY.set(((event.clientY / window.innerHeight) - 0.5) * 24);
-    };
-
-    const resetPointer = () => {
-      pointerX.set(0);
-      pointerY.set(0);
-    };
-
-    window.addEventListener("pointermove", handlePointerMove);
-    window.addEventListener("pointerleave", resetPointer);
-
-    return () => {
-      window.removeEventListener("pointermove", handlePointerMove);
-      window.removeEventListener("pointerleave", resetPointer);
-    };
-  }, [pointerX, pointerY]);
+  if (isDone) return null;
 
   return (
     <motion.div
       className="loader-stage"
       initial={{ opacity: 1 }}
-      animate={
-        isExiting
-          ? { opacity: 0, scale: 1.02, filter: "blur(3px)" }
-          : { opacity: 1, scale: 1, filter: "blur(0px)" }
-      }
-      transition={{ duration: 0.64, ease: [0.22, 1, 0.36, 1] }}
+      animate={isExpanding ? { opacity: 0 } : { opacity: 1 }}
+      transition={{ duration: 0.8, ease: [0.22, 1, 0.36, 1] }}
     >
-      <div className="film-grain" />
-
-      <motion.div className="loader-stage__halo" style={{ x: haloX, y: haloY }} />
-
-      <div className="loader-stage__brand">SHAAN SHOUKATH</div>
-
+      {/* Brand name */}
       <motion.div
-        className="loader-stage__ring-system"
-        style={{ x: ringX, y: ringY }}
+        className="loader-ring-brand"
+        initial={{ opacity: 0, y: -10 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.8 }}
       >
-        <div className="loader-stage__ring-copy">
-          <span>PORTFOLIO LOADING</span>
-          <span>[MOTION / SYSTEMS / INTERFACE]</span>
-        </div>
-
-        <div className="loader-stage__ring-shell">
-          {Array.from({ length: 18 }).map((_, index) => (
-            <span
-              key={`loader-tick-${index}`}
-              className="loader-stage__tick"
-              style={{ transform: `rotate(${index * 20}deg)` }}
-            />
-          ))}
-
-          <svg viewBox="0 0 320 320" className="loader-stage__svg" aria-hidden="true">
-            <circle
-              className="loader-stage__track"
-              cx="160"
-              cy="160"
-              r={loaderRadius}
-            />
-            <circle
-              className="loader-stage__fill"
-              cx="160"
-              cy="160"
-              r={loaderRadius}
-              strokeDasharray={loaderCircumference}
-              strokeDashoffset={
-                loaderCircumference - (progress / 100) * loaderCircumference
-              }
-            />
-            <circle
-              className="loader-stage__inner-ring"
-              cx="160"
-              cy="160"
-              r="102"
-            />
-          </svg>
-
-          <div className="loader-stage__core">
-            <span className="loader-stage__progress">
-              [{String(progress).padStart(2, "0")}%]
-            </span>
-            <span className="loader-stage__label">ENTERING THE SITE</span>
-          </div>
-        </div>
+        SHAAN SHOUKATH
       </motion.div>
 
-      <div className="loader-stage__footer">
-        A cinematic portfolio with a single coordinated scroll flow.
-      </div>
+      {/* Character GIF + progress */}
+      <motion.div
+        className="loader-character-area"
+        initial={{ opacity: 0, scale: 0.92 }}
+        animate={{
+          opacity: isExpanding ? 0 : 1,
+          scale: isExpanding ? 1.06 : 1,
+        }}
+        transition={{ duration: 0.5 }}
+      >
+        {/* shaan.gif */}
+        <img
+          src="/shaan.gif"
+          alt="Shaan"
+          className="loader-character-gif"
+          loading="eager"
+        />
+
+        {/* White progress bar */}
+        <div className="loader-progress-bar-outer">
+          <div
+            className="loader-progress-bar-inner"
+            style={{ width: `${progress}%` }}
+          />
+        </div>
+
+        {/* Counter + label */}
+        <div className="loader-counter-row">
+          <span className="loader-ring-progress">
+            {String(progress).padStart(2, "0")}
+          </span>
+          <span className="loader-ring-label">LOADING</span>
+        </div>
+      </motion.div>
     </motion.div>
   );
 }

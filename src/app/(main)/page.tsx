@@ -13,10 +13,10 @@ const HeroDomainsSequence = dynamic(
   { ssr: false }
 );
 
-const ExperienceSection = dynamic(
+const JourneySection = dynamic(
   () =>
-    import("@/components/sections/ExperienceSection").then((mod) => ({
-      default: mod.ExperienceSection,
+    import("@/components/sections/JourneySection").then((mod) => ({
+      default: mod.JourneySection,
     })),
   { ssr: false }
 );
@@ -51,7 +51,7 @@ export default function HomePage() {
       {loaderDone && (
         <ScrollEngine>
           <HeroDomainsSequence />
-          <ExperienceSection />
+          <JourneySection />
           <ProjectsSection />
           <ContactSection />
         </ScrollEngine>
@@ -59,3 +59,4 @@ export default function HomePage() {
     </>
   );
 }
+

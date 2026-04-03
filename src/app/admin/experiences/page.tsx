@@ -41,6 +41,7 @@ type FormData = {
   title: string;
   company: string;
   description: string;
+  image_url: string;
   type: "professional" | "social" | "education" | "freelance";
   start_date: string;
   end_date: string;
@@ -53,6 +54,7 @@ const emptyForm: FormData = {
   title: "",
   company: "",
   description: "",
+  image_url: "",
   type: "professional",
   start_date: "",
   end_date: "",
@@ -95,6 +97,7 @@ export default function AdminExperiencesPage() {
       title: exp.title,
       company: exp.company,
       description: exp.description || "",
+      image_url: exp.image_url || "",
       type: exp.type,
       start_date: exp.start_date,
       end_date: exp.end_date || "",
@@ -117,6 +120,7 @@ export default function AdminExperiencesPage() {
       title: form.title,
       company: form.company,
       description: form.description || null,
+      image_url: form.image_url || null,
       type: form.type,
       start_date: form.start_date,
       end_date: form.end_date || null,
@@ -184,7 +188,7 @@ export default function AdminExperiencesPage() {
       {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h2 className="text-2xl font-bold font-[family-name:var(--font-heading)]">
+          <h2 className="text-2xl font-bold font-heading">
             Experiences
           </h2>
           <p className="text-sm text-muted-foreground">
@@ -207,7 +211,7 @@ export default function AdminExperiencesPage() {
       {showForm && (
         <GlassCard hover={false} className="relative">
           <div className="flex items-center justify-between mb-6">
-            <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)]">
+            <h3 className="text-lg font-semibold font-heading">
               {editingId ? "Edit Experience" : "New Experience"}
             </h3>
             <button onClick={resetForm} className="p-1 hover:bg-white/5 rounded cursor-pointer">
@@ -222,7 +226,7 @@ export default function AdminExperiencesPage() {
                 value={form.title}
                 onChange={(e) => setForm({ ...form, title: e.target.value })}
                 placeholder="e.g. Senior Developer"
-                className="bg-white/[0.03] border-white/[0.06]"
+                className="bg-white/3 border-white/6"
               />
             </div>
             <div className="space-y-2">
@@ -231,7 +235,7 @@ export default function AdminExperiencesPage() {
                 value={form.company}
                 onChange={(e) => setForm({ ...form, company: e.target.value })}
                 placeholder="e.g. TechCorp"
-                className="bg-white/[0.03] border-white/[0.06]"
+                className="bg-white/3 border-white/6"
               />
             </div>
             <div className="space-y-2">
@@ -244,7 +248,7 @@ export default function AdminExperiencesPage() {
                     type: e.target.value as FormData["type"],
                   })
                 }
-                className="w-full px-3 py-2 rounded-md bg-white/[0.03] border border-white/[0.06] text-foreground text-sm cursor-pointer"
+                className="w-full px-3 py-2 rounded-md bg-white/3 border border-white/6 text-foreground text-sm cursor-pointer"
               >
                 <option value="professional">Professional</option>
                 <option value="social">Social</option>
@@ -260,7 +264,7 @@ export default function AdminExperiencesPage() {
                 onChange={(e) =>
                   setForm({ ...form, order_index: parseInt(e.target.value) || 0 })
                 }
-                className="bg-white/[0.03] border-white/[0.06]"
+                className="bg-white/3 border-white/6"
               />
             </div>
             <div className="space-y-2">
@@ -271,7 +275,7 @@ export default function AdminExperiencesPage() {
                   setForm({ ...form, start_date: e.target.value })
                 }
                 placeholder="e.g. Jan 2023"
-                className="bg-white/[0.03] border-white/[0.06]"
+                className="bg-white/3 border-white/6"
               />
             </div>
             <div className="space-y-2">
@@ -282,7 +286,7 @@ export default function AdminExperiencesPage() {
                   setForm({ ...form, end_date: e.target.value })
                 }
                 placeholder="Leave empty for 'Present'"
-                className="bg-white/[0.03] border-white/[0.06]"
+                className="bg-white/3 border-white/6"
               />
             </div>
           </div>
@@ -296,8 +300,23 @@ export default function AdminExperiencesPage() {
               }
               placeholder="Brief description of role and impact..."
               rows={3}
-              className="bg-white/[0.03] border-white/[0.06] resize-none"
+              className="bg-white/3 border-white/6 resize-none"
             />
+          </div>
+
+          <div className="space-y-2 mt-4">
+            <Label className="text-xs text-white/50 uppercase tracking-wider">Image URL</Label>
+            <Input
+              value={form.image_url}
+              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
+              placeholder="https://... (photo for journey section)"
+              className="bg-white/3 border-white/6"
+            />
+            {form.image_url && (
+              <div className="mt-2 w-24 h-16 rounded overflow-hidden border border-white/10">
+                <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
+              </div>
+            )}
           </div>
 
           <div className="space-y-2 mt-4">
@@ -306,7 +325,7 @@ export default function AdminExperiencesPage() {
               value={form.tags}
               onChange={(e) => setForm({ ...form, tags: e.target.value })}
               placeholder="e.g. React, Node.js, Leadership"
-              className="bg-white/[0.03] border-white/[0.06]"
+              className="bg-white/3 border-white/6"
             />
           </div>
 
@@ -350,15 +369,21 @@ export default function AdminExperiencesPage() {
 
           return (
             <GlassCard key={exp.id} hover={false} className="flex items-start gap-4">
-              {/* Type icon */}
-              <div className={`p-2 rounded-lg border ${colorClass} shrink-0`}>
-                <TypeIcon className="w-4 h-4" />
-              </div>
+              {/* Image thumbnail or type icon */}
+              {exp.image_url ? (
+                <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 shrink-0">
+                  <img src={exp.image_url} alt={exp.title} className="w-full h-full object-cover" />
+                </div>
+              ) : (
+                <div className={`p-2 rounded-lg border ${colorClass} shrink-0`}>
+                  <TypeIcon className="w-4 h-4" />
+                </div>
+              )}
 
               {/* Content */}
               <div className="flex-1 min-w-0">
                 <div className="flex items-center gap-2 mb-1">
-                  <h4 className="font-semibold font-[family-name:var(--font-heading)] text-sm truncate">
+                  <h4 className="font-semibold font-heading text-sm truncate">
                     {exp.title}
                   </h4>
                   {!exp.published && (

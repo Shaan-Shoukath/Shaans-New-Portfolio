@@ -23,7 +23,7 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "SHAAN | Portfolio",
+  title: "Shaan Shoukath",
   description:
     "Full-stack developer portfolio — Web, Mobile, IoT, UAV & AI. Built with precision.",
   keywords: [

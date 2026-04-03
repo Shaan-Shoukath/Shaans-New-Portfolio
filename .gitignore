@@ -60,3 +60,7 @@ next-env.d.ts
 Thumbs.db
 Desktop.ini
 ._*
+
+# Local artifacts
+build_output.txt
+references/

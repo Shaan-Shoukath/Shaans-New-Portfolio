@@ -11,7 +11,7 @@ gsap.registerPlugin(ScrollTrigger);
 
 export function HeroSection() {
   const [about, setAbout] = useState<About | null>(null);
-  const supabase = createClient();
+  const supabase = useRef(createClient()).current;
   const sectionRef = useRef<HTMLDivElement>(null);
   const taglineRef = useRef<HTMLDivElement>(null);
   const portraitRef = useRef<HTMLDivElement>(null);
@@ -91,7 +91,7 @@ export function HeroSection() {
       />
 
       {/* Subtle ambient glow */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/[0.03] rounded-full blur-[180px] pointer-events-none" />
+      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-red-600/3 rounded-full blur-[180px] pointer-events-none" />
 
       {/* Corner HUD markers */}
       <motion.div
@@ -136,19 +136,19 @@ export function HeroSection() {
           />
         ) : (
           /* Stylized placeholder when no image */
-          <div className="w-full h-full bg-gradient-to-b from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center relative overflow-hidden">
+          <div className="w-full h-full bg-linear-to-b from-[#1a1a1a] to-[#0a0a0a] flex items-center justify-center relative overflow-hidden">
             {/* Geometric pattern */}
             <div className="absolute inset-0 opacity-[0.06]"
               style={{
-                backgroundImage: `radial-gradient(rgba(220, 38, 38, 0.5) 1px, transparent 1px)`,
+                backgroundImage: `radial-gradient(rgba(220, 220, 220, 0.5) 1px, transparent 1px)`,
                 backgroundSize: "20px 20px",
               }}
             />
-            <span className="text-7xl font-bold font-[family-name:var(--font-heading)] text-white/[0.06]">
+            <span className="text-7xl font-bold font-heading text-white/10">
               S
             </span>
-            {/* Red accent line */}
-            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-gradient-to-r from-transparent via-red-600/40 to-transparent" />
+            {/* Accent line */}
+            <div className="absolute bottom-0 left-0 right-0 h-[2px] bg-linear-to-r from-transparent via-white/20 to-transparent" />
           </div>
         )}
       </motion.div>
@@ -165,7 +165,7 @@ export function HeroSection() {
 
       {/* Bottom tagline — reveals on scroll */}
       <div ref={taglineRef} className="hero-dulcedo__tagline">
-        <h2 className="font-[family-name:var(--font-heading)]">
+        <h2 className="font-heading">
           {tagline}
         </h2>
       </div>
@@ -178,7 +178,7 @@ export function HeroSection() {
         transition={{ delay: 1.5 }}
       >
         <motion.div
-          className="w-[1px] h-8 bg-gradient-to-b from-white/0 via-white/20 to-white/0"
+          className="w-px h-8 bg-linear-to-b from-white/0 via-white/20 to-white/0"
           animate={{ y: [0, 8, 0] }}
           transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
         />

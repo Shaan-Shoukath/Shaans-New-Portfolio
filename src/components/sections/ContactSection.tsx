@@ -37,7 +37,7 @@ export function ContactSection() {
     <section id="contact" className="relative min-h-screen flex items-center justify-center py-32">
       {/* Background */}
       <div className="absolute inset-0 bg-[#050505]" />
-      <div className="absolute inset-0 bg-gradient-to-t from-red-950/[0.03] to-transparent" />
+      <div className="absolute inset-0 bg-linear-to-t from-red-950/3 to-transparent" />
 
       {/* Grid */}
       <div
@@ -61,10 +61,10 @@ export function ContactSection() {
           <span className="text-[11px] tracking-[0.4em] text-red-600/60 uppercase font-mono block mb-4">
             [CONTACT]
           </span>
-          <h2 className="text-5xl md:text-7xl font-bold font-[family-name:var(--font-heading)] tracking-tight mb-4">
+          <h2 className="text-5xl md:text-7xl font-bold font-heading tracking-tight mb-4">
             <span className="text-white">Let&apos;s Talk</span>
           </h2>
-          <div className="w-12 h-[1px] bg-red-600/40 mx-auto mb-6" />
+          <div className="w-12 h-px bg-red-600/40 mx-auto mb-6" />
           <p className="text-sm text-white/25 max-w-md mx-auto">
             Have a project in mind? Let&apos;s build something remarkable together.
           </p>
@@ -89,7 +89,7 @@ export function ContactSection() {
               className="flex flex-col items-center justify-center py-12 text-center"
             >
               <CheckCircle2 className="w-12 h-12 text-red-500/70 mb-4" />
-              <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)] text-white mb-2">
+              <h3 className="text-lg font-semibold font-heading text-white mb-2">
                 Message Sent
               </h3>
               <p className="text-sm text-white/30">
@@ -106,7 +106,7 @@ export function ContactSection() {
                   <Input
                     id="contact-name"
                     placeholder="Your name"
-                    className="bg-white/[0.03] border-white/[0.06] focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
+                    className="bg-white/3 border-white/6 focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
                     {...register("name")}
                   />
                   {errors.name && (
@@ -121,7 +121,7 @@ export function ContactSection() {
                     id="contact-email"
                     type="email"
                     placeholder="your@email.com"
-                    className="bg-white/[0.03] border-white/[0.06] focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
+                    className="bg-white/3 border-white/6 focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
                     {...register("email")}
                   />
                   {errors.email && (
@@ -137,7 +137,7 @@ export function ContactSection() {
                   id="contact-message"
                   placeholder="Tell me about your project..."
                   rows={5}
-                  className="bg-white/[0.03] border-white/[0.06] focus:border-red-600/30 text-white placeholder:text-white/15 resize-none rounded transition-all"
+                  className="bg-white/3 border-white/6 focus:border-red-600/30 text-white placeholder:text-white/15 resize-none rounded transition-all"
                   {...register("message")}
                 />
                 {errors.message && (
@@ -147,7 +147,7 @@ export function ContactSection() {
               <Button
                 type="submit"
                 disabled={sending}
-                className="w-full bg-white/[0.06] hover:bg-red-600/20 border border-white/[0.08] hover:border-red-600/30 text-white transition-all duration-300 rounded cursor-pointer"
+                className="w-full bg-white/6 hover:bg-red-600/20 border border-white/8 hover:border-red-600/30 text-white transition-all duration-300 rounded cursor-pointer"
               >
                 {sending ? (
                   <Loader2 className="w-4 h-4 mr-2 animate-spin" />
@@ -168,7 +168,7 @@ export function ContactSection() {
           transition={{ delay: 0.5 }}
           className="text-center mt-16"
         >
-          <div className="w-16 h-[1px] bg-white/[0.06] mx-auto mb-4" />
+          <div className="w-16 h-px bg-white/6 mx-auto mb-4" />
           <p className="text-[9px] tracking-[0.3em] text-white/15 uppercase font-mono">
             © {new Date().getFullYear()} — Built with precision
           </p>

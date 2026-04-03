@@ -40,17 +40,17 @@ export function ProjectsSection() {
           <span className="text-[11px] tracking-[0.4em] text-red-600/60 uppercase font-mono block mb-4">
             [PROJECTS]
           </span>
-          <h2 className="text-5xl md:text-7xl font-bold font-[family-name:var(--font-heading)] tracking-tight mb-4">
+          <h2 className="text-5xl md:text-7xl font-bold font-heading tracking-tight mb-4">
             <span className="text-white">Work</span>
           </h2>
-          <div className="w-12 h-[1px] bg-red-600/40 mx-auto" />
+          <div className="w-12 h-px bg-red-600/40 mx-auto" />
         </motion.div>
       </div>
 
       {/* Projects grid */}
       <div className="relative z-10 max-w-6xl mx-auto px-6">
         {/* Connecting line */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-[1px] bg-gradient-to-b from-transparent via-white/[0.04] to-transparent hidden lg:block" />
+        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-white/4 to-transparent hidden lg:block" />
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {projects.map((project, i) => (
@@ -103,7 +103,7 @@ function ProjectCard({
               alt={project.title}
               className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
             />
-            <div className="absolute inset-0 bg-gradient-to-t from-[#050505] via-[#050505]/60 to-transparent" />
+            <div className="absolute inset-0 bg-linear-to-t from-[#050505] via-[#050505]/60 to-transparent" />
             
             {/* Hover overlay */}
             <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
@@ -127,8 +127,8 @@ function ProjectCard({
             )}
           </div>
         ) : (
-          <div className="h-40 bg-gradient-to-br from-white/[0.02] to-transparent flex items-center justify-center">
-            <span className="text-white/10 text-5xl font-bold font-[family-name:var(--font-heading)]">
+          <div className="h-40 bg-linear-to-br from-white/2 to-transparent flex items-center justify-center">
+            <span className="text-white/10 text-5xl font-bold font-heading">
               {String(index + 1).padStart(2, "0")}
             </span>
           </div>
@@ -136,7 +136,7 @@ function ProjectCard({
 
         {/* Content */}
         <div className="p-6 space-y-4">
-          <h3 className="text-lg font-bold font-[family-name:var(--font-heading)] text-white group-hover:text-white/90 transition-colors tracking-tight">
+          <h3 className="text-lg font-bold font-heading text-white group-hover:text-white/90 transition-colors tracking-tight">
             {project.title}
           </h3>
 
@@ -151,7 +151,7 @@ function ProjectCard({
             {project.tech_stack.map((tech) => (
               <span
                 key={tech}
-                className="text-[9px] tracking-[0.15em] uppercase text-white/20 px-2 py-1 rounded border border-white/[0.04]"
+                className="text-[9px] tracking-[0.15em] uppercase text-white/20 px-2 py-1 rounded border border-white/4"
               >
                 {tech}
               </span>
@@ -159,7 +159,7 @@ function ProjectCard({
           </div>
 
           {/* Links */}
-          <div className="flex items-center gap-4 pt-2 border-t border-white/[0.04]">
+          <div className="flex items-center gap-4 pt-2 border-t border-white/4">
             {project.github_url && (
               <a
                 href={project.github_url}
@@ -189,7 +189,7 @@ function ProjectCard({
       </div>
 
       {/* Connecting line from card to center */}
-      <div className="absolute top-1/2 -translate-y-1/2 w-8 h-[1px] bg-white/[0.04] hidden lg:block"
+      <div className="absolute top-1/2 -translate-y-1/2 w-8 h-px bg-white/4 hidden lg:block"
         style={{
           [index % 2 === 0 ? 'right' : 'left']: '-2rem',
         }}

@@ -90,7 +90,7 @@ export default function AdminDashboard() {
   return (
     <div className="space-y-8">
       <div>
-        <h2 className="text-2xl font-bold font-[family-name:var(--font-heading)] mb-1 text-white">
+        <h2 className="text-2xl font-bold font-heading mb-1 text-white">
           Welcome back
         </h2>
         <p className="text-sm text-white/30">
@@ -107,7 +107,7 @@ export default function AdminDashboard() {
                   <p className="text-xs text-white/30 mb-1 uppercase tracking-wider">
                     {card.label}
                   </p>
-                  <p className="text-3xl font-bold font-[family-name:var(--font-heading)] text-white">
+                  <p className="text-3xl font-bold font-heading text-white">
                     {card.value}
                   </p>
                 </div>
@@ -122,7 +122,7 @@ export default function AdminDashboard() {
 
       {/* Quick actions */}
       <GlassCard hover={false}>
-        <h3 className="text-lg font-semibold font-[family-name:var(--font-heading)] mb-4 text-white/80">
+        <h3 className="text-lg font-semibold font-heading mb-4 text-white/80">
           Quick Actions
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
@@ -135,7 +135,7 @@ export default function AdminDashboard() {
             <a
               key={action.label}
               href={action.href}
-              className="flex items-center gap-3 p-4 rounded-lg bg-white/[0.02] border border-white/[0.04] hover:bg-white/[0.04] hover:border-red-600/10 transition-all cursor-pointer"
+              className="flex items-center gap-3 p-4 rounded-lg bg-white/2 border border-white/4 hover:bg-white/4 hover:border-red-600/10 transition-all cursor-pointer"
             >
               <action.icon className="w-5 h-5 text-red-500/50" />
               <span className="text-sm text-white/50">{action.label}</span>

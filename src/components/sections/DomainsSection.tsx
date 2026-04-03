@@ -143,7 +143,7 @@ export function DomainsSection() {
           {/* Inner content */}
           <div className="progress-circle__inner">
             {/* Tick line at top */}
-            <div className="absolute top-[14%] left-1/2 -translate-x-1/2 w-[1px] h-4 bg-white/20" />
+            <div className="absolute top-[14%] left-1/2 -translate-x-1/2 w-px h-4 bg-white/20" />
 
             {/* Counter */}
             <span className="progress-circle__counter">
@@ -154,15 +154,15 @@ export function DomainsSection() {
             <span className="progress-circle__scroll">SCROLL</span>
 
             {/* Bottom tick marks */}
-            <div className="absolute bottom-[18%] left-[25%] w-[6px] h-[1px] bg-white/15 -rotate-45" />
-            <div className="absolute bottom-[22%] right-[25%] w-[6px] h-[1px] bg-white/15 rotate-45" />
+            <div className="absolute bottom-[18%] left-[25%] w-[6px] h-px bg-white/15 -rotate-45" />
+            <div className="absolute bottom-[22%] right-[25%] w-[6px] h-px bg-white/15 rotate-45" />
           </div>
         </motion.div>
 
         {/* Section title at bottom-left */}
         <div className="designation-title">
           <div className="designation-title__sub">GUIDING PRINCIPLES</div>
-          <div className="designation-title__main font-[family-name:var(--font-heading)]">
+          <div className="designation-title__main font-heading">
             MY<br />DOMAINS
           </div>
         </div>
@@ -215,7 +215,7 @@ function DesignationItem({
 
       {/* Title */}
       <h3
-        className="designation-item__title font-[family-name:var(--font-heading)]"
+        className="designation-item__title font-heading"
         style={{
           opacity: isActive ? 1 : 0.4,
           transition: "opacity 0.5s ease",
