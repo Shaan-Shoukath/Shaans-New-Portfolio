@@ -56,22 +56,6 @@ export function JourneyModal({ entry, displayIndex, onClose }: JourneyModalProps
             {/* Red accent line at top */}
             <div className="journey-modal-accent" />
 
-            {/* Close button */}
-            <button
-              className="journey-modal-close"
-              onClick={onClose}
-              aria-label="Close"
-            >
-              <svg width="12" height="12" viewBox="0 0 12 12" fill="none">
-                <path
-                  d="M1 1L11 11M11 1L1 11"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                />
-              </svg>
-            </button>
-
             {/* Hero image */}
             {entry.image_url && (
               <div className="journey-modal-image">
