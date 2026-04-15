@@ -20,39 +20,39 @@ gsap.registerPlugin(ScrollTrigger);
 
 const JOURNEY_TONES = [
   {
-    accent: "rgba(236, 145, 94, 0.85)",
-    dim: "rgba(236, 145, 94, 0.28)",
-    glow: "rgba(196, 74, 49, 0.12)",
-    ring: "rgba(255, 223, 204, 0.72)",
-    bg: "radial-gradient(circle at 20% 50%, rgba(196, 74, 49, 0.18), transparent 65%)",
+    accent: "rgba(255, 96, 118, 0.92)",
+    dim: "rgba(255, 96, 118, 0.24)",
+    glow: "rgba(161, 18, 43, 0.24)",
+    ring: "rgba(255, 190, 198, 0.62)",
+    bg: "radial-gradient(circle at 18% 24%, rgba(175, 16, 43, 0.28), transparent 58%)",
   },
   {
-    accent: "rgba(144, 182, 255, 0.85)",
-    dim: "rgba(144, 182, 255, 0.28)",
-    glow: "rgba(44, 82, 140, 0.12)",
-    ring: "rgba(214, 228, 255, 0.72)",
-    bg: "radial-gradient(circle at 20% 50%, rgba(44, 82, 140, 0.18), transparent 65%)",
+    accent: "rgba(255, 119, 136, 0.88)",
+    dim: "rgba(255, 119, 136, 0.22)",
+    glow: "rgba(145, 16, 40, 0.2)",
+    ring: "rgba(255, 204, 210, 0.56)",
+    bg: "radial-gradient(circle at 82% 18%, rgba(145, 16, 40, 0.24), transparent 56%)",
   },
   {
-    accent: "rgba(171, 214, 154, 0.85)",
-    dim: "rgba(171, 214, 154, 0.28)",
-    glow: "rgba(65, 96, 52, 0.12)",
-    ring: "rgba(222, 241, 209, 0.72)",
-    bg: "radial-gradient(circle at 20% 50%, rgba(65, 96, 52, 0.18), transparent 65%)",
+    accent: "rgba(255, 136, 156, 0.84)",
+    dim: "rgba(255, 136, 156, 0.2)",
+    glow: "rgba(128, 12, 34, 0.18)",
+    ring: "rgba(255, 214, 220, 0.52)",
+    bg: "radial-gradient(circle at 50% 100%, rgba(128, 12, 34, 0.22), transparent 62%)",
   },
   {
-    accent: "rgba(220, 220, 220, 0.85)",
-    dim: "rgba(220, 220, 220, 0.22)",
-    glow: "rgba(140, 140, 140, 0.10)",
-    ring: "rgba(245, 245, 245, 0.72)",
-    bg: "radial-gradient(circle at 20% 50%, rgba(120, 120, 120, 0.12), transparent 65%)",
+    accent: "rgba(255, 150, 168, 0.8)",
+    dim: "rgba(255, 150, 168, 0.18)",
+    glow: "rgba(115, 10, 30, 0.16)",
+    ring: "rgba(255, 224, 229, 0.48)",
+    bg: "radial-gradient(circle at 15% 82%, rgba(115, 10, 30, 0.2), transparent 58%)",
   },
   {
-    accent: "rgba(235, 163, 217, 0.85)",
-    dim: "rgba(235, 163, 217, 0.28)",
-    glow: "rgba(103, 51, 88, 0.12)",
-    ring: "rgba(248, 220, 240, 0.72)",
-    bg: "radial-gradient(circle at 20% 50%, rgba(103, 51, 88, 0.18), transparent 65%)",
+    accent: "rgba(255, 105, 124, 0.9)",
+    dim: "rgba(255, 105, 124, 0.22)",
+    glow: "rgba(176, 20, 47, 0.22)",
+    ring: "rgba(255, 198, 206, 0.58)",
+    bg: "radial-gradient(circle at 76% 72%, rgba(176, 20, 47, 0.24), transparent 60%)",
   },
 ];
 
@@ -130,7 +130,6 @@ interface JourneyAnchor {
   angle: number;
 }
 
-const HEADER_OFFSET = 160; // px — shifts SVG path center below 50% to clear the header
 const DEFAULT_VIEWPORT_WIDTH = 1440;
 const DEFAULT_VIEWPORT_HEIGHT = 900;
 const MIN_TRACK_PANELS = 2.5; // tighter node spacing reduces dead-zone in center
@@ -169,7 +168,7 @@ function getFallbackAnchor(progress: number, width: number, pathHeight: number):
 }
 
 export function JourneySection() {
-  // Low-frequency progress state — only updated when a node threshold is crossed.
+  // Low-frequency progress state -- only updated when a node threshold is crossed.
   // This drives isActive on node cards without re-rendering on every scroll tick.
   const [activeProgress, setActiveProgress] = useState(0);
   const activeProgressRef = useRef(0);
@@ -186,7 +185,7 @@ export function JourneySection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
   const pathSvgRef = useRef<SVGSVGElement>(null);
-  // These refs drive progress bar / label / SVG via direct DOM mutations — no re-renders.
+  // These refs drive progress bar / label / SVG via direct DOM mutations -- no re-renders.
   const progressRef = useRef(0);
   const progressBarRef = useRef<HTMLDivElement>(null);
   const progressLabelRef = useRef<HTMLSpanElement>(null);
@@ -225,12 +224,13 @@ export function JourneySection() {
     };
   }, [supabase]);
 
-  // Combine: experience first, then community — this is the render order on the path
+  // Combine: experience first, then community -- this is the render order on the path
   const displayEntries = [...experienceEntries, ...communityEntries];
   // Threshold where community section begins (progress fraction)
   const communityStartIndex = experienceEntries.length;
   const communityStartProgress =
     displayEntries.length > 0 ? communityStartIndex / (displayEntries.length + 1) : 0.85;
+  const isCommunityPhase = activeProgress >= communityStartProgress;
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -250,7 +250,7 @@ export function JourneySection() {
 
 
   const nodeCount = displayEntries.length;
-  // Memoize so the array reference is stable — prevents infinite loops
+  // Memoize so the array reference is stable -- prevents infinite loops
   // in callbacks/effects that depend on nodePositions.
   const nodePositions = useMemo(() => getNodePositions(nodeCount), [nodeCount]);
   const pathHeight = getPathHeight(viewportHeight);
@@ -345,20 +345,24 @@ export function JourneySection() {
           });
         },
         onUpdate: (self) => {
+          const exitStart = 0.82;
+          const exitProgress =
+            self.progress <= exitStart
+              ? 0
+              : Math.min(1, (self.progress - exitStart) / (1 - exitStart));
+
           track.style.transform = `translateX(${-self.progress * scrollDistance}px)`;
           handleProgressUpdate(self.progress);
-          // Fade section out in the last 10% of scroll so it disappears before unpin
-          if (self.progress > 0.9) {
-            section.style.opacity = String(Math.max(0, 1 - (self.progress - 0.9) / 0.1));
-          } else {
-            section.style.opacity = "1";
-          }
+          section.style.setProperty("--journey-exit-progress", exitProgress.toFixed(3));
         },
         onLeave: () => {
-          section.style.opacity = "0";
+          section.style.setProperty("--journey-exit-progress", "1");
         },
         onEnterBack: () => {
-          section.style.opacity = "1";
+          section.style.setProperty("--journey-exit-progress", "0");
+        },
+        onLeaveBack: () => {
+          section.style.setProperty("--journey-exit-progress", "0");
         },
       });
     }, section);
@@ -377,27 +381,13 @@ export function JourneySection() {
     <section ref={sectionRef} id="journey" className="journey-stage">
       <div className="journey-stage__bg" />
       <div className="journey-stage__grid" aria-hidden="true" />
+      <div className="journey-stage__scene">
 
       <div className="journey-stage__header">
         <span className="journey-stage__eyebrow">[JOURNEY]</span>
         <div className="journey-stage__title-wrapper">
-          <h2
-            className={`journey-stage__title ${
-              activeProgress >= 0.85
-                ? "journey-stage__title--exit"
-                : "journey-stage__title--active"
-            }`}
-          >
-            EXPERIENCE
-          </h2>
-          <h2
-            className={`journey-stage__title ${
-              activeProgress >= communityStartProgress
-                ? "journey-stage__title--active"
-                : "journey-stage__title--hidden"
-            }`}
-          >
-            COMMUNITY AND VOLUNTEERING
+          <h2 className={`journey-stage__title ${isCommunityPhase ? "journey-stage__title--community" : ""}`}>
+            {isCommunityPhase ? "COMMUNITY AND VOLUNTEERING" : "EXPERIENCE"}
           </h2>
         </div>
         <div className="journey-stage__subtitle">{"Scroll to explore ->"}</div>
@@ -512,7 +502,7 @@ export function JourneySection() {
                       <div className="journey-node__type">
                         {isCommunity ? (
                           <span style={{ color: "var(--node-accent)", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.85 }}>
-                            ◆ Community
+                            Community
                           </span>
                         ) : (
                           entry.type
@@ -546,10 +536,11 @@ export function JourneySection() {
 
       <div className="journey-progress">
         <div className="journey-progress__bar">
-          {/* Updated via direct DOM ref — no React re-render on every scroll tick */}
+          {/* Updated via direct DOM ref -- no React re-render on every scroll tick */}
           <div ref={progressBarRef} className="journey-progress__fill" style={{ width: "0%" }} />
         </div>
         <span ref={progressLabelRef} className="journey-progress__label">0%</span>
+      </div>
       </div>
 
       <JourneyModal
@@ -610,7 +601,7 @@ function JourneyPathInline({
     }
   }, [pathD, nodePositions]);
 
-  // Drive the SVG dash reveal directly via rAF — no React state or re-renders
+  // Drive the SVG dash reveal directly via rAF -- no React state or re-renders
   useEffect(() => {
     let rafId = 0;
     // Track last written progress to skip redundant setAttribute calls
@@ -672,7 +663,7 @@ function JourneyPathInline({
         strokeDasharray="8 20"
       />
 
-      {/* Glow path — dashoffset updated by rAF loop */}
+      {/* Glow path -- dashoffset updated by rAF loop */}
       <path
         ref={glowPathRef}
         d={pathD}
@@ -685,7 +676,7 @@ function JourneyPathInline({
         filter="url(#journey-glow)"
       />
 
-      {/* Active path — dashoffset updated by rAF loop */}
+      {/* Active path -- dashoffset updated by rAF loop */}
       <path
         ref={pathRef}
         data-journey-path="active"
@@ -726,7 +717,7 @@ function JourneyPathInline({
 
 function generateJourneyPath(width: number, height: number, nodeCount: number): string {
   const midY = height * 0.5;
-  const amplitude = height * 0.16; // reduced from 0.22 — shallower wave keeps cards in viewport
+  const amplitude = height * 0.16; // reduced from 0.22 -- shallower wave keeps cards in viewport
   const segments = nodeCount + 1;
   const segWidth = width / segments;
 
@@ -746,3 +737,4 @@ function generateJourneyPath(width: number, height: number, nodeCount: number): 
 
   return d;
 }
+

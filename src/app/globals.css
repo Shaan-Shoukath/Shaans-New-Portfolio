@@ -1489,6 +1489,7 @@
 
 /* ── Stage: the pinned container ── */
 .journey-stage {
+  --journey-exit-progress: 0;
   width: 100vw;
   height: 100vh;
   overflow: hidden;
@@ -1496,6 +1497,19 @@
   background: #050505;
   contain: strict;
   z-index: 1;
+}
+
+.journey-stage__scene {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  opacity: calc(1 - (var(--journey-exit-progress) * 0.94));
+  transform:
+    translate3d(0, calc(var(--journey-exit-progress) * -4vh), 0)
+    scale(calc(1 - (var(--journey-exit-progress) * 0.025)));
+  filter: blur(calc(var(--journey-exit-progress) * 10px));
+  will-change: opacity, transform, filter;
 }
 
 .journey-stage__bg {
@@ -1545,6 +1559,8 @@
 
 .journey-stage__title-wrapper {
   position: relative;
+  width: min(100%, 26ch);
+  min-height: clamp(4.25rem, 8vw, 6.5rem);
 }
 
 .journey-stage__title {
@@ -1555,30 +1571,19 @@
   letter-spacing: -0.04em;
   color: rgba(255, 255, 255, 0.95);
   text-transform: uppercase;
-  transition: opacity 0.6s ease, transform 0.6s ease;
-}
-
-/* Cross-fade states */
-.journey-stage__title--active {
-  opacity: 1;
-  transform: translateX(0);
-  position: relative;
-}
-
-.journey-stage__title--exit {
-  opacity: 0;
-  transform: translateX(-18px);
   position: absolute;
   top: 0;
   left: 0;
-  pointer-events: none;
+  width: 100%;
+  max-width: 100%;
   white-space: nowrap;
+  text-wrap: nowrap;
+  transition: font-size 0.45s ease, letter-spacing 0.45s ease;
 }
 
-.journey-stage__title--hidden {
-  opacity: 0;
-  transform: translateX(18px);
-  position: relative;
+.journey-stage__title--community {
+  font-size: clamp(2rem, 4.15vw, 3.3rem);
+  letter-spacing: -0.03em;
 }
 
 .journey-stage__subtitle {
@@ -1677,37 +1682,36 @@
 /* ── Glassmorphism node card ── */
 .journey-node {
   width: 100%;
-  background: linear-gradient(
-    145deg,
-    rgba(48, 48, 62, 0.85) 0%,
-    rgba(32, 32, 46, 0.92) 100%
-  );
-  backdrop-filter: blur(28px);
-  -webkit-backdrop-filter: blur(28px);
-  border: 1px solid rgba(255, 255, 255, 0.26);
-  border-radius: 14px;
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.03) 18%, transparent 45%),
+    var(--node-bg, radial-gradient(circle at 20% 50%, rgba(150, 22, 44, 0.22), transparent 62%)),
+    linear-gradient(145deg, rgba(14, 14, 18, 0.82) 0%, rgba(8, 8, 10, 0.9) 52%, rgba(18, 7, 10, 0.94) 100%);
+  backdrop-filter: blur(26px) saturate(145%);
+  -webkit-backdrop-filter: blur(26px) saturate(145%);
+  border: 1px solid rgba(255, 255, 255, 0.11);
+  border-radius: 18px;
   padding: 1.3rem;
   transition: all 0.5s cubic-bezier(0.22, 1, 0.36, 1);
   position: relative;
   overflow: hidden;
   box-shadow:
-    0 8px 32px rgba(0, 0, 0, 0.38),
-    0 2px 8px rgba(0, 0, 0, 0.22),
-    inset 0 1px 0 rgba(255, 255, 255, 0.12);
+    0 24px 60px rgba(0, 0, 0, 0.5),
+    0 10px 28px rgba(0, 0, 0, 0.34),
+    inset 0 1px 0 rgba(255, 255, 255, 0.12),
+    inset 0 -1px 0 rgba(255, 255, 255, 0.04);
 }
 
 .journey-node--active {
   border-color: var(--node-dim);
-  background: linear-gradient(
-    145deg,
-    rgba(55, 55, 72, 0.90) 0%,
-    rgba(38, 38, 56, 0.95) 100%
-  );
+  background:
+    linear-gradient(135deg, rgba(255, 255, 255, 0.16) 0%, rgba(255, 255, 255, 0.04) 20%, transparent 48%),
+    var(--node-bg, radial-gradient(circle at 20% 50%, rgba(150, 22, 44, 0.24), transparent 62%)),
+    linear-gradient(145deg, rgba(18, 18, 22, 0.88) 0%, rgba(9, 9, 11, 0.96) 50%, rgba(28, 8, 13, 0.98) 100%);
   box-shadow:
-    0 12px 48px var(--node-glow),
-    0 4px 20px rgba(0, 0, 0, 0.3),
+    0 26px 70px rgba(0, 0, 0, 0.56),
+    0 12px 30px var(--node-glow),
     0 0 0 1px var(--node-dim),
-    inset 0 1px 0 rgba(255, 255, 255, 0.14);
+    inset 0 1px 0 rgba(255, 255, 255, 0.16);
 }
 
 /* Corner accents on active */
@@ -1752,7 +1756,7 @@
 .journey-node__phase-date {
   font-size: 0.58rem;
   letter-spacing: 0.2em;
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 232, 236, 0.48);
   font-family: var(--font-mono, monospace);
   text-transform: uppercase;
 }
@@ -1761,10 +1765,11 @@
 .journey-node__image {
   width: 100%;
   height: 120px;
-  border-radius: 8px;
+  border-radius: 12px;
   overflow: hidden;
   margin-bottom: 0.8rem;
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.08);
   position: relative;
 }
 
@@ -1772,12 +1777,13 @@
   width: 100%;
   height: 100%;
   object-fit: cover;
-  filter: grayscale(0.15) brightness(0.95);
-  transition: filter 0.4s ease;
+  filter: grayscale(0.25) saturate(0.8) brightness(0.82) contrast(1.06);
+  transition: filter 0.4s ease, transform 0.4s ease;
 }
 
 .journey-node--active .journey-node__image img {
-  filter: grayscale(0) brightness(1);
+  filter: grayscale(0.08) saturate(0.95) brightness(0.94) contrast(1.1);
+  transform: scale(1.02);
 }
 
 /* Node text */
@@ -1795,7 +1801,7 @@
   margin: 0 0 0.5rem;
   font-size: 0.72rem;
   letter-spacing: 0.1em;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 224, 229, 0.58);
   font-family: var(--font-heading);
 }
 
@@ -1803,7 +1809,7 @@
   margin: 0 0 0.6rem;
   font-size: 0.72rem;
   line-height: 1.6;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 240, 242, 0.62);
   display: -webkit-box;
   -webkit-line-clamp: 3;
   line-clamp: 3;
@@ -1822,18 +1828,21 @@
 .journey-node__tag {
   padding: 0.22rem 0.55rem;
   border-radius: 999px;
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(121, 18, 35, 0.16);
   font-size: 0.55rem;
   letter-spacing: 0.15em;
   text-transform: uppercase;
-  color: rgba(255, 255, 255, 0.55);
+  color: rgba(255, 235, 238, 0.68);
   font-family: var(--font-mono, monospace);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
 }
 
 .journey-node--active .journey-node__tag {
   border-color: var(--node-dim);
   color: var(--node-accent);
+  background: rgba(152, 18, 41, 0.22);
 }
 
 /* Type badge */
@@ -1844,12 +1853,14 @@
   padding: 0.22rem 0.55rem;
   border-radius: 999px;
   border: 1px solid var(--node-dim, rgba(255, 255, 255, 0.15));
-  background: rgba(255, 255, 255, 0.06);
+  background: rgba(102, 12, 27, 0.22);
   font-size: 0.5rem;
   letter-spacing: 0.2em;
   text-transform: uppercase;
   color: var(--node-accent);
   font-family: var(--font-mono, monospace);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
 }
 
 /* Node pulse ring — two-stage expansion */
@@ -1967,8 +1978,17 @@
     padding: 0.8rem 1rem 1rem;
   }
 
+  .journey-stage__title-wrapper {
+    width: min(100%, 24ch);
+    min-height: clamp(3rem, 12vw, 4.4rem);
+  }
+
   .journey-stage__title {
-    font-size: clamp(1.8rem, 8vw, 3rem);
+    font-size: clamp(1.45rem, 6.2vw, 2.5rem);
+  }
+
+  .journey-stage__title--community {
+    font-size: clamp(1.15rem, 4.8vw, 1.9rem);
   }
 
 
@@ -2822,6 +2842,21 @@
   position: relative;
   overflow: hidden;
   cursor: default;
+  isolation: isolate;
+}
+
+.works-namma-stage::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: clamp(7rem, 16vh, 11rem);
+  pointer-events: none;
+  z-index: 1;
+  background:
+    radial-gradient(circle at 50% 0%, rgba(220, 38, 38, 0.14), transparent 65%),
+    linear-gradient(180deg, rgba(5, 5, 5, 0.96) 0%, rgba(5, 5, 5, 0.82) 38%, rgba(5, 5, 5, 0) 100%);
 }
 
 .works-namma-inner {
@@ -2829,7 +2864,10 @@
   z-index: 2;
   max-width: 1400px;
   margin: 0 auto;
-  padding: clamp(4rem, 8vh, 7rem) clamp(1.5rem, 5vw, 5rem);
+  padding:
+    clamp(5rem, 10vh, 8rem)
+    clamp(1.5rem, 5vw, 5rem)
+    clamp(4rem, 8vh, 7rem);
 }
 
 .works-namma-header {
