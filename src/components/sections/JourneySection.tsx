@@ -56,14 +56,17 @@ const JOURNEY_TONES = [
   },
 ];
 
-const fallbackEntries: Experience[] = [
+const EXPERIENCE_TYPES: Experience["type"][] = ["professional", "education", "freelance"];
+const COMMUNITY_TYPES: Experience["type"][] = ["social"];
+
+const fallbackExperience: Experience[] = [
   {
     id: "journey-1",
     title: "The Foundation",
     company: "Self-Taught Era",
     description:
       "Started with HTML, CSS, and curiosity. Built first websites, discovered the joy of making things work on screen.",
-    image_url: "https://picsum.photos/seed/journey-code/340/120",
+    image_url: null,
     type: "education",
     start_date: "2020",
     end_date: "2021",
@@ -78,7 +81,7 @@ const fallbackEntries: Experience[] = [
     company: "Engineering Deep-Dive",
     description:
       "Dove into full-stack development, embedded systems, and UAV control. Learned to think in systems.",
-    image_url: "https://picsum.photos/seed/journey-systems/340/120",
+    image_url: null,
     type: "professional",
     start_date: "2022",
     end_date: "2023",
@@ -93,13 +96,30 @@ const fallbackEntries: Experience[] = [
     company: "Present & Beyond",
     description:
       "Merging design and engineering. Building cinematic interfaces, autonomous systems, and AI-powered products.",
-    image_url: "https://picsum.photos/seed/journey-creative/340/120",
+    image_url: null,
     type: "freelance",
     start_date: "2024",
     end_date: null,
     tags: ["Next.js", "GSAP", "AI/ML", "Drones"],
     published: true,
     order_index: 2,
+    created_at: "",
+  },
+];
+
+const fallbackCommunity: Experience[] = [
+  {
+    id: "community-1",
+    title: "Open Source Contributor",
+    company: "Community",
+    description: "Contributing to open source projects and mentoring developers in the community.",
+    image_url: null,
+    type: "social",
+    start_date: "2022",
+    end_date: null,
+    tags: ["Open Source", "Mentoring", "Community"],
+    published: true,
+    order_index: 10,
     created_at: "",
   },
 ];
@@ -149,7 +169,6 @@ function getFallbackAnchor(progress: number, width: number, pathHeight: number):
 }
 
 export function JourneySection() {
-  const [entries, setEntries] = useState<Experience[]>([]);
   // Low-frequency progress state — only updated when a node threshold is crossed.
   // This drives isActive on node cards without re-rendering on every scroll tick.
   const [activeProgress, setActiveProgress] = useState(0);
@@ -173,6 +192,9 @@ export function JourneySection() {
   const progressLabelRef = useRef<HTMLSpanElement>(null);
   const supabase = useRef(createClient()).current;
 
+  const [experienceEntries, setExperienceEntries] = useState<Experience[]>([]);
+  const [communityEntries, setCommunityEntries] = useState<Experience[]>([]);
+
   useEffect(() => {
     let cancelled = false;
 
@@ -186,9 +208,13 @@ export function JourneySection() {
       if (cancelled) return;
 
       if (data && data.length > 0) {
-        setEntries(data);
+        const exp = data.filter((e: Experience) => EXPERIENCE_TYPES.includes(e.type));
+        const comm = data.filter((e: Experience) => COMMUNITY_TYPES.includes(e.type));
+        setExperienceEntries(exp.length > 0 ? exp : fallbackExperience);
+        setCommunityEntries(comm.length > 0 ? comm : fallbackCommunity);
       } else {
-        setEntries(fallbackEntries);
+        setExperienceEntries(fallbackExperience);
+        setCommunityEntries(fallbackCommunity);
       }
     }
 
@@ -198,6 +224,13 @@ export function JourneySection() {
       cancelled = true;
     };
   }, [supabase]);
+
+  // Combine: experience first, then community — this is the render order on the path
+  const displayEntries = [...experienceEntries, ...communityEntries];
+  // Threshold where community section begins (progress fraction)
+  const communityStartIndex = experienceEntries.length;
+  const communityStartProgress =
+    displayEntries.length > 0 ? communityStartIndex / (displayEntries.length + 1) : 0.85;
 
   useEffect(() => {
     if (typeof window === "undefined") return undefined;
@@ -215,7 +248,7 @@ export function JourneySection() {
     };
   }, []);
 
-  const displayEntries = entries.length > 0 ? entries : fallbackEntries;
+
   const nodeCount = displayEntries.length;
   // Memoize so the array reference is stable — prevents infinite loops
   // in callbacks/effects that depend on nodePositions.
@@ -359,7 +392,7 @@ export function JourneySection() {
           </h2>
           <h2
             className={`journey-stage__title ${
-              activeProgress >= 0.85
+              activeProgress >= communityStartProgress
                 ? "journey-stage__title--active"
                 : "journey-stage__title--hidden"
             }`}
@@ -404,6 +437,7 @@ export function JourneySection() {
             const isAbove = index % 2 === 1; // first card goes below to avoid EXPERIENCE header overlap
             const isActive = activeProgress >= t - 0.03;
             const tone = JOURNEY_TONES[index % JOURNEY_TONES.length]!;
+            const isCommunity = COMMUNITY_TYPES.includes(entry.type);
 
             const wrapperStyle = {
               left: `${anchor.x}px`,
@@ -475,7 +509,15 @@ export function JourneySection() {
                         </div>
                       )}
 
-                      <div className="journey-node__type">{entry.type}</div>
+                      <div className="journey-node__type">
+                        {isCommunity ? (
+                          <span style={{ color: "var(--node-accent)", fontSize: "0.6rem", letterSpacing: "0.12em", textTransform: "uppercase", opacity: 0.85 }}>
+                            ◆ Community
+                          </span>
+                        ) : (
+                          entry.type
+                        )}
+                      </div>
                     </div>
                   </div>
                 </div>

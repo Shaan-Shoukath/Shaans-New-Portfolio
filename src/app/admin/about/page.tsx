@@ -5,11 +5,12 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
 import { aboutSchema, type AboutFormData } from "@/lib/validators";
-import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 import { toast } from "sonner";
 import { Save, Loader2 } from "lucide-react";
 
@@ -17,6 +18,7 @@ export default function AboutEditor() {
   const [loading, setLoading] = useState(true);
   const [aboutId, setAboutId] = useState<string | null>(null);
   const [floatingWordsInput, setFloatingWordsInput] = useState("");
+  const [profileImageUrl, setProfileImageUrl] = useState("");
   const supabase = useRef(createClient()).current;
 
   const {
@@ -45,6 +47,7 @@ export default function AboutEditor() {
           hero_floating_words: data.hero_floating_words || [],
         });
         setFloatingWordsInput((data.hero_floating_words || []).join(", "));
+        setProfileImageUrl(data.profile_image_url || "");
       }
       setLoading(false);
     }
@@ -60,7 +63,7 @@ export default function AboutEditor() {
 
       const payload = {
         ...formData,
-        profile_image_url: formData.profile_image_url || null,
+        profile_image_url: profileImageUrl || null,
         hero_floating_words: heroFloatingWords,
         updated_at: new Date().toISOString(),
       };
@@ -157,20 +160,20 @@ export default function AboutEditor() {
             />
           </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="profile_image_url">Profile Image URL</Label>
-            <Input
-              id="profile_image_url"
-              placeholder="https://..."
-              className="bg-white/5 border-white/10 focus:border-indigo-500/50"
-              {...register("profile_image_url")}
-            />
-            {errors.profile_image_url && (
-              <p className="text-xs text-red-400">
-                {errors.profile_image_url.message}
-              </p>
-            )}
-          </div>
+          <ImageUpload
+            id="profile_image_url"
+            label="Profile Image"
+            value={profileImageUrl}
+            onChange={setProfileImageUrl}
+            bucket="portfolio"
+            folder="profile"
+            accent="indigo"
+          />
+          {errors.profile_image_url && (
+            <p className="text-xs text-red-400">
+              {errors.profile_image_url.message}
+            </p>
+          )}
 
           <Button
             type="submit"

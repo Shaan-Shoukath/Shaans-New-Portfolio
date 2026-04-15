@@ -14,7 +14,7 @@ gsap.registerPlugin(ScrollTrigger);
 const fallbackAbout: About = {
   id: "fallback-about",
   name: "SHAAN SHOUKATH",
-  tagline: "BUILDING\nCOOL STUFF..",
+  tagline: "Building Cool Stuff.",
   quote: "Designing cinematic interfaces with a systems mindset.",
   profile_image_url: null,
   hero_floating_words: [

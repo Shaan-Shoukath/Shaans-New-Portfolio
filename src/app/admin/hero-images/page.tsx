@@ -4,6 +4,7 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { HeroImage } from "@/lib/types";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -192,16 +193,15 @@ export default function HeroImagesAdmin() {
           Add New Image
         </h3>
         <div className="space-y-4">
-          <div className="space-y-2">
-            <Label htmlFor="hero-image-url">Image URL *</Label>
-            <Input
-              id="hero-image-url"
-              placeholder="https://your-storage.com/hero-image.jpg"
-              className="bg-white/5 border-white/10 focus:border-red-500/50"
-              value={newUrl}
-              onChange={(e) => setNewUrl(e.target.value)}
-            />
-          </div>
+          <ImageUpload
+            id="hero-image-url"
+            label="Image *"
+            value={newUrl}
+            onChange={setNewUrl}
+            bucket="portfolio"
+            folder="hero"
+            accent="red"
+          />
           <div className="space-y-2">
             <Label htmlFor="hero-image-alt">Alt Text</Label>
             <Input

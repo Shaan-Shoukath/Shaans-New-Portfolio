@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 import {
   Dialog,
   DialogContent,
@@ -59,6 +60,7 @@ export default function ProjectsManager() {
   const [techInput, setTechInput] = useState("");
   const [featured, setFeatured] = useState(false);
   const [published, setPublished] = useState(true);
+  const [imageUrl, setImageUrl] = useState("");
   const supabase = createClient();
 
   const {
@@ -101,6 +103,7 @@ export default function ProjectsManager() {
     setTechInput("");
     setFeatured(false);
     setPublished(true);
+    setImageUrl("");
     setDialogOpen(true);
   }
 
@@ -121,6 +124,7 @@ export default function ProjectsManager() {
     setTechInput(project.tech_stack.join(", "));
     setFeatured(project.featured);
     setPublished(project.published);
+    setImageUrl(project.image_url || "");
     setDialogOpen(true);
   }
 
@@ -139,7 +143,7 @@ export default function ProjectsManager() {
         github_url: formData.github_url || null,
         live_url: formData.live_url || null,
         medium_url: formData.medium_url || null,
-        image_url: formData.image_url || null,
+        image_url: imageUrl || null,
         order_index: formData.order_index ?? 0,
       };
 
@@ -304,15 +308,15 @@ export default function ProjectsManager() {
                   />
                 </div>
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="image_url">Image URL</Label>
-                <Input
-                  id="image_url"
-                  placeholder="https://..."
-                  className="bg-white/5 border-white/10"
-                  {...register("image_url")}
-                />
-              </div>
+              <ImageUpload
+                id="image_url"
+                label="Project Image"
+                value={imageUrl}
+                onChange={setImageUrl}
+                bucket="portfolio"
+                folder="projects"
+                accent="indigo"
+              />
               <div className="flex items-center justify-between">
                 <div className="flex items-center gap-2">
                   <Switch checked={featured} onCheckedChange={setFeatured} />

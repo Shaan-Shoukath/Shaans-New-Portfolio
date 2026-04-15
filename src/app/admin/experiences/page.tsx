@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { createClient } from "@/lib/supabase/client";
 import type { Experience } from "@/lib/types";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { ImageUpload } from "@/components/shared/ImageUpload";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
@@ -304,19 +305,16 @@ export default function AdminExperiencesPage() {
             />
           </div>
 
-          <div className="space-y-2 mt-4">
-            <Label className="text-xs text-white/50 uppercase tracking-wider">Image URL</Label>
-            <Input
+          <div className="mt-4">
+            <ImageUpload
+              id="exp-image-url"
+              label="IMAGE"
               value={form.image_url}
-              onChange={(e) => setForm({ ...form, image_url: e.target.value })}
-              placeholder="https://... (photo for journey section)"
-              className="bg-white/3 border-white/6"
+              onChange={(url) => setForm({ ...form, image_url: url })}
+              bucket="portfolio"
+              folder="experiences"
+              accent="red"
             />
-            {form.image_url && (
-              <div className="mt-2 w-24 h-16 rounded overflow-hidden border border-white/10">
-                <img src={form.image_url} alt="Preview" className="w-full h-full object-cover" />
-              </div>
-            )}
           </div>
 
           <div className="space-y-2 mt-4">
