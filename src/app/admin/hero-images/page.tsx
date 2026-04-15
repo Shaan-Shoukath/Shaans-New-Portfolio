@@ -60,7 +60,7 @@ export default function HeroImagesAdmin() {
     try {
       const maxOrder = images.reduce(
         (max, img) => Math.max(max, img.order_index),
-        -1
+        -1,
       );
 
       const { error } = await supabase.from("hero_images").insert({
@@ -95,8 +95,8 @@ export default function HeroImagesAdmin() {
 
       setImages((prev) =>
         prev.map((img) =>
-          img.id === image.id ? { ...img, active: !img.active } : img
-        )
+          img.id === image.id ? { ...img, active: !img.active } : img,
+        ),
       );
       toast.success(image.active ? "Image hidden" : "Image visible");
     } catch (err: unknown) {
@@ -180,8 +180,8 @@ export default function HeroImagesAdmin() {
           Hero Images
         </h2>
         <p className="text-sm text-white/30">
-          Manage the carousel images displayed in the hero section. Active images
-          cycle every 5 seconds.
+          Manage the carousel images displayed in the hero section. Active
+          images cycle every 5 seconds.
         </p>
       </div>
 

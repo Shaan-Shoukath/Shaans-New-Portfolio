@@ -33,9 +33,11 @@ export interface Project {
   tech_stack: string[];
   github_url: string | null;
   live_url: string | null;
+  medium_url: string | null;
   image_url: string | null;
   featured: boolean;
   published: boolean;
+  order_index: number;
   created_at: string;
 }
 

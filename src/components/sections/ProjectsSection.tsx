@@ -1,199 +1,297 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
-import { motion, useInView } from "framer-motion";
+import React, {
+  useEffect,
+  useRef,
+  useState,
+} from "react";
+import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import type { Project } from "@/lib/types";
-import { Github, ExternalLink, ArrowUpRight } from "lucide-react";
+import { Github, ExternalLink, BookOpen } from "lucide-react";
+
+// ─── Fallback data ────────────────────────────────────────────────────────────
+const FALLBACK_PROJECTS: Project[] = [
+  {
+    id: "p-1",
+    title: "Aarannu Platform",
+    description:
+      "A full-stack SaaS platform for institution-scale membership management. Built with Next.js, Node.js, and PostgreSQL with multi-role authorization and bulk import workflows.",
+    tech_stack: ["Next.js", "Node.js", "PostgreSQL", "Supabase"],
+    github_url: "https://github.com",
+    live_url: null,
+    medium_url: null,
+    image_url: "https://picsum.photos/seed/aarannu/900/600",
+    featured: true,
+    published: true,
+    order_index: 0,
+    created_at: "",
+  },
+  {
+    id: "p-2",
+    title: "UAV Swarm Control",
+    description:
+      "Autonomous drone swarm coordination system using PX4 and MAVLink. Implements formation flying, obstacle avoidance, and centralized ground control.",
+    tech_stack: ["PX4", "MAVLink", "Python", "ROS2"],
+    github_url: "https://github.com",
+    live_url: null,
+    medium_url: null,
+    image_url: "https://picsum.photos/seed/uav-drone/900/600",
+    featured: false,
+    published: true,
+    order_index: 1,
+    created_at: "",
+  },
+  {
+    id: "p-3",
+    title: "Cinematic Portfolio",
+    description:
+      "This very portfolio — a GSAP-powered cinematic experience with horizontal scroll sections, animated loader, and Supabase CMS backend.",
+    tech_stack: ["Next.js", "GSAP", "Supabase", "Tailwind"],
+    github_url: "https://github.com",
+    live_url: "https://shaan.dev",
+    medium_url: null,
+    image_url: "https://picsum.photos/seed/portfolio-cin/900/600",
+    featured: true,
+    published: true,
+    order_index: 2,
+    created_at: "",
+  },
+  {
+    id: "p-4",
+    title: "IoT Plant Monitor",
+    description:
+      "ESP32-based smart plant monitoring system with real-time soil moisture, temperature, and humidity tracking sent to a web dashboard via MQTT.",
+    tech_stack: ["ESP32", "MQTT", "React", "Node.js"],
+    github_url: "https://github.com",
+    live_url: null,
+    medium_url: null,
+    image_url: "https://picsum.photos/seed/iot-plant/900/600",
+    featured: false,
+    published: true,
+    order_index: 3,
+    created_at: "",
+  },
+  {
+    id: "p-5",
+    title: "Neural Classifier",
+    description:
+      "Deep learning image classification pipeline using PyTorch with custom CNN architecture achieving 96% accuracy on benchmark datasets.",
+    tech_stack: ["PyTorch", "Python", "CUDA", "FastAPI"],
+    github_url: "https://github.com",
+    live_url: null,
+    medium_url: "https://medium.com",
+    image_url: "https://picsum.photos/seed/neural-cls/900/600",
+    featured: false,
+    published: true,
+    order_index: 4,
+    created_at: "",
+  },
+];
 
 export function ProjectsSection() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const supabase = createClient();
+  const [hoveredIndex, setHoveredIndex] = useState<number | null>(null);
+  const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
+  const sectionRef = useRef<HTMLElement>(null);
+  const supabase = useRef(createClient()).current;
 
   useEffect(() => {
-    async function fetchProjects() {
+    let cancelled = false;
+    async function fetch() {
       const { data } = await supabase
         .from("projects")
         .select("*")
         .eq("published", true)
-        .order("created_at", { ascending: false });
-      if (data) setProjects(data);
+        .order("order_index", { ascending: true });
+      if (cancelled) return;
+      if (data && data.length > 0) setProjects(data);
+      else setProjects(FALLBACK_PROJECTS);
     }
-    fetchProjects();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+    void fetch();
+    return () => { cancelled = true; };
+  }, [supabase]);
+
+  const displayProjects = projects.length > 0 ? projects : FALLBACK_PROJECTS;
+
+  const handleMouseMove = (e: React.MouseEvent) => {
+    setMousePos({ x: e.clientX, y: e.clientY });
+  };
 
   return (
-    <section id="projects" className="relative py-32 min-h-screen">
-      {/* Background */}
-      <div className="absolute inset-0 bg-[#050505]" />
-
-      {/* Section header */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6 mb-20">
-        <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center"
-        >
-          <span className="text-[11px] tracking-[0.4em] text-red-600/60 uppercase font-mono block mb-4">
-            [PROJECTS]
-          </span>
-          <h2 className="text-5xl md:text-7xl font-bold font-heading tracking-tight mb-4">
-            <span className="text-white">Work</span>
-          </h2>
-          <div className="w-12 h-px bg-red-600/40 mx-auto" />
-        </motion.div>
-      </div>
-
-      {/* Projects grid */}
-      <div className="relative z-10 max-w-6xl mx-auto px-6">
-        {/* Connecting line */}
-        <div className="absolute left-1/2 top-0 bottom-0 w-px bg-linear-to-b from-transparent via-white/4 to-transparent hidden lg:block" />
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          {projects.map((project, i) => (
-            <ProjectCard key={project.id} project={project} index={i} />
-          ))}
-        </div>
-
-        {projects.length === 0 && (
+    <section
+      id="projects"
+      ref={sectionRef}
+      className="works-namma-stage"
+      onMouseMove={handleMouseMove}
+    >
+      {/* Floating image preview */}
+      <AnimatePresence>
+        {hoveredIndex !== null && displayProjects[hoveredIndex]?.image_url && (
           <motion.div
-            initial={{ opacity: 0 }}
-            whileInView={{ opacity: 1 }}
-            viewport={{ once: true }}
-            className="text-center py-20"
+            className="works-namma-preview"
+            initial={{ opacity: 0, scale: 0.88 }}
+            animate={{ opacity: 1, scale: 1 }}
+            exit={{ opacity: 0, scale: 0.88 }}
+            transition={{ duration: 0.22, ease: [0.22, 1, 0.36, 1] }}
+            style={{
+              left: mousePos.x + 24,
+              top: mousePos.y - 80,
+            }}
           >
-            <p className="text-white/20 text-sm">
-              Projects will appear here. Add them from the admin panel.
-            </p>
+            <img
+              src={displayProjects[hoveredIndex]!.image_url!}
+              alt={displayProjects[hoveredIndex]!.title}
+              className="works-namma-preview__img"
+            />
           </motion.div>
         )}
+      </AnimatePresence>
+
+      <div className="works-namma-inner">
+        {/* Header */}
+        <motion.div
+          className="works-namma-header"
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.6 }}
+        >
+          <span className="works-namma-eyebrow">Selected Work</span>
+          <h2 className="works-namma-section-title">
+            <span className="works-namma-section-title__main">Projects</span>
+            <span className="works-namma-section-title__sub">&amp; Works</span>
+          </h2>
+        </motion.div>
+
+        {/* Project list */}
+        <ul className="works-namma-list" role="list">
+          {displayProjects.map((project, index) => (
+            <ProjectRow
+              key={project.id}
+              project={project}
+              index={index}
+              total={displayProjects.length}
+              isHovered={hoveredIndex === index}
+              anyHovered={hoveredIndex !== null}
+              onMouseEnter={() => setHoveredIndex(index)}
+              onMouseLeave={() => setHoveredIndex(null)}
+            />
+          ))}
+        </ul>
+
+        {/* Footer row */}
+        <motion.div
+          className="works-namma-footer"
+          initial={{ opacity: 0 }}
+          whileInView={{ opacity: 1 }}
+          viewport={{ once: true }}
+          transition={{ delay: 0.4, duration: 0.6 }}
+        >
+          <span className="works-namma-footer__count">
+            {String(displayProjects.length).padStart(2, "0")} Projects
+          </span>
+          <div className="works-namma-footer__line" />
+          <span className="works-namma-footer__label">Scroll to explore</span>
+        </motion.div>
       </div>
     </section>
   );
 }
 
-function ProjectCard({
+// ─── Individual project row ───────────────────────────────────────────────────
+function ProjectRow({
   project,
   index,
+  total,
+  isHovered,
+  anyHovered,
+  onMouseEnter,
+  onMouseLeave,
 }: {
   project: Project;
   index: number;
+  total: number;
+  isHovered: boolean;
+  anyHovered: boolean;
+  onMouseEnter: () => void;
+  onMouseLeave: () => void;
 }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const isInView = useInView(ref, { once: true, amount: 0.2 });
-
   return (
-    <motion.div
-      ref={ref}
-      className="group relative"
-      initial={{ opacity: 0, y: 50 }}
-      animate={isInView ? { opacity: 1, y: 0 } : { opacity: 0, y: 50 }}
-      transition={{ duration: 0.7, delay: index * 0.1 }}
+    <motion.li
+      className={`works-namma-row ${isHovered ? "works-namma-row--hovered" : ""} ${anyHovered && !isHovered ? "works-namma-row--dimmed" : ""}`}
+      initial={{ opacity: 0, x: -30 }}
+      whileInView={{ opacity: 1, x: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.55, delay: index * 0.07 }}
+      onMouseEnter={onMouseEnter}
+      onMouseLeave={onMouseLeave}
     >
-      {/* Glass card */}
-      <div className="glass-card rounded-lg overflow-hidden p-0 cursor-pointer">
-        {/* Image */}
-        {project.image_url ? (
-          <div className="relative h-52 overflow-hidden">
-            <img
-              src={project.image_url}
-              alt={project.title}
-              className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 grayscale group-hover:grayscale-0"
-            />
-            <div className="absolute inset-0 bg-linear-to-t from-[#050505] via-[#050505]/60 to-transparent" />
-            
-            {/* Hover overlay */}
-            <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-              <div className="p-3 rounded-full glass border-white/10">
-                <ArrowUpRight className="w-5 h-5 text-white" />
-              </div>
-            </div>
+      {/* Index */}
+      <span className="works-namma-row__index">
+        {String(index + 1).padStart(2, "0")}
+      </span>
 
-            {/* Index */}
-            <div className="absolute top-4 left-4 text-[9px] tracking-[0.3em] text-white/30 font-mono">
-              [{String(index + 1).padStart(2, "0")}]
-            </div>
+      {/* Title */}
+      <h3 className="works-namma-row__title">{project.title}</h3>
 
-            {/* Featured badge */}
-            {project.featured && (
-              <div className="absolute top-4 right-4">
-                <span className="text-[9px] tracking-[0.2em] text-red-500/70 uppercase font-mono">
-                  ★ FEATURED
-                </span>
-              </div>
-            )}
-          </div>
-        ) : (
-          <div className="h-40 bg-linear-to-br from-white/2 to-transparent flex items-center justify-center">
-            <span className="text-white/10 text-5xl font-bold font-heading">
-              {String(index + 1).padStart(2, "0")}
-            </span>
-          </div>
-        )}
-
-        {/* Content */}
-        <div className="p-6 space-y-4">
-          <h3 className="text-lg font-bold font-heading text-white group-hover:text-white/90 transition-colors tracking-tight">
-            {project.title}
-          </h3>
-
-          {project.description && (
-            <p className="text-sm text-white/25 line-clamp-2 leading-relaxed">
-              {project.description}
-            </p>
-          )}
-
-          {/* Tech stack */}
-          <div className="flex flex-wrap gap-2">
-            {project.tech_stack.map((tech) => (
-              <span
-                key={tech}
-                className="text-[9px] tracking-[0.15em] uppercase text-white/20 px-2 py-1 rounded border border-white/4"
-              >
-                {tech}
-              </span>
-            ))}
-          </div>
-
-          {/* Links */}
-          <div className="flex items-center gap-4 pt-2 border-t border-white/4">
-            {project.github_url && (
-              <a
-                href={project.github_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-[11px] text-white/30 hover:text-white transition-colors"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <Github className="w-3.5 h-3.5" />
-                <span>Source</span>
-              </a>
-            )}
-            {project.live_url && (
-              <a
-                href={project.live_url}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-1.5 text-[11px] text-red-500/70 hover:text-red-400 transition-colors ml-auto"
-                onClick={(e) => e.stopPropagation()}
-              >
-                <span>Live</span>
-                <ExternalLink className="w-3.5 h-3.5" />
-              </a>
-            )}
-          </div>
-        </div>
+      {/* Tags — visible on hover */}
+      <div className="works-namma-row__tags">
+        {project.tech_stack?.slice(0, 3).map((tag) => (
+          <span key={tag} className="works-namma-row__tag">
+            {tag}
+          </span>
+        ))}
       </div>
 
-      {/* Connecting line from card to center */}
-      <div className="absolute top-1/2 -translate-y-1/2 w-8 h-px bg-white/4 hidden lg:block"
-        style={{
-          [index % 2 === 0 ? 'right' : 'left']: '-2rem',
-        }}
-      />
-    </motion.div>
+      {/* Links — always visible, open on click */}
+      <div className="works-namma-row__links">
+        {project.github_url && (
+          <a
+            href={project.github_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="works-namma-row__link"
+            title="View on GitHub"
+            aria-label="View on GitHub"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <Github size={15} />
+            <span className="works-namma-row__link-label">GitHub</span>
+          </a>
+        )}
+        {project.medium_url && (
+          <a
+            href={project.medium_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="works-namma-row__link"
+            title="Read on Medium"
+            aria-label="Read on Medium"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <BookOpen size={15} />
+            <span className="works-namma-row__link-label">Article</span>
+          </a>
+        )}
+        {project.live_url && (
+          <a
+            href={project.live_url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="works-namma-row__link works-namma-row__link--live"
+            title="View live project"
+            aria-label="View live project"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <ExternalLink size={15} />
+            <span className="works-namma-row__link-label">Live</span>
+          </a>
+        )}
+      </div>
+
+      {/* Bottom border */}
+      <div className="works-namma-row__border" />
+    </motion.li>
   );
 }

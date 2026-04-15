@@ -92,9 +92,11 @@ export default function ProjectsManager() {
       tech_stack: [],
       github_url: "",
       live_url: "",
+      medium_url: "",
       image_url: "",
       featured: false,
       published: true,
+      order_index: 0,
     });
     setTechInput("");
     setFeatured(false);
@@ -110,9 +112,11 @@ export default function ProjectsManager() {
       tech_stack: project.tech_stack,
       github_url: project.github_url || "",
       live_url: project.live_url || "",
+      medium_url: project.medium_url || "",
       image_url: project.image_url || "",
       featured: project.featured,
       published: project.published,
+      order_index: project.order_index ?? 0,
     });
     setTechInput(project.tech_stack.join(", "));
     setFeatured(project.featured);
@@ -134,7 +138,9 @@ export default function ProjectsManager() {
         published,
         github_url: formData.github_url || null,
         live_url: formData.live_url || null,
+        medium_url: formData.medium_url || null,
         image_url: formData.image_url || null,
+        order_index: formData.order_index ?? 0,
       };
 
       if (editingId) {
@@ -257,6 +263,9 @@ export default function ProjectsManager() {
                     className="bg-white/5 border-white/10"
                     {...register("github_url")}
                   />
+                  {errors.github_url && (
+                    <p className="text-xs text-red-400">{errors.github_url.message}</p>
+                  )}
                 </div>
                 <div className="space-y-2">
                   <Label htmlFor="live_url">Live URL</Label>
@@ -265,6 +274,33 @@ export default function ProjectsManager() {
                     placeholder="https://..."
                     className="bg-white/5 border-white/10"
                     {...register("live_url")}
+                  />
+                  {errors.live_url && (
+                    <p className="text-xs text-red-400">{errors.live_url.message}</p>
+                  )}
+                </div>
+              </div>
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="medium_url">Medium / Article URL</Label>
+                  <Input
+                    id="medium_url"
+                    placeholder="https://medium.com/..."
+                    className="bg-white/5 border-white/10"
+                    {...register("medium_url")}
+                  />
+                  {errors.medium_url && (
+                    <p className="text-xs text-red-400">{errors.medium_url.message}</p>
+                  )}
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="order_index">Order Index</Label>
+                  <Input
+                    id="order_index"
+                    type="number"
+                    placeholder="0"
+                    className="bg-white/5 border-white/10"
+                    {...register("order_index", { valueAsNumber: true })}
                   />
                 </div>
               </div>

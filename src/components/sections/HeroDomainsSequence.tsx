@@ -347,10 +347,10 @@ export function HeroDomainsSequence() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    const handoffDistance = Math.max(window.innerWidth * 0.25, 260);
+    const handoffDistance = Math.max(window.innerWidth * 0.55, 500);
     const domainStepDistance = Math.max(
-      window.innerHeight * (prefersReducedMotion ? 0.18 : 0.22),
-      160
+      window.innerHeight * (prefersReducedMotion ? 0.35 : 0.5),
+      280
     );
     const domainDistance = domainStepDistance * Math.max(totalDomains, 1);
     const totalDistance = handoffDistance + domainDistance;

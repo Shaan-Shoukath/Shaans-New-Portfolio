@@ -26,9 +26,11 @@ export const projectSchema = z.object({
   tech_stack: z.array(z.string()).default([]),
   github_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   live_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  medium_url: z.string().url("Must be a valid URL").optional().or(z.literal("")),
   image_url: z.string().optional(),
   featured: z.boolean().default(false),
   published: z.boolean().default(true),
+  order_index: z.number().int().default(0),
 });
 
 export const blogSchema = z.object({

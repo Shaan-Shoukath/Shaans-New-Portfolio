@@ -5,11 +5,21 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactFormData } from "@/lib/validators";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Label } from "@/components/ui/label";
-import { Button } from "@/components/ui/button";
-import { Send, CheckCircle2, Loader2 } from "lucide-react";
+import { Github, Linkedin, Send, Loader2, CheckCircle2 } from "lucide-react";
+
+function MediumIcon({ size = 16 }: { size?: number }) {
+  return (
+    <svg
+      width={size}
+      height={size}
+      viewBox="0 0 24 24"
+      fill="currentColor"
+      aria-hidden="true"
+    >
+      <path d="M13.54 12a6.8 6.8 0 01-6.77 6.82A6.8 6.8 0 010 12a6.8 6.8 0 016.77-6.82A6.8 6.8 0 0113.54 12zM20.96 12c0 3.54-1.51 6.42-3.38 6.42-1.87 0-3.39-2.88-3.39-6.42s1.52-6.42 3.39-6.42 3.38 2.88 3.38 6.42M24 12c0 3.17-.53 5.75-1.19 5.75-.66 0-1.19-2.58-1.19-5.75s.53-5.75 1.19-5.75C23.47 6.25 24 8.83 24 12z" />
+    </svg>
+  );
+}
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
@@ -24,154 +34,178 @@ export function ContactSection() {
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = async (data: ContactFormData) => {
+  const onSubmit = async (_data: ContactFormData) => {
     setSending(true);
     await new Promise((res) => setTimeout(res, 1500));
     setSending(false);
     setSubmitted(true);
     reset();
-    setTimeout(() => setSubmitted(false), 5000);
+    setTimeout(() => setSubmitted(false), 6000);
   };
 
   return (
-    <section id="contact" className="relative min-h-screen flex items-center justify-center py-32">
-      {/* Background */}
-      <div className="absolute inset-0 bg-[#050505]" />
-      <div className="absolute inset-0 bg-linear-to-t from-red-950/3 to-transparent" />
+    <section id="contact" className="cn-stage">
+      {/* Ambient blobs */}
+      <div className="cn-blob cn-blob--1" />
+      <div className="cn-blob cn-blob--2" />
 
-      {/* Grid */}
-      <div
-        className="absolute inset-0 opacity-[0.015]"
-        style={{
-          backgroundImage: `linear-gradient(rgba(255,255,255,0.1) 1px, transparent 1px),
-                            linear-gradient(90deg, rgba(255,255,255,0.1) 1px, transparent 1px)`,
-          backgroundSize: "100px 100px",
-        }}
-      />
-
-      <div className="relative z-10 max-w-2xl mx-auto px-6 w-full">
-        {/* Header */}
+      <div className="cn-grid">
+        {/* ── LEFT: Headline ── */}
         <motion.div
-          initial={{ opacity: 0, y: 40 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          className="cn-left"
+          initial={{ opacity: 0, x: -40 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.8 }}
-          className="text-center mb-16"
+          transition={{ duration: 0.7, ease: [0.22, 1, 0.36, 1] }}
         >
-          <span className="text-[11px] tracking-[0.4em] text-red-600/60 uppercase font-mono block mb-4">
-            [CONTACT]
-          </span>
-          <h2 className="text-5xl md:text-7xl font-bold font-heading tracking-tight mb-4">
-            <span className="text-white">Let&apos;s Talk</span>
+          {/* Eyebrow */}
+          <span className="cn-eyebrow">Get in touch</span>
+
+          {/* Main headline */}
+          <h2 className="cn-title">
+            <span className="cn-title__line">LET&apos;S</span>
+            <span className="cn-title__line cn-title__line--accent">
+              <span className="cn-orb" aria-hidden="true">
+                <span className="cn-orb__inner">✦</span>
+              </span>
+              BUILD
+            </span>
+            <span className="cn-title__line">TOGETHER</span>
           </h2>
-          <div className="w-12 h-px bg-red-600/40 mx-auto mb-6" />
-          <p className="text-sm text-white/25 max-w-md mx-auto">
-            Have a project in mind? Let&apos;s build something remarkable together.
+
+          <p className="cn-sub">
+            Open to freelance, collaboration,<br />and full-time roles.
+          </p>
+
+          {/* Social links */}
+          <div className="cn-socials">
+            <a
+              href="https://github.com/Shaan-Shoukath"
+              target="_blank"
+              rel="noopener noreferrer"
+              id="social-github"
+              className="cn-social"
+              aria-label="GitHub"
+            >
+              <Github size={15} />
+              <span>GitHub</span>
+            </a>
+            <a
+              href="https://linkedin.com/in/shaan-shoukath"
+              target="_blank"
+              rel="noopener noreferrer"
+              id="social-linkedin"
+              className="cn-social"
+              aria-label="LinkedIn"
+            >
+              <Linkedin size={15} />
+              <span>LinkedIn</span>
+            </a>
+            <a
+              href="https://medium.com/@shaanshoukath"
+              target="_blank"
+              rel="noopener noreferrer"
+              id="social-medium"
+              className="cn-social"
+              aria-label="Medium"
+            >
+              <MediumIcon size={15} />
+              <span>Medium</span>
+            </a>
+          </div>
+
+          {/* Copyright pinned at bottom of left col */}
+          <p className="cn-copy">
+            © {new Date().getFullYear()} Shaan Shoukath — Built with precision
           </p>
         </motion.div>
 
-        {/* Form */}
+        {/* ── RIGHT: Form ── */}
         <motion.div
-          initial={{ opacity: 0, y: 30 }}
-          whileInView={{ opacity: 1, y: 0 }}
+          className="cn-right"
+          initial={{ opacity: 0, x: 40 }}
+          whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          transition={{ duration: 0.6, delay: 0.2 }}
-          className="glass-card rounded-lg p-8 relative overflow-hidden"
+          transition={{ duration: 0.7, delay: 0.12, ease: [0.22, 1, 0.36, 1] }}
         >
-          {/* Corner accents */}
-          <div className="absolute top-0 left-0 w-6 h-6 border-t border-l border-red-600/20" />
-          <div className="absolute bottom-0 right-0 w-6 h-6 border-b border-r border-red-600/20" />
-
           {submitted ? (
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.94 }}
               animate={{ opacity: 1, scale: 1 }}
-              className="flex flex-col items-center justify-center py-12 text-center"
+              className="cn-success"
             >
-              <CheckCircle2 className="w-12 h-12 text-red-500/70 mb-4" />
-              <h3 className="text-lg font-semibold font-heading text-white mb-2">
-                Message Sent
-              </h3>
-              <p className="text-sm text-white/30">
-                Thank you. I&apos;ll respond soon.
+              <CheckCircle2 className="cn-success__icon" />
+              <p className="cn-success__text">
+                Message received.<br />I&apos;ll be in touch.
               </p>
             </motion.div>
           ) : (
-            <form onSubmit={handleSubmit(onSubmit)} className="space-y-6">
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="contact-name" className="text-[11px] tracking-[0.2em] text-white/40 uppercase">
-                    Name
-                  </Label>
-                  <Input
-                    id="contact-name"
-                    placeholder="Your name"
-                    className="bg-white/3 border-white/6 focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
-                    {...register("name")}
-                  />
-                  {errors.name && (
-                    <p className="text-xs text-red-500/70">{errors.name.message}</p>
-                  )}
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="contact-email" className="text-[11px] tracking-[0.2em] text-white/40 uppercase">
-                    Email
-                  </Label>
-                  <Input
-                    id="contact-email"
-                    type="email"
-                    placeholder="your@email.com"
-                    className="bg-white/3 border-white/6 focus:border-red-600/30 text-white placeholder:text-white/15 rounded transition-all"
-                    {...register("email")}
-                  />
-                  {errors.email && (
-                    <p className="text-xs text-red-500/70">{errors.email.message}</p>
-                  )}
-                </div>
+            <form
+              onSubmit={handleSubmit(onSubmit)}
+              className="cn-form"
+              noValidate
+            >
+              {/* Name */}
+              <div className="cn-field">
+                <label className="cn-label" htmlFor="cn-name">NAME</label>
+                <input
+                  id="cn-name"
+                  className={`cn-input ${errors.name ? "cn-input--error" : ""}`}
+                  placeholder="Your name"
+                  autoComplete="name"
+                  {...register("name")}
+                />
+                {errors.name && (
+                  <span className="cn-error">{errors.name.message}</span>
+                )}
               </div>
-              <div className="space-y-2">
-                <Label htmlFor="contact-message" className="text-[11px] tracking-[0.2em] text-white/40 uppercase">
-                  Message
-                </Label>
-                <Textarea
-                  id="contact-message"
-                  placeholder="Tell me about your project..."
-                  rows={5}
-                  className="bg-white/3 border-white/6 focus:border-red-600/30 text-white placeholder:text-white/15 resize-none rounded transition-all"
+
+              {/* Email */}
+              <div className="cn-field">
+                <label className="cn-label" htmlFor="cn-email">EMAIL</label>
+                <input
+                  id="cn-email"
+                  type="email"
+                  className={`cn-input ${errors.email ? "cn-input--error" : ""}`}
+                  placeholder="your@email.com"
+                  autoComplete="email"
+                  {...register("email")}
+                />
+                {errors.email && (
+                  <span className="cn-error">{errors.email.message}</span>
+                )}
+              </div>
+
+              {/* Message */}
+              <div className="cn-field cn-field--grow">
+                <label className="cn-label" htmlFor="cn-message">MESSAGE</label>
+                <textarea
+                  id="cn-message"
+                  className={`cn-input cn-input--textarea ${errors.message ? "cn-input--error" : ""}`}
+                  placeholder="Tell me about your project or idea..."
                   {...register("message")}
                 />
                 {errors.message && (
-                  <p className="text-xs text-red-500/70">{errors.message.message}</p>
+                  <span className="cn-error">{errors.message.message}</span>
                 )}
               </div>
-              <Button
+
+              {/* Submit */}
+              <button
+                id="contact-submit"
                 type="submit"
                 disabled={sending}
-                className="w-full bg-white/6 hover:bg-red-600/20 border border-white/8 hover:border-red-600/30 text-white transition-all duration-300 rounded cursor-pointer"
+                className="cn-btn"
               >
                 {sending ? (
-                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  <Loader2 size={15} className="animate-spin" />
                 ) : (
-                  <Send className="w-4 h-4 mr-2" />
+                  <Send size={14} />
                 )}
-                {sending ? "Sending..." : "Send Message"}
-              </Button>
+                <span>{sending ? "Sending…" : "Send Message"}</span>
+              </button>
             </form>
           )}
-        </motion.div>
-
-        {/* Footer line */}
-        <motion.div
-          initial={{ opacity: 0 }}
-          whileInView={{ opacity: 1 }}
-          viewport={{ once: true }}
-          transition={{ delay: 0.5 }}
-          className="text-center mt-16"
-        >
-          <div className="w-16 h-px bg-white/6 mx-auto mb-4" />
-          <p className="text-[9px] tracking-[0.3em] text-white/15 uppercase font-mono">
-            © {new Date().getFullYear()} — Built with precision
-          </p>
         </motion.div>
       </div>
     </section>
