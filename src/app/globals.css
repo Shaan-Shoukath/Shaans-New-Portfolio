@@ -1012,7 +1012,7 @@
 /* ═══════ Dulcedo Scroll Hint ═══════ */
 .dulcedo-scroll-hint {
   position: absolute;
-  bottom: clamp(1.5rem, 3vh, 2.5rem);
+  bottom: clamp(5rem, 10vh, 6.5rem);
   left: 50%;
   transform: translateX(-50%);
   z-index: 15;

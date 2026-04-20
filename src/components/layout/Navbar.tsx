@@ -77,10 +77,10 @@ export function Navbar() {
           <div className="flex h-16 md:h-20 items-center justify-between">
             {/* Logo */}
             <a href="#hero" className="flex items-center gap-2.5 group">
-              <div className="relative w-9 h-9 rounded-xl bg-gradient-to-br from-indigo-500 via-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm animate-gradient-shift group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-shadow duration-300">
+              <div className="relative w-9 h-9 rounded-xl bg-linear-to-br from-indigo-500 via-violet-500 to-cyan-500 flex items-center justify-center text-white font-bold text-sm animate-gradient-shift group-hover:shadow-lg group-hover:shadow-indigo-500/30 transition-shadow duration-300">
                 S
               </div>
-              <span className="text-lg font-bold font-[family-name:var(--font-heading)] hidden sm:block gradient-text">
+              <span className="text-lg font-bold font-heading hidden sm:block gradient-text">
                 Shaan
               </span>
             </a>

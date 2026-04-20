@@ -1,3 +1,5 @@
+import { BottomNav } from "@/components/layout/BottomNav";
+
 export default function MainLayout({
   children,
 }: {
@@ -6,6 +8,7 @@ export default function MainLayout({
   return (
     <div className="film-grain">
       {children}
+      <BottomNav />
     </div>
   );
 }

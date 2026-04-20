@@ -24,6 +24,7 @@ export function ScrollEngine({ children }: ScrollEngineProps) {
     });
 
     lenisRef.current = lenis;
+    (window as unknown as Record<string, unknown>).__lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
 
     const ticker = (time: number) => {
@@ -38,6 +39,7 @@ export function ScrollEngine({ children }: ScrollEngineProps) {
     });
 
     return () => {
+      delete (window as unknown as Record<string, unknown>).__lenis;
       lenis.destroy();
       gsap.ticker.remove(ticker);
       window.cancelAnimationFrame(refreshId);
