@@ -10,6 +10,13 @@ import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
 import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import {
   Plus,
   Pencil,
   Trash2,
@@ -241,21 +248,22 @@ export default function AdminExperiencesPage() {
             </div>
             <div className="space-y-2">
               <Label className="text-xs text-white/50 uppercase tracking-wider">Type</Label>
-              <select
+              <Select
                 value={form.type}
-                onChange={(e) =>
-                  setForm({
-                    ...form,
-                    type: e.target.value as FormData["type"],
-                  })
+                onValueChange={(value) =>
+                  setForm({ ...form, type: value as FormData["type"] })
                 }
-                className="w-full px-3 py-2 rounded-md bg-white/3 border border-white/6 text-foreground text-sm cursor-pointer"
               >
-                <option value="professional">Professional</option>
-                <option value="social">Social</option>
-                <option value="education">Education</option>
-                <option value="freelance">Freelance</option>
-              </select>
+                <SelectTrigger className="w-full bg-white/3 border-white/6">
+                  <SelectValue />
+                </SelectTrigger>
+                <SelectContent className="bg-[#0a0a0a] border-white/10">
+                  <SelectItem value="professional">Professional</SelectItem>
+                  <SelectItem value="social">Social</SelectItem>
+                  <SelectItem value="education">Education</SelectItem>
+                  <SelectItem value="freelance">Freelance</SelectItem>
+                </SelectContent>
+              </Select>
             </div>
             <div className="space-y-2">
               <Label className="text-xs text-white/50 uppercase tracking-wider">Order Index</Label>

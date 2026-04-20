@@ -3391,6 +3391,16 @@
   color: rgba(255, 255, 255, 0.1);
 }
 
+.cn-input:-webkit-autofill,
+.cn-input:-webkit-autofill:hover,
+.cn-input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0 1000px transparent inset;
+  box-shadow: 0 0 0 1000px transparent inset;
+  -webkit-text-fill-color: rgba(255, 255, 255, 0.92);
+  transition: background-color 9999s ease-in-out 0s;
+  caret-color: rgba(220, 38, 38, 0.8);
+}
+
 .cn-input--textarea {
   line-height: 1.55;
   padding-top: 0.15rem;

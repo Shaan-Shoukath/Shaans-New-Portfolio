@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactFormData } from "@/lib/validators";
-import { Github, Linkedin, Send, Loader2, CheckCircle2 } from "lucide-react";
+import { Github, Linkedin, Send, CheckCircle2 } from "lucide-react";
 
 function MediumIcon({ size = 16 }: { size?: number }) {
   return (
@@ -23,7 +23,6 @@ function MediumIcon({ size = 16 }: { size?: number }) {
 
 export function ContactSection() {
   const [submitted, setSubmitted] = useState(false);
-  const [sending, setSending] = useState(false);
 
   const {
     register,
@@ -34,10 +33,14 @@ export function ContactSection() {
     resolver: zodResolver(contactSchema),
   });
 
-  const onSubmit = async (_data: ContactFormData) => {
-    setSending(true);
-    await new Promise((res) => setTimeout(res, 1500));
-    setSending(false);
+  const onSubmit = (data: ContactFormData) => {
+    const subject = encodeURIComponent(`Portfolio Contact from ${data.name}`);
+    const body = encodeURIComponent(`Name: ${data.name}\nEmail: ${data.email}\n\n${data.message}`);
+    window.open(
+      `https://mail.google.com/mail/?view=cm&fs=1&to=shaanshoukath4522@gmail.com&su=${subject}&body=${body}`,
+      "_blank",
+      "noopener,noreferrer"
+    );
     setSubmitted(true);
     reset();
     setTimeout(() => setSubmitted(false), 6000);
@@ -194,15 +197,10 @@ export function ContactSection() {
               <button
                 id="contact-submit"
                 type="submit"
-                disabled={sending}
                 className="cn-btn"
               >
-                {sending ? (
-                  <Loader2 size={15} className="animate-spin" />
-                ) : (
-                  <Send size={14} />
-                )}
-                <span>{sending ? "Sending…" : "Send Message"}</span>
+                <Send size={14} />
+                <span>Send Message</span>
               </button>
             </form>
           )}

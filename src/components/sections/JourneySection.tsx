@@ -345,7 +345,7 @@ export function JourneySection() {
           });
         },
         onUpdate: (self) => {
-          const exitStart = 0.82;
+          const exitStart = 0.97;
           const exitProgress =
             self.progress <= exitStart
               ? 0
