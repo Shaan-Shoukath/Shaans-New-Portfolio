@@ -181,6 +181,9 @@ export function JourneySection() {
   const [viewportHeight, setViewportHeight] = useState(() =>
     typeof window !== "undefined" ? window.innerHeight : DEFAULT_VIEWPORT_HEIGHT
   );
+  const [reducedMotion] = useState(
+    () => typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches
+  );
 
   const sectionRef = useRef<HTMLDivElement>(null);
   const trackRef = useRef<HTMLDivElement>(null);
@@ -517,7 +520,7 @@ export function JourneySection() {
         </div>
 
         <div className="journey-particles" aria-hidden="true">
-          {Array.from({ length: 24 }).map((_, index) => (
+          {Array.from({ length: reducedMotion ? 0 : viewportWidth <= 768 ? 6 : 12 }).map((_, index) => (
             <div
               key={index}
               className="journey-particle"
