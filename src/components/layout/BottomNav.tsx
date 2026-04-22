@@ -17,21 +17,28 @@ const heroNavItems = [
 
 export function BottomNav() {
   const [activeSection, setActiveSection] = useState("#hero");
-  const [inHero, setInHero] = useState(false);
+  const [inHero, setInHero] = useState(true);
 
   /* ── Detect whether the hero panel is still on-screen ── */
   useEffect(() => {
     const checkHero = () => {
       const heroPanel = document.querySelector(".hero-dulcedo-panel");
-      if (!heroPanel) { setInHero(false); return; }
+      if (!heroPanel) {
+        // Panel not yet in DOM — keep visible (still loading)
+        return;
+      }
       const rect = heroPanel.getBoundingClientRect();
       // Pill visible only while hero panel's right edge is still well within viewport
       setInHero(rect.right > window.innerWidth * 0.15);
     };
 
-    checkHero();
+    // Delay initial check to allow dynamic sections to mount
+    const timer = setTimeout(checkHero, 300);
     window.addEventListener("scroll", checkHero, { passive: true });
-    return () => window.removeEventListener("scroll", checkHero);
+    return () => {
+      clearTimeout(timer);
+      window.removeEventListener("scroll", checkHero);
+    };
   }, []);
 
   /* ── Scroll-spy ── */
