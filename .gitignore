@@ -64,3 +64,10 @@ Desktop.ini
 # Local artifacts
 build_output.txt
 references/
+
+# AI agent planning docs (specs, implementation plans)
+docs/superpowers/
+
+# Loose scratch migration files (applied migrations live in supabase/migrations/)
+supabase_migration.sql
+tmp_*.txt
