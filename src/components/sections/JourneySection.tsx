@@ -633,19 +633,6 @@ function JourneyPathInline({
   return (
     <>
       <defs>
-        <filter id="journey-glow" x="-20%" y="-20%" width="140%" height="140%">
-          <feGaussianBlur in="SourceGraphic" stdDeviation="8" result="blur" />
-          <feColorMatrix
-            in="blur"
-            type="matrix"
-            values="0 0 0 0 0.86  0 0 0 0 0.15  0 0 0 0 0.15  0 0 0 0.5 0"
-          />
-          <feMerge>
-            <feMergeNode />
-            <feMergeNode in="SourceGraphic" />
-          </feMerge>
-        </filter>
-
         <linearGradient id="journey-grad" x1="0%" y1="0%" x2="100%" y2="0%">
           <stop offset="0%" stopColor="rgba(255, 255, 255, 0.92)" />
           <stop offset="50%" stopColor="rgba(255, 255, 255, 0.72)" />
@@ -668,12 +655,11 @@ function JourneyPathInline({
         ref={glowPathRef}
         d={pathD}
         fill="none"
-        stroke="rgba(255, 255, 255, 0.35)"
-        strokeWidth="8"
+        stroke="rgba(220, 38, 38, 0.22)"
+        strokeWidth="14"
         strokeLinecap="round"
         strokeDasharray="1"
         strokeDashoffset="1"
-        filter="url(#journey-glow)"
       />
 
       {/* Active path -- dashoffset updated by rAF loop */}
