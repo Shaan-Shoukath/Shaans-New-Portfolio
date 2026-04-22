@@ -1508,8 +1508,7 @@
   transform:
     translate3d(0, calc(var(--journey-exit-progress) * -4vh), 0)
     scale(calc(1 - (var(--journey-exit-progress) * 0.025)));
-  filter: blur(calc(var(--journey-exit-progress) * 10px));
-  will-change: opacity, transform, filter;
+  will-change: opacity, transform;
 }
 
 .journey-stage__bg {
