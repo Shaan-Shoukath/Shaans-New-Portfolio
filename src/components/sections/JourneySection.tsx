@@ -134,14 +134,19 @@ const DEFAULT_VIEWPORT_WIDTH = 1440;
 const DEFAULT_VIEWPORT_HEIGHT = 900;
 const MIN_TRACK_PANELS = 2.5; // tighter node spacing reduces dead-zone in center
 
-function getPathHeight(viewportHeight: number) {
+function getPathHeight(viewportHeight: number, viewportWidth: number) {
+  // On phones, use a shorter path so above/below cards have more breathing room
+  if (viewportWidth < 480) return Math.min(200, Math.max(120, viewportHeight * 0.24));
+  if (viewportWidth < 640) return Math.min(280, Math.max(160, viewportHeight * 0.32));
+  if (viewportWidth < 768) return Math.min(340, Math.max(200, viewportHeight * 0.38));
   return Math.min(480, Math.max(280, viewportHeight * 0.44));
 }
 
 function getCardWidth(viewportWidth: number) {
-  if (viewportWidth < 480) return 240;
-  if (viewportWidth < 640) return 260;
-  if (viewportWidth < 960) return 300;
+  if (viewportWidth < 360) return 180;
+  if (viewportWidth < 480) return 210;
+  if (viewportWidth < 640) return 240;
+  if (viewportWidth < 960) return 290;
   if (viewportWidth < 1280) return 320;
   return 340;
 }
@@ -256,7 +261,7 @@ export function JourneySection() {
   // Memoize so the array reference is stable -- prevents infinite loops
   // in callbacks/effects that depend on nodePositions.
   const nodePositions = useMemo(() => getNodePositions(nodeCount), [nodeCount]);
-  const pathHeight = getPathHeight(viewportHeight);
+  const pathHeight = getPathHeight(viewportHeight, viewportWidth);
   const cardWidth = getCardWidth(viewportWidth);
   const connectorLength = getConnectorLength(viewportWidth, viewportHeight);
   const pathWidth = getTrackWidth(nodeCount, viewportWidth, cardWidth);
@@ -330,6 +335,7 @@ export function JourneySection() {
     if (!section || !track || nodeCount === 0) return;
 
     const scrollDistance = Math.max(pathWidth - viewportWidth, 1);
+    const isMobile = viewportWidth < 768;
 
     const ctx = gsap.context(() => {
       gsap.set(track, { x: 0 });
@@ -339,7 +345,7 @@ export function JourneySection() {
         start: "top top",
         end: () => `+=${scrollDistance}`,
         pin: true,
-        scrub: 0.5,
+        scrub: isMobile ? 0.2 : 0.5,
         anticipatePin: 1,
         invalidateOnRefresh: true,
         onRefresh: () => {
@@ -432,11 +438,15 @@ export function JourneySection() {
             const tone = JOURNEY_TONES[index % JOURNEY_TONES.length]!;
             const isCommunity = COMMUNITY_TYPES.includes(entry.type);
 
+            // Path center offset must match .journey-track__canvas CSS media queries:
+            // ≤640px → 90px (compact header), ≤768px → 70px, default → 80px
+            const pathCenterOffset =
+              viewportWidth <= 640 ? 90 : viewportWidth <= 768 ? 70 : 80;
+
             const wrapperStyle = {
               left: `${anchor.x}px`,
-              // Shift path center down by HEADER_OFFSET/2 to clear the header text
-              // The CSS canvas top is calc(50% + 80px) so anchor.y is relative to that
-              top: `calc(50% + 80px - ${pathHeight / 2}px + ${anchor.y}px)`,
+              // Shift path center down to clear the header text (matches CSS top offset)
+              top: `calc(50% + ${pathCenterOffset}px - ${pathHeight / 2}px + ${anchor.y}px)`,
               zIndex: isActive ? 16 : 8 + index,
               "--node-accent": tone.accent,
               "--node-dim": tone.dim,
@@ -520,7 +530,7 @@ export function JourneySection() {
         </div>
 
         <div className="journey-particles" aria-hidden="true">
-          {Array.from({ length: reducedMotion ? 0 : viewportWidth <= 768 ? 6 : 12 }).map((_, index) => (
+          {Array.from({ length: reducedMotion ? 0 : viewportWidth < 640 ? 0 : viewportWidth < 768 ? 4 : 12 }).map((_, index) => (
             <div
               key={index}
               className="journey-particle"

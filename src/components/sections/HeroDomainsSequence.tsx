@@ -215,7 +215,9 @@ function DulcedoRings() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
-    if (prefersReducedMotion) return;
+    // Skip pointer tracking on touch devices — no meaningful pointer events
+    const isTouchDevice = "ontouchstart" in window || navigator.maxTouchPoints > 0;
+    if (prefersReducedMotion || isTouchDevice) return;
 
     const handlePointerMove = (event: PointerEvent) => {
       pointerX.set(((event.clientX / window.innerWidth) - 0.5) * 50);
@@ -347,9 +349,10 @@ export function HeroDomainsSequence() {
     const prefersReducedMotion = window.matchMedia(
       "(prefers-reduced-motion: reduce)"
     ).matches;
+    const isMobile = window.innerWidth < 768;
     const handoffDistance = Math.max(window.innerWidth * 0.55, 500);
     const domainStepDistance = Math.max(
-      window.innerHeight * (prefersReducedMotion ? 0.35 : 0.5),
+      window.innerHeight * (prefersReducedMotion ? 0.35 : isMobile ? 0.35 : 0.5),
       280
     );
     const domainDistance = domainStepDistance * Math.max(totalDomains, 1);
@@ -369,7 +372,7 @@ export function HeroDomainsSequence() {
           start: "top top",
           end: () => `+=${totalDistance}`,
           pin: true,
-          scrub: prefersReducedMotion ? 0.3 : 1,
+          scrub: prefersReducedMotion ? 0.3 : isMobile ? 0.3 : 1,
           anticipatePin: 1,
           invalidateOnRefresh: true,
           onUpdate: (self) => {
