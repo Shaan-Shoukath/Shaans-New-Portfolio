@@ -5,7 +5,7 @@ import { motion } from "framer-motion";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { contactSchema, type ContactFormData } from "@/lib/validators";
-import { Github, Linkedin, Send, CheckCircle2 } from "lucide-react";
+import { Github, Linkedin, Send, CheckCircle2, FileText } from "lucide-react";
 
 function MediumIcon({ size = 16 }: { size?: number }) {
   return (
@@ -114,6 +114,17 @@ export function ContactSection() {
             >
               <MediumIcon size={15} />
               <span>Medium</span>
+            </a>
+            <a
+              href="https://github.com/Shaan-Shoukath/My-CV/blob/main/Resume-Shaan%20A.pdf"
+              target="_blank"
+              rel="noopener noreferrer"
+              id="social-resume"
+              className="cn-social"
+              aria-label="Resume"
+            >
+              <FileText size={15} />
+              <span>Resume</span>
             </a>
           </div>
 
