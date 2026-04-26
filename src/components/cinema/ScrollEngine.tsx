@@ -15,6 +15,11 @@ export function ScrollEngine({ children }: ScrollEngineProps) {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    // Ignore resize events caused by mobile browser toolbar show/hide.
+    // Without this, every toolbar toggle fires ScrollTrigger.refresh() which
+    // destroys and rebuilds pinned sections in one frame → visible blink.
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
     const lenis = new Lenis({
       duration: 1.2,
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),

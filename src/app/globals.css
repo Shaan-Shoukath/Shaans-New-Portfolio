@@ -335,6 +335,7 @@
 .cinema-panel {
   width: 100vw;
   height: 100vh;
+  height: 100svh;
   position: relative;
   overflow: hidden;
   flex-shrink: 0;
@@ -1092,6 +1093,7 @@
   --handoff-progress: 0;
   width: 100vw;
   height: 100vh;
+  height: 100svh;
   overflow: hidden;
   position: relative;
   background: #050505;
@@ -1102,6 +1104,7 @@
   display: flex;
   width: 200vw;
   height: 100vh;
+  height: 100svh;
   will-change: transform;
 }
 
@@ -1608,6 +1611,7 @@
   --journey-exit-progress: 0;
   width: 100vw;
   height: 100vh;
+  height: 100svh;
   overflow: hidden;
   position: relative;
   background: #050505;
@@ -1712,6 +1716,7 @@
 /* ── Horizontal track ── */
 .journey-track {
   height: 100vh;
+  height: 100svh;
   position: relative;
   will-change: transform;
   display: flex;
@@ -2542,6 +2547,7 @@
 .works-stage {
   width: 100vw;
   height: 100vh;
+  height: 100svh;
   overflow: hidden;
   position: relative;
   background: #050505;
@@ -2613,6 +2619,7 @@
 /* ── Horizontal track ── */
 .works-track {
   height: 100vh;
+  height: 100svh;
   position: relative;
   will-change: transform;
   display: flex;
@@ -3353,6 +3360,7 @@
 .cn-stage {
   width: 100%;
   height: 100vh;
+  height: 100svh;
   min-height: 600px;
   background: #050505;
   position: relative;
