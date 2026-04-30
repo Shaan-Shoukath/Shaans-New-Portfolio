@@ -2,6 +2,7 @@
 
 import { useEffect } from "react";
 import { createPortal } from "react-dom";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import type { Experience } from "@/lib/types";
 
@@ -59,7 +60,14 @@ export function JourneyModal({ entry, displayIndex, onClose }: JourneyModalProps
             {/* Hero image */}
             {entry.image_url && (
               <div className="journey-modal-image">
-                <img src={entry.image_url} alt={entry.title} draggable={false} />
+                <Image
+                  src={entry.image_url}
+                  alt={entry.title}
+                  fill
+                  sizes="(min-width: 768px) 640px, 100vw"
+                  unoptimized
+                  draggable={false}
+                />
                 <div className="journey-modal-image__fade" />
               </div>
             )}

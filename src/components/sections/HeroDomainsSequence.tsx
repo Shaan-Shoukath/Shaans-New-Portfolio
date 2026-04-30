@@ -2,6 +2,7 @@
 
 import type { CSSProperties } from "react";
 import { useEffect, useLayoutEffect, useRef, useState } from "react";
+import Image from "next/image";
 import { AnimatePresence, motion, useMotionValue, useSpring, useTransform } from "framer-motion";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
@@ -184,9 +185,12 @@ function HeroPortraitCarousel({ images }: { images: HeroImage[] }) {
           exit={{ opacity: 0, scale: 0.97 }}
           transition={{ duration: 0.9, ease: [0.22, 1, 0.36, 1] }}
         >
-          <img
+          <Image
             src={images[currentIndex].image_url}
             alt={images[currentIndex].alt_text || "Portfolio image"}
+            fill
+            sizes="(min-width: 1440px) 340px, (min-width: 1024px) 300px, (min-width: 768px) 260px, 60vw"
+            unoptimized
             draggable={false}
           />
         </motion.div>

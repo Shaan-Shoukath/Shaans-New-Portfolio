@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import type { Experience } from "@/lib/types";
 
 interface JourneyNodeProps {
@@ -9,7 +10,6 @@ interface JourneyNodeProps {
   x: number;
   y: number;
   isActive: boolean;
-  totalNodes: number;
 }
 
 /**
@@ -25,7 +25,6 @@ export function JourneyNode({
   x,
   y,
   isActive,
-  totalNodes,
 }: JourneyNodeProps) {
   // Alternate cards above/below the path
   const isAbove = index % 2 === 0;
@@ -68,9 +67,12 @@ export function JourneyNode({
         {/* Image */}
         {experience.image_url && (
           <div className="journey-node__image">
-            <img
+            <Image
               src={experience.image_url}
               alt={experience.title}
+              fill
+              sizes="320px"
+              unoptimized
               loading="lazy"
               draggable={false}
             />

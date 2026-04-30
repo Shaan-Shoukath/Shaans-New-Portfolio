@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
@@ -61,7 +61,7 @@ export default function ProjectsManager() {
   const [featured, setFeatured] = useState(false);
   const [published, setPublished] = useState(true);
   const [imageUrl, setImageUrl] = useState("");
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const {
     register,
@@ -73,18 +73,18 @@ export default function ProjectsManager() {
     resolver: zodResolver(projectSchema) as any,
   });
 
-  async function fetchProjects() {
+  const fetchProjects = useCallback(async () => {
     const { data } = await supabase
       .from("projects")
       .select("*")
       .order("created_at", { ascending: false });
     if (data) setProjects(data);
     setLoading(false);
-  }
+  }, [supabase]);
 
   useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   function openCreate() {
     setEditingId(null);

@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState, useCallback } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { HeroImage } from "@/lib/types";
 import { GlassCard } from "@/components/shared/GlassCard";
@@ -250,9 +251,13 @@ export default function HeroImagesAdmin() {
               <div className="flex items-center gap-4">
                 {/* Thumbnail */}
                 <div className="w-24 h-16 rounded-lg overflow-hidden shrink-0 border border-white/6 bg-black/40">
-                  <img
+                  <Image
                     src={image.image_url}
                     alt={image.alt_text || "Hero image"}
+                    width={96}
+                    height={64}
+                    sizes="96px"
+                    unoptimized
                     className="w-full h-full object-cover"
                     style={{
                       filter: image.active

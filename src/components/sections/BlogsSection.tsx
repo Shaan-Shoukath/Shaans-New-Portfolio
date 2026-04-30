@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Blog } from "@/lib/types";
 import { SectionWrapper } from "@/components/shared/SectionWrapper";
@@ -18,7 +19,7 @@ import {
 export function BlogsSection() {
   const [blogs, setBlogs] = useState<Blog[]>([]);
   const [loading, setLoading] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   useEffect(() => {
     async function fetchBlogs() {
@@ -31,7 +32,7 @@ export function BlogsSection() {
       setLoading(false);
     }
     fetchBlogs();
-  }, []);
+  }, [supabase]);
 
   return (
     <SectionWrapper id="blogs">
@@ -63,9 +64,12 @@ export function BlogsSection() {
               {/* Top section with cover image */}
               {blog.cover_image ? (
                 <div className="relative h-44 -mx-6 -mt-6 mb-4 overflow-hidden rounded-t-xl">
-                  <img
+                  <Image
                     src={blog.cover_image}
                     alt={blog.title}
+                    fill
+                    sizes="(min-width: 1024px) 33vw, (min-width: 768px) 50vw, 100vw"
+                    unoptimized
                     className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-110"
                   />
                   <div className="absolute inset-0 bg-gradient-to-t from-[#0B0F19] via-[#0B0F19]/50 to-transparent" />

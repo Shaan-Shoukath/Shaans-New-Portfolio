@@ -5,7 +5,6 @@ import { SectionWrapper } from "@/components/shared/SectionWrapper";
 import { AnimatedHeading } from "@/components/shared/AnimatedHeading";
 import { GlassCard } from "@/components/shared/GlassCard";
 import {
-  Download,
   FileText,
   Briefcase,
   GraduationCap,

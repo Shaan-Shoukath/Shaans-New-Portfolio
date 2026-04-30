@@ -5,6 +5,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { createClient } from "@/lib/supabase/client";
 import type { Project } from "@/lib/types";
@@ -139,9 +140,13 @@ export function ProjectsSection() {
               top: mousePos.y - 80,
             }}
           >
-            <img
+            <Image
               src={displayProjects[hoveredIndex]!.image_url!}
               alt={displayProjects[hoveredIndex]!.title}
+              width={360}
+              height={240}
+              sizes="360px"
+              unoptimized
               className="works-namma-preview__img"
             />
           </motion.div>
@@ -171,7 +176,6 @@ export function ProjectsSection() {
               key={project.id}
               project={project}
               index={index}
-              total={displayProjects.length}
               isHovered={hoveredIndex === index}
               anyHovered={hoveredIndex !== null}
               onMouseEnter={() => setHoveredIndex(index)}
@@ -203,7 +207,6 @@ export function ProjectsSection() {
 function ProjectRow({
   project,
   index,
-  total,
   isHovered,
   anyHovered,
   onMouseEnter,
@@ -211,7 +214,6 @@ function ProjectRow({
 }: {
   project: Project;
   index: number;
-  total: number;
   isHovered: boolean;
   anyHovered: boolean;
   onMouseEnter: () => void;

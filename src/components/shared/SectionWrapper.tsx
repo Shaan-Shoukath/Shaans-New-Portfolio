@@ -17,7 +17,7 @@ export function SectionWrapper({
   className,
   fullHeight = false,
 }: SectionWrapperProps) {
-  const { ref, scrollYProgress } = useScrollAnimation();
+  const { ref } = useScrollAnimation();
 
   return (
     <motion.section

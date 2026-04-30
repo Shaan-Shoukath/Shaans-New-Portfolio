@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useState } from "react";
+import { useCallback, useLayoutEffect, useState } from "react";
 import dynamic from "next/dynamic";
 import { CinematicLoader } from "@/components/loader/CinematicLoader";
 import { ScrollEngine } from "@/components/cinema/ScrollEngine";
@@ -40,9 +40,35 @@ const ContactSection = dynamic(
 export default function HomePage() {
   const [loaderDone, setLoaderDone] = useState(false);
 
-  const handleLoaderComplete = useCallback(() => {
-    setLoaderDone(true);
+  const shouldResetHomeScroll = useCallback(() => {
+    return window.location.pathname === "/" && window.location.hash === "";
   }, []);
+
+  useLayoutEffect(() => {
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    if (shouldResetHomeScroll()) {
+      window.scrollTo(0, 0);
+    }
+
+    const handlePageShow = (event: PageTransitionEvent) => {
+      if (event.persisted && shouldResetHomeScroll()) {
+        window.scrollTo(0, 0);
+      }
+    };
+
+    window.addEventListener("pageshow", handlePageShow);
+    return () => window.removeEventListener("pageshow", handlePageShow);
+  }, [shouldResetHomeScroll]);
+
+  const handleLoaderComplete = useCallback(() => {
+    if (shouldResetHomeScroll()) {
+      window.scrollTo(0, 0);
+    }
+    setLoaderDone(true);
+  }, [shouldResetHomeScroll]);
 
   return (
     <>

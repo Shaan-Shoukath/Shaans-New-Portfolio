@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
@@ -68,7 +68,7 @@ export default function BlogsManager() {
   const [tagsInput, setTagsInput] = useState("");
   const [published, setPublished] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
-  const supabase = createClient();
+  const supabase = useMemo(() => createClient(), []);
 
   const {
     register,
@@ -91,18 +91,18 @@ export default function BlogsManager() {
     }
   }, [titleValue, autoSlug, editingId, setValue]);
 
-  async function fetchBlogs() {
+  const fetchBlogs = useCallback(async () => {
     const { data } = await supabase
       .from("blogs")
       .select("*")
       .order("created_at", { ascending: false });
     if (data) setBlogs(data);
     setLoading(false);
-  }
+  }, [supabase]);
 
   useEffect(() => {
     fetchBlogs();
-  }, []);
+  }, [fetchBlogs]);
 
   function openCreate() {
     setEditingId(null);

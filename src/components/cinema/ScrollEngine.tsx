@@ -15,9 +15,20 @@ export function ScrollEngine({ children }: ScrollEngineProps) {
   const lenisRef = useRef<Lenis | null>(null);
 
   useEffect(() => {
+    const shouldResetHomeScroll =
+      window.location.pathname === "/" && window.location.hash === "";
+
+    if ("scrollRestoration" in window.history) {
+      window.history.scrollRestoration = "manual";
+    }
+
+    if (shouldResetHomeScroll) {
+      window.scrollTo(0, 0);
+    }
+
     // Ignore resize events caused by mobile browser toolbar show/hide.
     // Without this, every toolbar toggle fires ScrollTrigger.refresh() which
-    // destroys and rebuilds pinned sections in one frame → visible blink.
+    // destroys and rebuilds pinned sections in one frame -> visible blink.
     ScrollTrigger.config({ ignoreMobileResize: true });
 
     const lenis = new Lenis({
@@ -32,6 +43,10 @@ export function ScrollEngine({ children }: ScrollEngineProps) {
     (window as unknown as Record<string, unknown>).__lenis = lenis;
     lenis.on("scroll", ScrollTrigger.update);
 
+    if (shouldResetHomeScroll) {
+      lenis.scrollTo(0, { immediate: true });
+    }
+
     const ticker = (time: number) => {
       lenis.raf(time * 1000);
     };
@@ -40,7 +55,12 @@ export function ScrollEngine({ children }: ScrollEngineProps) {
     gsap.ticker.lagSmoothing(0);
 
     const refreshId = window.requestAnimationFrame(() => {
-      window.requestAnimationFrame(() => ScrollTrigger.refresh());
+      window.requestAnimationFrame(() => {
+        if (shouldResetHomeScroll) {
+          lenis.scrollTo(0, { immediate: true });
+        }
+        ScrollTrigger.refresh();
+      });
     });
 
     return () => {

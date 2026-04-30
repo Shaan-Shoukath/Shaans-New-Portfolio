@@ -82,8 +82,6 @@
   --sidebar-accent-foreground: #ef4444;
   --sidebar-border: rgba(255, 255, 255, 0.06);
   --sidebar-ring: #dc2626;
-  --font-heading: "Space Grotesk", var(--font-sans), sans-serif;
-
   /* ─── Accent tokens ─── */
   --red: #dc2626;
   --red-light: #ef4444;

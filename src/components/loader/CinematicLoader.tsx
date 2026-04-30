@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState, useCallback } from "react";
+import Image from "next/image";
 import { motion } from "framer-motion";
 
 export function CinematicLoader({
@@ -74,10 +75,14 @@ export function CinematicLoader({
         transition={{ duration: 0.5 }}
       >
         {/* shaan.gif */}
-        <img
+        <Image
           src="/shaan.gif"
           alt="Shaan"
+          width={320}
+          height={320}
           className="loader-character-gif"
+          priority
+          unoptimized
           loading="eager"
         />
 

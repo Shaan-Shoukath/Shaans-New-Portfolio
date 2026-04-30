@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect } from "react";
 import { motion, useMotionValue, useSpring } from "framer-motion";
 
 export function ScrollProgress() {
@@ -10,9 +10,6 @@ export function ScrollProgress() {
     damping: 30,
     restDelta: 0.001,
   });
-
-  const rafRef = useRef<number | undefined>(undefined);
-
   useEffect(() => {
     const shell = document.getElementById("content-shell");
     if (!shell) return;
@@ -26,7 +23,6 @@ export function ScrollProgress() {
     shell.addEventListener("scroll", onScroll, { passive: true });
     return () => {
       shell.removeEventListener("scroll", onScroll);
-      if (rafRef.current) cancelAnimationFrame(rafRef.current);
     };
   }, [progress]);
 

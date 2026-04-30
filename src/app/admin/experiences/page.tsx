@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import type { Experience } from "@/lib/types";
 import { GlassCard } from "@/components/shared/GlassCard";
@@ -378,7 +379,15 @@ export default function AdminExperiencesPage() {
               {/* Image thumbnail or type icon */}
               {exp.image_url ? (
                 <div className="w-12 h-12 rounded-lg overflow-hidden border border-white/10 shrink-0">
-                  <img src={exp.image_url} alt={exp.title} className="w-full h-full object-cover" />
+                  <Image
+                    src={exp.image_url}
+                    alt={exp.title}
+                    width={48}
+                    height={48}
+                    sizes="48px"
+                    unoptimized
+                    className="w-full h-full object-cover"
+                  />
                 </div>
               ) : (
                 <div className={`p-2 rounded-lg border ${colorClass} shrink-0`}>

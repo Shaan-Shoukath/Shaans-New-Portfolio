@@ -1,6 +1,7 @@
 "use client";
 
 import { motion } from "framer-motion";
+import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 import type { Blog } from "@/lib/types";
 import {
@@ -82,9 +83,13 @@ export function BlogContent({ blog }: BlogContentProps) {
             transition={{ duration: 0.5, delay: 0.2 }}
             className="relative rounded-2xl overflow-hidden mb-10 border border-white/[0.06]"
           >
-            <img
+            <Image
               src={blog.cover_image}
               alt={blog.title}
+              width={1200}
+              height={675}
+              sizes="(min-width: 768px) 768px, 100vw"
+              unoptimized
               className="w-full h-auto object-cover"
             />
           </motion.div>

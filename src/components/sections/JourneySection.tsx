@@ -9,6 +9,7 @@ import React, {
   useRef,
   useState,
 } from "react";
+import Image from "next/image";
 import { gsap } from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { JourneyModal } from "@/components/journey/JourneyModal";
@@ -486,9 +487,12 @@ export function JourneySection() {
 
                       {entry.image_url && (
                         <div className="journey-node__image">
-                          <img
+                          <Image
                             src={entry.image_url}
                             alt={entry.title}
+                            fill
+                            sizes={`${cardWidth}px`}
+                            unoptimized
                             loading="lazy"
                             draggable={false}
                           />

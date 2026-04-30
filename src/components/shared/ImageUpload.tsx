@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import Image from "next/image";
 import { createClient } from "@/lib/supabase/client";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -203,13 +204,16 @@ export function ImageUpload({
       {/* Preview */}
       {value && (
         <div className="flex items-center gap-3 p-2 rounded-lg bg-white/3 border border-white/8">
-          <div className="w-12 h-10 rounded-md overflow-hidden shrink-0 bg-black/40 border border-white/8">
-            <img
+          <div className="relative w-12 h-10 rounded-md overflow-hidden shrink-0 bg-black/40 border border-white/8">
+            <Image
               src={value}
               alt="Preview"
+              fill
+              sizes="48px"
+              unoptimized
               className="w-full h-full object-cover"
               onError={(e) => {
-                (e.target as HTMLImageElement).style.display = "none";
+                (e.currentTarget as HTMLImageElement).style.display = "none";
               }}
             />
           </div>
