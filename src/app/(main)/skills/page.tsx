@@ -1,43 +1,38 @@
-"use client";
-
-import dynamic from "next/dynamic";
-import { Navbar } from "@/components/layout/Navbar";
+import type { Metadata } from "next";
 import { Footer } from "@/components/layout/Footer";
+import { Navbar } from "@/components/layout/Navbar";
 import { ScrollProgress } from "@/components/layout/ScrollProgress";
+import { IoTSection } from "@/components/scroll/IoTSection";
+import { AppDevSection } from "@/components/scroll/AppDevSection";
+import { UAVSection } from "@/components/scroll/UAVSection";
+import { WebDevSection } from "@/components/scroll/WebDevSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 
-// Code-split heavy interactive scroll sections
-const UAVSection = dynamic(
-  () =>
-    import("@/components/scroll/UAVSection").then((mod) => ({
-      default: mod.UAVSection,
-    })),
-  { ssr: false }
-);
-const WebDevSection = dynamic(
-  () =>
-    import("@/components/scroll/WebDevSection").then((mod) => ({
-      default: mod.WebDevSection,
-    })),
-  { ssr: false }
-);
-const AppDevSection = dynamic(
-  () =>
-    import("@/components/scroll/AppDevSection").then((mod) => ({
-      default: mod.AppDevSection,
-    })),
-  { ssr: false }
-);
-const IoTSection = dynamic(
-  () =>
-    import("@/components/scroll/IoTSection").then((mod) => ({
-      default: mod.IoTSection,
-    })),
-  { ssr: false }
-);
+export const metadata: Metadata = createPageMetadata({
+  title: "Skills",
+  description:
+    "Technical skills and engineering domains for Shaan Shoukath: web development, app development, UAV and robotics, IoT, embedded systems, and AI.",
+  path: "/skills",
+  keywords: [
+    "Shaan Shoukath skills",
+    "Shaan Shoukath web development",
+    "Shaan Shoukath app development",
+    "Shaan Shoukath UAV",
+    "Shaan Shoukath IoT",
+    "Shaan Shoukath AI",
+  ],
+});
 
 export default function SkillsPage() {
   return (
     <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Skills", path: "/skills" },
+        ])}
+      />
       <ScrollProgress />
       <Navbar />
       <main className="flex-1">

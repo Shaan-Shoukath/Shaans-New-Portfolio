@@ -1,6 +1,13 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { DM_Mono, Inter, Space_Grotesk } from "next/font/google";
 import { Toaster } from "@/components/ui/sonner";
+import { JsonLd } from "@/components/seo/JsonLd";
+import {
+  baseKeywords,
+  personJsonLd,
+  siteConfig,
+  websiteJsonLd,
+} from "@/lib/seo";
 import "./globals.css";
 
 const inter = Inter({
@@ -23,19 +30,65 @@ const dmMono = DM_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "Shaan Shoukath",
-  description:
-    "Full-stack developer portfolio — Web, Mobile, IoT, UAV & AI. Built with precision.",
-  keywords: [
-    "developer",
-    "portfolio",
-    "full-stack",
-    "web development",
-    "IoT",
-    "UAV",
-    "AI",
-    "Next.js",
-  ],
+  metadataBase: new URL(siteConfig.url),
+  applicationName: siteConfig.name,
+  title: {
+    default: `${siteConfig.name} | Full-Stack Developer and Creative Engineer`,
+    template: `%s | ${siteConfig.name}`,
+  },
+  description: siteConfig.description,
+  keywords: baseKeywords,
+  authors: [{ name: siteConfig.name, url: siteConfig.url }],
+  creator: siteConfig.name,
+  publisher: siteConfig.name,
+  category: "portfolio",
+  alternates: {
+    canonical: siteConfig.url,
+  },
+  openGraph: {
+    title: `${siteConfig.name} | Full-Stack Developer and Creative Engineer`,
+    description: siteConfig.description,
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    images: [
+      {
+        url: siteConfig.ogImage,
+        width: 1200,
+        height: 630,
+        alt: `${siteConfig.name} portfolio preview`,
+      },
+    ],
+    locale: "en_IN",
+    type: "profile",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} | Full-Stack Developer and Creative Engineer`,
+    description: siteConfig.description,
+    images: [siteConfig.ogImage],
+  },
+  robots: {
+    index: true,
+    follow: true,
+    googleBot: {
+      index: true,
+      follow: true,
+      "max-video-preview": -1,
+      "max-image-preview": "large",
+      "max-snippet": -1,
+    },
+  },
+  icons: {
+    icon: "/favicon.ico",
+    apple: "/icon.png",
+  },
+};
+
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  themeColor: "#050505",
+  colorScheme: "dark",
 };
 
 export default function RootLayout({
@@ -69,7 +122,7 @@ export default function RootLayout({
 
   return (
     <html
-      lang="en"
+      lang="en-IN"
       suppressHydrationWarning
       className={`${inter.variable} ${spaceGrotesk.variable} ${dmMono.variable} antialiased`}
     >
@@ -80,6 +133,8 @@ export default function RootLayout({
         suppressHydrationWarning
         className="min-h-full bg-background text-foreground font-sans"
       >
+        <JsonLd data={personJsonLd} />
+        <JsonLd data={websiteJsonLd} />
         {children}
         <Toaster richColors position="bottom-right" />
       </body>

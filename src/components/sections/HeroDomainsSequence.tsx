@@ -15,7 +15,7 @@ gsap.registerPlugin(ScrollTrigger);
 const fallbackAbout: About = {
   id: "fallback-about",
   name: "SHAAN SHOUKATH",
-  tagline: "Building Cool Stuff.",
+  tagline: "Engineering Anything.",
   quote: "Designing cinematic interfaces with a systems mindset.",
   profile_image_url: null,
   hero_floating_words: [
@@ -118,11 +118,16 @@ function splitDisplayName(name: unknown) {
 function normalizeAbout(about: About | null) {
   const nextAbout = about ?? fallbackAbout;
   const floatingWords = normalizeTextArray(nextAbout.hero_floating_words);
+  const tagline = normalizeText(nextAbout.tagline, fallbackAbout.tagline ?? "");
+
   return {
     ...fallbackAbout,
     ...nextAbout,
     name: normalizeText(nextAbout.name, fallbackAbout.name),
-    tagline: normalizeText(nextAbout.tagline, fallbackAbout.tagline ?? ""),
+    tagline:
+      tagline.toLowerCase() === "building cool stuff."
+        ? "Engineering Anything."
+        : tagline,
     quote: normalizeText(nextAbout.quote, fallbackAbout.quote ?? ""),
     hero_floating_words: floatingWords,
   };

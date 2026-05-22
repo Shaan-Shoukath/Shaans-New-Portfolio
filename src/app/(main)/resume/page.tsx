@@ -1,15 +1,31 @@
-"use client";
+import type { Metadata } from "next";
+import { ResumeSection } from "@/components/sections/ResumeSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 
-import dynamic from "next/dynamic";
-
-const ResumeSection = dynamic(
-  () =>
-    import("@/components/sections/ResumeSection").then((mod) => ({
-      default: mod.ResumeSection,
-    })),
-  { ssr: false }
-);
+export const metadata: Metadata = createPageMetadata({
+  title: "Resume",
+  description:
+    "Resume and professional background for Shaan Shoukath, covering full-stack development, engineering experience, education, and certifications.",
+  path: "/resume",
+  keywords: [
+    "Shaan Shoukath resume",
+    "Shaan Shoukath CV",
+    "full-stack developer resume",
+    "creative engineer resume",
+  ],
+});
 
 export default function ResumePage() {
-  return <ResumeSection />;
+  return (
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Resume", path: "/resume" },
+        ])}
+      />
+      <ResumeSection />
+    </>
+  );
 }

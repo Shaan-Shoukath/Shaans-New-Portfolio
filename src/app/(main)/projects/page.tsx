@@ -1,15 +1,32 @@
-"use client";
+import type { Metadata } from "next";
+import { ProjectsSection } from "@/components/sections/ProjectsSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 
-import dynamic from "next/dynamic";
-
-const ProjectsSection = dynamic(
-  () =>
-    import("@/components/sections/ProjectsSection").then((mod) => ({
-      default: mod.ProjectsSection,
-    })),
-  { ssr: false }
-);
+export const metadata: Metadata = createPageMetadata({
+  title: "Projects",
+  description:
+    "Selected work by Shaan Shoukath across full-stack web apps, SaaS platforms, UAV systems, IoT dashboards, and AI projects.",
+  path: "/projects",
+  keywords: [
+    "Shaan Shoukath projects",
+    "Shaan Shoukath work",
+    "full-stack projects",
+    "UAV projects",
+    "IoT projects",
+  ],
+});
 
 export default function ProjectsPage() {
-  return <ProjectsSection />;
+  return (
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Projects", path: "/projects" },
+        ])}
+      />
+      <ProjectsSection />
+    </>
+  );
 }

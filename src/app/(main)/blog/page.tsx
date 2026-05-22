@@ -1,15 +1,32 @@
-"use client";
+import type { Metadata } from "next";
+import { BlogsSection } from "@/components/sections/BlogsSection";
+import { JsonLd } from "@/components/seo/JsonLd";
+import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 
-import dynamic from "next/dynamic";
-
-const BlogsSection = dynamic(
-  () =>
-    import("@/components/sections/BlogsSection").then((mod) => ({
-      default: mod.BlogsSection,
-    })),
-  { ssr: false }
-);
+export const metadata: Metadata = createPageMetadata({
+  title: "Blog",
+  description:
+    "Articles and notes from Shaan Shoukath on software engineering, full-stack development, AI, IoT, UAV systems, and product building.",
+  path: "/blog",
+  keywords: [
+    "Shaan Shoukath blog",
+    "software engineering blog",
+    "full-stack development articles",
+    "AI articles",
+    "IoT articles",
+  ],
+});
 
 export default function BlogPage() {
-  return <BlogsSection />;
+  return (
+    <>
+      <JsonLd
+        data={breadcrumbJsonLd([
+          { name: "Home", path: "/" },
+          { name: "Blog", path: "/blog" },
+        ])}
+      />
+      <BlogsSection />
+    </>
+  );
 }
