@@ -7,7 +7,7 @@ export const siteConfig = {
   url: "https://shaans.works",
   email: "shaanshoukath4522@gmail.com",
   description:
-    "Shaan Shoukath is a full-stack developer and creative engineer building web apps, mobile apps, IoT systems, UAV projects, and AI-powered products.",
+    "Engineering anything: adaptive by default, turning unfamiliar, messy real-world problems into production systems across web, AI, robotics, IoT, and infrastructure.",
   ogImage: "/shaan%20logo.png",
   socialLinks: {
     github: "https://github.com/Shaan-Shoukath",
@@ -22,6 +22,8 @@ export const baseKeywords = [
   "shaan shoukath portfolio",
   "shaans works",
   "shaans.works",
+  "adaptive engineer",
+  "production systems",
   "full-stack developer",
   "creative engineer",
   "Next.js developer",

@@ -140,8 +140,8 @@ CREATE POLICY "Users can read own profile" ON profiles
 -- ============================================
 INSERT INTO about (name, tagline, quote, profile_image_url)
 VALUES (
-  'Your Name',
-  'Full-Stack Developer & Innovator',
-  'Building the future, one line of code at a time.',
+  'Shaan Shoukath',
+  'Engineering Anything.',
+  'Adaptive by default: turning unfamiliar, messy real-world problems into production systems.',
   NULL
 ) ON CONFLICT DO NOTHING;

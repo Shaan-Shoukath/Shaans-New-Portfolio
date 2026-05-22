@@ -9,8 +9,7 @@ import { HomeClient } from "./HomeClient";
 
 export const metadata: Metadata = createPageMetadata({
   title: siteConfig.name,
-  description:
-    "Official portfolio of Shaan Shoukath, full-stack developer and creative engineer building web, mobile, IoT, UAV, and AI projects.",
+  description: siteConfig.description,
   path: "/",
   type: "profile",
   keywords: [
@@ -28,9 +27,9 @@ export default function HomePage() {
         Shaan Shoukath - Full-Stack Developer and Creative Engineer
       </h1>
       <p className="sr-only">
-        Official portfolio for Shaan Shoukath covering selected projects,
-        experience, web development, app development, IoT, UAV, robotics, AI,
-        machine learning, and contact information.
+        Engineering anything: adaptive by default, turning unfamiliar, messy
+        real-world problems into production systems across web, AI, robotics,
+        IoT, infrastructure, and contact information.
       </p>
       <HomeClient />
     </>

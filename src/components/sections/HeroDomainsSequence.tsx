@@ -35,7 +35,7 @@ const fallbackDomains: Domain[] = [
     title: "Web Development",
     icon: "globe",
     description:
-      "Crafting high-performance interfaces, robust product systems, and editorial frontends that feel precise on every screen.",
+      "Adaptive by default: turning unfamiliar, messy real-world problems into production systems across web, mobile, AI, robotics, IoT, and infrastructure.",
     background_tone: "ember",
     tools: ["Next.js", "React", "TypeScript", "Node.js"],
     order_index: 0,
