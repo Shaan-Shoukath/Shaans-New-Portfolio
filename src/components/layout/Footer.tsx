@@ -1,13 +1,12 @@
 "use client";
 
-import { Github, Linkedin, Twitter, Mail, Heart, ArrowUp } from "lucide-react";
+import { Github, Linkedin, Mail, Heart, ArrowUp } from "lucide-react";
 import { motion } from "framer-motion";
 
 const socialLinks = [
-  { icon: Github, href: "https://github.com", label: "GitHub" },
-  { icon: Linkedin, href: "https://linkedin.com", label: "LinkedIn" },
-  { icon: Twitter, href: "https://twitter.com", label: "Twitter" },
-  { icon: Mail, href: "mailto:hello@example.com", label: "Email" },
+  { icon: Github, href: "https://github.com/Shaan-Shoukath", label: "GitHub" },
+  { icon: Linkedin, href: "https://linkedin.com/in/shaan-shoukath", label: "LinkedIn" },
+  { icon: Mail, href: "mailto:shaanshoukath4522@gmail.com", label: "Email" },
 ];
 
 export function Footer() {

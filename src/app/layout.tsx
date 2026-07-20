@@ -33,7 +33,7 @@ export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   applicationName: siteConfig.name,
   title: {
-    default: `${siteConfig.name} | Full-Stack Developer and Creative Engineer`,
+    default: `${siteConfig.name} | Robotics, AI & Full-Stack Engineer`,
     template: `%s | ${siteConfig.name}`,
   },
   description: siteConfig.description,
@@ -46,7 +46,7 @@ export const metadata: Metadata = {
     canonical: siteConfig.url,
   },
   openGraph: {
-    title: `${siteConfig.name} | Full-Stack Developer and Creative Engineer`,
+    title: `${siteConfig.name} | Robotics, AI & Full-Stack Engineer`,
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
@@ -63,7 +63,7 @@ export const metadata: Metadata = {
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | Full-Stack Developer and Creative Engineer`,
+    title: `${siteConfig.name} | Robotics, AI & Full-Stack Engineer`,
     description: siteConfig.description,
     images: [siteConfig.ogImage],
   },

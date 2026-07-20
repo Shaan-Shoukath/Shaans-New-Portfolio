@@ -10,6 +10,7 @@ const staticRoutes: Array<{
   priority: number;
 }> = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
+  { path: "/about", changeFrequency: "monthly", priority: 0.95 },
   { path: "/projects", changeFrequency: "monthly", priority: 0.9 },
   { path: "/skills", changeFrequency: "monthly", priority: 0.85 },
   { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
