@@ -1,7 +1,8 @@
 import { SectionHead } from "./SectionHead";
 import { ArrowUpRight, Github } from "lucide-react";
 import Image from "next/image";
-import { productImages, projectMeta, workProducts } from "@/content/site";
+import { github as gh, productImages, projectMeta, workProducts } from "@/content/site";
+import type { GitHubStats } from "@/lib/github";
 import type { Project } from "@/lib/types";
 
 type Panel = {
@@ -49,7 +50,53 @@ function Links({
   );
 }
 
-export function Projects({ projects, level }: { projects: Project[]; level?: "h1" | "h2" }) {
+const count = (n: number) => n.toLocaleString("en-IN");
+
+/** Real numbers as one sentence plus the most-starred repos, in the "More experiments" row style. */
+function OnGitHub({ stats }: { stats: GitHubStats }) {
+  const profile = `https://github.com/${gh.user}`;
+  return (
+    <div className="subsection" data-reveal>
+      <h3 className="subsection__title" data-scramble>
+        On GitHub
+      </h3>
+      <p className="gh-line">
+        {count(stats.contributions)} contributions in the last year · {stats.repos} public repos
+        {stats.orgs > 0 && ` across my account and ${stats.orgs} ${stats.orgs === 1 ? "org" : "orgs"}`}
+      </p>
+      <ul className="more-list">
+        {stats.top.map((r) => (
+          <li key={r.url} className="more">
+            <div>
+              <h4 className="more__title">{r.name}</h4>
+              <p className="gh-meta">
+                <span>{r.owner}</span>
+                {r.language && <span>{r.language}</span>}
+                {r.stars >= gh.minStars && <span aria-label={`${r.stars} stars`}>★ {r.stars}</span>}
+                <span>{count(r.commits)} commits</span>
+              </p>
+              {r.description && <p className="more__text">{r.description}</p>}
+            </div>
+            <Links live={null} code={r.url} title={r.name} />
+          </li>
+        ))}
+      </ul>
+      <a href={profile} target="_blank" rel="noopener" className="gh-all" data-track="GitHub profile">
+        Everything on GitHub <ArrowUpRight aria-hidden="true" />
+      </a>
+    </div>
+  );
+}
+
+export function Projects({
+  projects,
+  level,
+  github,
+}: {
+  projects: Project[];
+  level?: "h1" | "h2";
+  github?: GitHubStats | null;
+}) {
   const featured = projects.filter((p) => p.featured);
   const more = projects.filter((p) => !p.featured);
 
@@ -81,7 +128,7 @@ export function Projects({ projects, level }: { projects: Project[]; level?: "h1
             kind: `Shipped at ${company}`,
             image: productImages[w.name],
             role: "Backend",
-                }))
+          }))
       ),
   ];
 
@@ -145,6 +192,8 @@ export function Projects({ projects, level }: { projects: Project[]; level?: "h1
           })}
         </ol>
       </div>
+
+      {github && github.top.length > 0 && <OnGitHub stats={github} />}
 
       {more.length > 0 && (
         <div className="subsection" data-reveal>

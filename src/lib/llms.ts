@@ -1,5 +1,7 @@
 import { profile, projectMeta, socialLinks, workProducts } from "@/content/site";
-import { getPortfolioContent, isCurrent } from "@/lib/content";
+import { excerpt } from "@/lib/blog";
+import { getPortfolioContent, getPublishedBlogs, isCurrent } from "@/lib/content";
+import { getGitHubStats } from "@/lib/github";
 import { SITE_UPDATED, siteConfig } from "@/lib/seo";
 import type { Experience } from "@/lib/types";
 
@@ -15,7 +17,7 @@ function role(e: Experience) {
  * "## Optional". The full variant inlines every detail as quotable prose.
  */
 export async function buildLlmsTxt(full: boolean) {
-  const c = await getPortfolioContent();
+  const [c, gh, posts] = await Promise.all([getPortfolioContent(), getGitHubStats(), getPublishedBlogs()]);
   const u = siteConfig.url;
   const lines: string[] = [];
   lines.push(`# ${siteConfig.name}`, "");
@@ -31,6 +33,10 @@ export async function buildLlmsTxt(full: boolean) {
     lines.push(`- Current role: ${r.title} at ${r.company}${e ? ` since ${e.start_date}` : ""} (${r.url})`);
   }
   lines.push("- Community: Hardware Manager & Mentor at TinkerHub (TinkerSpace, Kochi); Core Organizer of Maker Faire Kochi (https://makerfaire.in)");
+  if (gh) {
+    lines.push(`- GitHub: ${gh.contributions.toLocaleString("en-IN")} contributions in the last year across ${gh.repos} public repos (${socialLinks.github})`);
+  }
+  lines.push("");
 
   lines.push("## Key pages", "");
   lines.push(`- [About Shaan Shoukath](${u}/about): who he is, roles with dates, domains, FAQ`);
@@ -59,6 +65,19 @@ export async function buildLlmsTxt(full: boolean) {
     lines.push(link ? `- [${p.title}](${link})${desc}` : `- ${p.title}${desc}`);
     if (full && p.tech_stack.length) lines.push(`  Stack: ${p.tech_stack.join(", ")}`);
   }
+  if (gh?.top.length) {
+    lines.push("", "## Most active open-source repos", "");
+    for (const r of gh.top) {
+      const stars = r.stars ? `, ${r.stars} stars` : "";
+      lines.push(`- [${r.owner}/${r.name}](${r.url}): ${r.commits} commits by Shaan${stars}${r.description ? `. ${r.description}` : ""}`);
+    }
+  }
+  if (posts.length) {
+    lines.push("", "## Writing", "");
+    for (const b of posts.slice(0, full ? undefined : 10)) {
+      lines.push(`- [${b.title}](${u}/blog/${b.slug}): ${b.created_at.slice(0, 10)}${full ? `. ${excerpt(b.content, 240)}` : ""}`);
+    }
+  }
   lines.push("", "## Skills", "");
   for (const d of c.domains) lines.push(`- ${d.title}: ${d.tools.join(", ")}${full && d.description ? `. ${d.description}` : ""}`);
 
@@ -67,7 +86,7 @@ export async function buildLlmsTxt(full: boolean) {
   lines.push(`- [LinkedIn](${socialLinks.linkedin}): professional profile`);
   lines.push(`- [Medium](${socialLinks.medium}): articles`);
   lines.push(`- [Resume](${socialLinks.resume}): PDF`);
-  lines.push(`- [Blog](${u}/blog): articles and notes`);
+  lines.push(`- [Blog](${u}/blog): articles and notes (RSS: ${u}/feed.xml)`);
   if (full) lines.push(`- [Short llms.txt](${u}/llms.txt)`);
   else lines.push(`- [llms-full.txt](${u}/llms-full.txt): every role and project with details`);
   return lines.join("\n") + "\n";

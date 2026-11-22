@@ -1,0 +1,52 @@
+/*
+ * Post typography, shared by /blog/[slug] and the admin editor preview so what
+ * you preview is what ships. Tokens come from portfolio.css; .post-preview sets
+ * them for the admin, which doesn't load the portfolio stylesheet.
+ */
+.post-preview {
+  --ink: #ececea; --ink-2: #b3b3ae; --ink-3: #8a8a85; --signal: #e11d2a;
+  --line: rgba(236, 236, 234, 0.1); --card-bg: #0d0d0c; --card-border: 1px solid rgba(236, 236, 234, 0.2);
+  padding: 1.5rem; border-radius: 0.75rem; background: #070707;
+}
+.post__body { color: var(--ink-2); font-size: 1.08rem; line-height: 1.75; }
+.post__body > * + * { margin-top: 1.25em; }
+.post__body h2, .post__body h3, .post__body h4 { color: var(--ink); font-family: var(--font-heading); font-weight: 600; letter-spacing: -0.03em; line-height: 1.2; }
+.post__body h2 { margin-top: 2.4em; font-size: clamp(1.5rem, 2.6vw, 1.95rem); }
+.post__body h3 { margin-top: 2em; font-size: 1.3rem; }
+.post__body h4 { margin-top: 1.8em; font-size: 1.1rem; }
+.post__body strong { color: var(--ink); font-weight: 600; }
+.post__body a { color: var(--ink); text-decoration: underline; text-decoration-color: var(--signal); text-underline-offset: 0.2em; text-decoration-thickness: 1px; }
+.post__body a:hover { color: var(--signal); }
+.post__body ul, .post__body ol { padding-left: 1.3em; }
+.post__body ul { list-style: disc; }
+.post__body ol { list-style: decimal; }
+.post__body li + li { margin-top: 0.4em; }
+.post__body li::marker { color: var(--ink-3); }
+.post__body blockquote { padding-left: var(--s-5); border-left: 2px solid var(--signal); color: var(--ink); font-family: var(--font-serif); font-style: italic; font-size: 1.2rem; }
+.post__body hr { border: 0; border-top: 1px solid var(--line); margin-block: 2.5em; }
+.post__figure { display: block; margin-block: 2em; }
+.post__body img { display: block; max-width: 100%; height: auto; margin-inline: auto; border-radius: 0.75rem; border: var(--card-border); }
+.post__caption { display: block; margin-top: 0.75em; text-align: center; font-family: var(--font-mono-ui); font-size: 0.78rem; color: var(--ink-3); }
+.post__body table { width: 100%; border-collapse: collapse; font-size: 0.95rem; display: block; overflow-x: auto; }
+.post__body th, .post__body td { padding: 0.6em 0.9em; border-bottom: 1px solid var(--line); text-align: left; }
+.post__body th { color: var(--ink); font-weight: 600; }
+.post__body code { font-family: var(--font-mono-ui); font-size: 0.88em; }
+.post__body :not(pre) > code { padding: 0.12em 0.4em; border: 1px solid var(--line); border-radius: 0.35rem; color: var(--ink); background: var(--card-bg); }
+.post__body pre {
+  overflow-x: auto; padding: var(--s-5); border: var(--card-border); border-radius: 0.9rem; background: var(--card-bg);
+  font-size: 0.9rem; line-height: 1.65; -webkit-overflow-scrolling: touch;
+}
+/* sugar-high tokens: greyscale with red keywords, so code stays inside the noir palette. */
+.post__body pre code {
+  --sh-keyword: var(--signal);
+  --sh-string: var(--ink);
+  --sh-class: var(--ink);
+  --sh-entity: var(--ink);
+  --sh-jsxliterals: var(--ink);
+  --sh-property: var(--ink-2);
+  --sh-identifier: var(--ink-2);
+  --sh-sign: var(--ink-3);
+  --sh-comment: var(--ink-3);
+  display: block; color: var(--ink-2); counter-reset: sh-line;
+}
+.post__body .sh__token--comment { font-style: italic; }

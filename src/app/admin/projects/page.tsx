@@ -41,6 +41,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { refreshSite } from "../actions";
 import {
   Plus,
   Pencil,
@@ -161,6 +162,7 @@ export default function ProjectsManager() {
       }
       setDialogOpen(false);
       fetchProjects();
+      void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
     } catch (err: unknown) {
       toast.error((err as Error).message || "Failed to save");
     }
@@ -175,6 +177,7 @@ export default function ProjectsManager() {
       toast.error("Failed to update");
     } else {
       fetchProjects();
+      void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
     }
   }
 
@@ -185,6 +188,7 @@ export default function ProjectsManager() {
     } else {
       toast.success("Project deleted");
       fetchProjects();
+      void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
     }
   }
 

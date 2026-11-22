@@ -846,6 +846,47 @@ em {
 .more__title { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; letter-spacing: -0.02em; }
 .more__text { margin-top: var(--s-1); color: var(--ink-2); font-size: 0.94rem; line-height: 1.55; max-width: 70ch; }
 
+/* On GitHub: the totals read as one mono sentence, rows reuse .more. */
+.gh-line { margin-bottom: var(--s-5); font-family: var(--font-mono-ui); font-size: 0.9rem; color: var(--ink); line-height: 1.6; }
+.gh-meta { display: flex; flex-wrap: wrap; margin-top: var(--s-1); font-family: var(--font-mono-ui); font-size: var(--t-meta); color: var(--ink-3); }
+.gh-meta > * + *::before { content: "·"; margin: 0 0.55em; opacity: 0.6; }
+.gh-all {
+  display: inline-flex; align-items: center; gap: 0.35em; min-height: 44px;
+  margin-top: var(--s-3); padding-top: var(--s-4); border-top: 1px solid var(--line); width: 100%;
+  font-family: var(--font-mono-ui); font-size: var(--t-meta); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-2);
+}
+.gh-all svg { width: 0.9rem; height: 0.9rem; transition: transform 0.35s var(--ease-out); }
+.gh-all:hover { color: var(--signal); }
+.gh-all:hover svg { transform: translate(2px, -2px); }
+
+/* ─── Writing: post rows (home + /blog) and the post page ─── */
+.band--writing { border-top: 1px solid var(--line); }
+.page-main > .band--writing { border-top: 0; }
+.writing { margin-top: 0; }
+.writing__empty { padding-block: var(--s-5); border-top: 1px solid var(--line); color: var(--ink-3); font-family: var(--font-mono-ui); font-size: 0.9rem; }
+.post-row { border-top: 1px solid var(--line); }
+.post-row__link { position: relative; display: block; padding: var(--s-5) 3rem var(--s-5) 0; }
+.post-row__title { margin-top: var(--s-2); font-family: var(--font-heading); font-size: clamp(1.3rem, 2.2vw, 1.75rem); font-weight: 600; letter-spacing: -0.025em; line-height: 1.15; transition: color 0.3s; }
+.post-row__arrow { position: absolute; top: var(--s-5); right: 0; width: 1.25rem; height: 1.25rem; color: var(--ink-3); transition: transform 0.35s var(--ease-out), color 0.3s; }
+.post-row__link:hover .post-row__title { color: var(--signal); }
+.post-row__link:hover .post-row__arrow { color: var(--signal); transform: translate(3px, -3px); }
+
+.post { --measure: 46rem; }
+.post > * { max-width: var(--measure); margin-inline: auto; }
+.page-main > .post { padding-top: 0; }
+.post__back {
+  display: flex; align-items: center; gap: 0.4em; width: fit-content; min-height: 44px;
+  font-family: var(--font-mono-ui); font-size: var(--t-meta); letter-spacing: 0.06em; text-transform: uppercase; color: var(--ink-3);
+}
+.post__back { margin-left: max(0px, calc((100% - var(--measure)) / 2)); }
+.post__back svg { width: 0.9rem; height: 0.9rem; transition: transform 0.35s var(--ease-out); }
+.post__back:hover { color: var(--ink); }
+.post__back:hover svg { transform: translateX(-3px); }
+.post__head { margin-top: var(--s-6); margin-bottom: var(--s-7); }
+.post__title { margin-top: var(--s-3); font-family: var(--font-heading); font-weight: 600; font-size: clamp(2.2rem, 5.5vw, 4rem); line-height: 1; letter-spacing: -0.045em; text-wrap: balance; }
+.post__cover { display: block; width: 100%; height: auto; margin-bottom: var(--s-7); border: var(--card-border); border-radius: var(--radius-card); }
+/* .post__body lives in src/components/blog/post-body.css (shared with the admin preview). */
+
 /* ─── Contact: red as the whole field ─── */
 .band--contact { background: var(--noir); border-top: 1px solid var(--line); padding-bottom: var(--s-6); }
 .contact__grid {

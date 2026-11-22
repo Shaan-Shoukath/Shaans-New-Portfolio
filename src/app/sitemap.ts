@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { createClient as createSupabaseClient } from "@supabase/supabase-js";
+import { getPublishedBlogs } from "@/lib/content";
 import { SITE_UPDATED, absoluteUrl } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -19,40 +19,12 @@ const staticRoutes: Array<{
 ];
 
 async function getPublishedBlogRoutes() {
-  const url = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const key = process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY;
-
-  if (!url || !key) return [];
-
-  try {
-    const supabase = createSupabaseClient(url, key, {
-      auth: {
-        persistSession: false,
-        autoRefreshToken: false,
-      },
-    });
-
-    const { data, error } = await supabase
-      .from("blogs")
-      .select("slug, created_at")
-      .eq("published", true)
-      .order("created_at", { ascending: false });
-
-    if (error || !data) return [];
-
-    return data
-      .filter((blog): blog is { slug: string; created_at: string } =>
-        Boolean(blog.slug)
-      )
-      .map((blog) => ({
-        url: absoluteUrl(`/blog/${blog.slug}`),
-        lastModified: blog.created_at ? new Date(blog.created_at) : new Date(),
-        changeFrequency: "monthly" as const,
-        priority: 0.65,
-      }));
-  } catch {
-    return [];
-  }
+  return (await getPublishedBlogs()).map((blog) => ({
+    url: absoluteUrl(`/blog/${blog.slug}`),
+    lastModified: new Date(blog.created_at),
+    changeFrequency: "monthly" as const,
+    priority: 0.65,
+  }));
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

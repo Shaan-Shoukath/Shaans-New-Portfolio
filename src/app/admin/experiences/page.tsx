@@ -31,6 +31,7 @@ import {
   EyeOff,
 } from "lucide-react";
 import { toast } from "sonner";
+import { refreshSite } from "../actions";
 
 const typeIcons: Record<string, React.ElementType> = {
   professional: Briefcase,
@@ -166,6 +167,7 @@ export default function AdminExperiencesPage() {
     setSaving(false);
     resetForm();
     fetchExperiences();
+    void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
   }
 
   async function handleDelete(id: string) {
@@ -176,6 +178,7 @@ export default function AdminExperiencesPage() {
     } else {
       toast.success("Experience deleted");
       fetchExperiences();
+      void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
     }
   }
 
@@ -185,6 +188,7 @@ export default function AdminExperiencesPage() {
       .update({ published: !exp.published })
       .eq("id", exp.id);
     fetchExperiences();
+    void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
     toast.success(exp.published ? "Unpublished" : "Published");
   }
 

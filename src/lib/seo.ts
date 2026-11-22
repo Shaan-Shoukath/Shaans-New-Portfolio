@@ -63,7 +63,8 @@ export function createPageMetadata({
     title: title ? title : { absolute: siteConfig.title },
     description,
     keywords: keywords?.length ? keywords : undefined,
-    alternates: { canonical },
+    // Every page advertises the blog feed so readers and crawlers can find it.
+    alternates: { canonical, types: { "application/rss+xml": absoluteUrl("/feed.xml") } },
     openGraph: {
       title: fullTitle,
       description,

@@ -1,17 +1,21 @@
 "use client";
 
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { createClient } from "@/lib/supabase/client";
 import { blogSchema, type BlogFormData } from "@/lib/validators";
 import type { Blog } from "@/lib/types";
+import { PostBody } from "@/components/blog/PostBody";
+import { readingMinutes } from "@/lib/blog";
+import { refreshSite } from "../actions";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { Switch } from "@/components/ui/switch";
 import { GlassCard } from "@/components/shared/GlassCard";
+import { ImageUpload, uploadImage } from "@/components/shared/ImageUpload";
 import {
   Dialog,
   DialogContent,
@@ -49,6 +53,7 @@ import {
   Eye,
   EyeOff,
   ExternalLink,
+  ImagePlus,
 } from "lucide-react";
 
 function slugify(text: string): string {
@@ -68,6 +73,9 @@ export default function BlogsManager() {
   const [tagsInput, setTagsInput] = useState("");
   const [published, setPublished] = useState(false);
   const [autoSlug, setAutoSlug] = useState(true);
+  const [preview, setPreview] = useState(false);
+  // The post being edited, so a slug change or first publish can be handled on save.
+  const [editing, setEditing] = useState<Blog | null>(null);
   const supabase = useMemo(() => createClient(), []);
 
   const {
@@ -83,6 +91,37 @@ export default function BlogsManager() {
   });
 
   const titleValue = watch("title");
+  const contentValue = watch("content");
+  const coverValue = watch("cover_image") ?? "";
+  const contentRef = useRef<HTMLTextAreaElement | null>(null);
+  const contentField = register("content");
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [inserting, setInserting] = useState(false);
+
+  // Uploads images to Storage (blog/ folder) and drops markdown at the cursor.
+  async function insertImages(files: File[]) {
+    const images = files.filter((f) => f.type.startsWith("image/"));
+    if (!images.length) return;
+    setInserting(true);
+    try {
+      const md: string[] = [];
+      for (const file of images) {
+        const url = await uploadImage(supabase, file, "portfolio", "blog");
+        const alt = file.name.replace(/\.[^.]+$/, "").replace(/[-_]+/g, " ");
+        md.push(`![${alt}](${url})`);
+      }
+      const el = contentRef.current;
+      const text = contentValue ?? "";
+      const at = el ? el.selectionStart : text.length;
+      const insert = `\n\n${md.join("\n\n")}\n\n`;
+      setValue("content", text.slice(0, at) + insert + text.slice(el ? el.selectionEnd : at), { shouldDirty: true });
+      toast.success(images.length > 1 ? `${images.length} images added` : "Image added");
+    } catch (err: unknown) {
+      toast.error((err as Error).message || "Upload failed");
+    } finally {
+      setInserting(false);
+    }
+  }
 
   // Auto-generate slug from title
   useEffect(() => {
@@ -106,6 +145,8 @@ export default function BlogsManager() {
 
   function openCreate() {
     setEditingId(null);
+    setEditing(null);
+    setPreview(false);
     setAutoSlug(true);
     reset({
       title: "",
@@ -122,6 +163,8 @@ export default function BlogsManager() {
 
   function openEdit(blog: Blog) {
     setEditingId(blog.id);
+    setEditing(blog);
+    setPreview(false);
     setAutoSlug(false);
     reset({
       title: blog.title,
@@ -149,6 +192,8 @@ export default function BlogsManager() {
         published,
         cover_image: formData.cover_image || null,
         content: formData.content || null,
+        // A post's date is when it first goes live, not when the draft was started.
+        ...(published && !editing?.published ? { created_at: new Date().toISOString() } : {}),
       };
 
       if (editingId) {
@@ -165,6 +210,9 @@ export default function BlogsManager() {
       }
       setDialogOpen(false);
       fetchBlogs();
+      await refreshSite([formData.slug, editing?.slug ?? ""]).catch(() =>
+        toast.error("Saved, but the site will update within the hour")
+      );
     } catch (err: unknown) {
       toast.error((err as Error).message || "Failed to save");
     }
@@ -173,22 +221,27 @@ export default function BlogsManager() {
   async function togglePublished(blog: Blog) {
     const { error } = await supabase
       .from("blogs")
-      .update({ published: !blog.published })
+      .update({
+        published: !blog.published,
+        ...(!blog.published ? { created_at: new Date().toISOString() } : {}),
+      })
       .eq("id", blog.id);
     if (error) {
       toast.error("Failed to update");
     } else {
       fetchBlogs();
+      await refreshSite([blog.slug]).catch(() => toast.error("Saved, but the site will update within the hour"));
     }
   }
 
-  async function handleDelete(id: string) {
-    const { error } = await supabase.from("blogs").delete().eq("id", id);
+  async function handleDelete(blog: Blog) {
+    const { error } = await supabase.from("blogs").delete().eq("id", blog.id);
     if (error) {
       toast.error("Failed to delete");
     } else {
       toast.success("Blog post deleted");
       fetchBlogs();
+      await refreshSite([blog.slug]).catch(() => toast.error("Deleted, but the site will update within the hour"));
     }
   }
 
@@ -223,7 +276,7 @@ export default function BlogsManager() {
             <Plus className="w-4 h-4 mr-2" />
             New Post
           </DialogTrigger>
-          <DialogContent className="bg-[#0f1629] border-white/10 max-w-2xl max-h-[85vh] overflow-y-auto">
+          <DialogContent className="bg-[#0f1629] border-white/10 max-w-5xl max-h-[90vh] overflow-y-auto">
             <DialogHeader>
               <DialogTitle className="font-[family-name:var(--font-heading)]">
                 {editingId ? "Edit Post" : "New Post"}
@@ -266,28 +319,86 @@ export default function BlogsManager() {
               </div>
 
               <div className="space-y-2">
-                <Label htmlFor="content">
-                  Content (Markdown)
-                </Label>
+                <div className="flex items-center justify-between gap-2">
+                  <Label htmlFor="content">
+                    Content (Markdown) · {readingMinutes(contentValue)} min read
+                  </Label>
+                  <div className="flex gap-1" role="group" aria-label="Editor mode">
+                    <Button
+                      type="button"
+                      size="sm"
+                      variant="ghost"
+                      disabled={inserting || preview}
+                      onClick={() => fileRef.current?.click()}
+                    >
+                      {inserting ? <Loader2 className="w-4 h-4 mr-1 animate-spin" /> : <ImagePlus className="w-4 h-4 mr-1" />}
+                      Image
+                    </Button>
+                    <input
+                      ref={fileRef}
+                      type="file"
+                      accept="image/*"
+                      multiple
+                      hidden
+                      onChange={(e) => {
+                        void insertImages([...(e.target.files ?? [])]);
+                        e.target.value = "";
+                      }}
+                    />
+                    <Button type="button" size="sm" variant={preview ? "ghost" : "secondary"} onClick={() => setPreview(false)}>
+                      Write
+                    </Button>
+                    <Button type="button" size="sm" variant={preview ? "secondary" : "ghost"} onClick={() => setPreview(true)}>
+                      Preview
+                    </Button>
+                  </div>
+                </div>
+                {/* Hidden, not unmounted, so react-hook-form keeps the value while previewing. */}
                 <Textarea
                   id="content"
-                  placeholder="Write your post in markdown..."
-                  rows={12}
-                  className="bg-white/5 border-white/10 font-mono text-sm resize-y"
-                  {...register("content")}
+                  placeholder={"## A heading\n\nWrite in markdown. Fenced code blocks (```ts) get syntax highlighting; tables and links work too."}
+                  rows={20}
+                  className={`bg-white/5 border-white/10 font-mono text-sm resize-y ${preview ? "hidden" : ""}`}
+                  {...contentField}
+                  ref={(el) => {
+                    contentField.ref(el);
+                    contentRef.current = el;
+                  }}
+                  onPaste={(e) => {
+                    const files = [...e.clipboardData.files];
+                    if (files.some((f) => f.type.startsWith("image/"))) {
+                      e.preventDefault();
+                      void insertImages(files);
+                    }
+                  }}
+                  onDrop={(e) => {
+                    const files = [...e.dataTransfer.files];
+                    if (files.length) {
+                      e.preventDefault();
+                      void insertImages(files);
+                    }
+                  }}
                 />
+                <p className={`text-xs text-muted-foreground ${preview ? "hidden" : ""}`}>
+                  Paste or drop images straight into the editor. Add a caption with ![alt](url &quot;Caption&quot;).
+                </p>
+                {preview && (
+                  <div className="post-preview max-h-[60vh] overflow-y-auto">
+                    <PostBody content={contentValue ?? ""} />
+                  </div>
+                )}
               </div>
 
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="cover_image">Cover Image URL</Label>
-                  <Input
-                    id="cover_image"
-                    placeholder="https://..."
-                    className="bg-white/5 border-white/10"
-                    {...register("cover_image")}
-                  />
-                </div>
+                <ImageUpload
+                  id="cover_image"
+                  label="Cover image (also the share card)"
+                  value={coverValue}
+                  onChange={(url) => setValue("cover_image", url, { shouldDirty: true })}
+                  bucket="portfolio"
+                  folder="blog"
+                  accent="red"
+                />
                 <div className="space-y-2">
                   <Label htmlFor="tags">Tags (comma-separated)</Label>
                   <Input
@@ -302,7 +413,7 @@ export default function BlogsManager() {
 
               <div className="flex items-center gap-2">
                 <Switch checked={published} onCheckedChange={setPublished} />
-                <Label>Publish immediately</Label>
+                <Label>{published ? "Live on shaans.works when saved" : "Draft (only visible here)"}</Label>
               </div>
 
               <Button
@@ -431,7 +542,7 @@ export default function BlogsManager() {
                               Cancel
                             </AlertDialogCancel>
                             <AlertDialogAction
-                              onClick={() => handleDelete(blog.id)}
+                              onClick={() => handleDelete(blog)}
                               className="bg-red-500 hover:bg-red-600"
                             >
                               Delete
