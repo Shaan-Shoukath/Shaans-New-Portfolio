@@ -16,10 +16,10 @@ const socials = [
 ];
 
 /** Contact: one clear action. The address stays out of the visible page. */
-export function Contact() {
+export function Contact({ level }: { level?: "h1" | "h2" } = {}) {
   return (
     <section id="contact" className="band band--contact" aria-labelledby="contact-title">
-      <SectionHead id="contact" label="Contact" title="Got something to build?" lede="Open to freelance work, collaborations and full-time roles." />
+      <SectionHead level={level} id="contact" label="Contact" title="Got something to build?" lede="Open to freelance work, collaborations and full-time roles." />
 
       <div className="contact__body">
         <div className="contact__cta">

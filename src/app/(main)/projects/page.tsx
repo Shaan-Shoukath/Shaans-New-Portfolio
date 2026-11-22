@@ -19,7 +19,7 @@ export default async function ProjectsPage() {
   return (
     <PageShell>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Projects", path: "/projects" }])} />
-      <Projects projects={projects} />
+      <Projects projects={projects} level="h1" />
     </PageShell>
   );
 }

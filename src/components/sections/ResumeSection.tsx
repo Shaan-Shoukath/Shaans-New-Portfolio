@@ -39,7 +39,7 @@ const highlights = [
 export function ResumeSection() {
   return (
     <SectionWrapper id="resume">
-      <AnimatedHeading subtitle="Background and professional experience">
+      <AnimatedHeading as="h1" subtitle="Background and professional experience">
         Resume
       </AnimatedHeading>
 

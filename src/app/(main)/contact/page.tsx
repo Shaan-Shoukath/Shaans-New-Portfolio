@@ -15,7 +15,7 @@ export default function ContactPage() {
   return (
     <PageShell>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Contact", path: "/contact" }])} />
-      <Contact />
+      <Contact level="h1" />
     </PageShell>
   );
 }

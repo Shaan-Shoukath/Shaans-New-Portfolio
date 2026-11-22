@@ -15,9 +15,9 @@ export function Domains({ domains }: { domains: Domain[] }) {
   return (
     <section id="domains" className="domains" aria-labelledby="domains-title">
       <header className="section-head section-head--narrow" data-reveal>
-        <h2 id="domains-title" className="section-title">
+        <h1 id="domains-title" className="section-title">
           What I build
-        </h2>
+        </h1>
         <p className="section-lede">
           One engineer, many layers: from the API that charges a card to the drone that
           sprays a field. Scroll and the field rebuilds itself for each one.
