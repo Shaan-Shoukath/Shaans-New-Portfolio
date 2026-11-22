@@ -74,25 +74,51 @@ export function Cursor() {
       r.dataset.state = "";
       l.textContent = "";
     };
-    const onDown = () => r.classList.add("is-down");
-    const onUp = () => r.classList.remove("is-down");
+    // Only the primary button presses the ring. A right-click opens the native
+    // menu, which swallows the matching pointerup and would leave it stuck.
+    const onDown = (e: PointerEvent) => {
+      if (e.button === 0) r.classList.add("is-down");
+    };
+    const release = () => r.classList.remove("is-down");
+    // While the context menu is open the browser may report the pointer as having
+    // left the page; keep the cursor where it was until the pointer moves again.
+    let menuOpen = false;
+    const onMenu = () => {
+      release();
+      menuOpen = true;
+    };
     const onLeave = () => {
+      release();
+      if (menuOpen) return;
       pos.x = pos.y = -100;
       entered = false;
     };
 
-    window.addEventListener("pointermove", onMove, { passive: true });
+    const onMoveAll = (e: PointerEvent) => {
+      menuOpen = false;
+      onMove(e);
+    };
+
+    window.addEventListener("pointermove", onMoveAll, { passive: true });
     window.addEventListener("pointerdown", onDown);
-    window.addEventListener("pointerup", onUp);
+    window.addEventListener("pointerup", release);
+    window.addEventListener("pointercancel", release);
+    window.addEventListener("dragend", release);
+    window.addEventListener("blur", release);
+    window.addEventListener("contextmenu", onMenu);
     window.addEventListener("scroll", onScroll, { passive: true });
     document.documentElement.addEventListener("pointerleave", onLeave);
     return () => {
       window.removeEventListener("scroll", onScroll);
       cancelAnimationFrame(raf);
       root.classList.remove("has-cursor", "cursor-text");
-      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointermove", onMoveAll);
       window.removeEventListener("pointerdown", onDown);
-      window.removeEventListener("pointerup", onUp);
+      window.removeEventListener("pointerup", release);
+      window.removeEventListener("pointercancel", release);
+      window.removeEventListener("dragend", release);
+      window.removeEventListener("blur", release);
+      window.removeEventListener("contextmenu", onMenu);
       document.documentElement.removeEventListener("pointerleave", onLeave);
     };
   }, []);
