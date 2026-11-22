@@ -6,7 +6,7 @@ import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = createPageMetadata({
   title: "Resume",
   description:
-    "Resume and professional background for Shaan Shoukath, covering full-stack development, engineering experience, education, and certifications.",
+    "Resume of Shaan Shoukath: backend engineer at Lascade, solution architect at LNO Technologies, with education, community roles and certifications.",
   path: "/resume",
   keywords: [
     "Shaan Shoukath resume",

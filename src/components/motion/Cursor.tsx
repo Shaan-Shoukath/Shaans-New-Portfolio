@@ -1,0 +1,104 @@
+"use client";
+
+import { useEffect, useRef, useState } from "react";
+
+/**
+ * Pointer: an exact dot and a trailing ring that grows over interactive
+ * elements (and shows a label for [data-cursor-label]). Press G to toggle the
+ * 12-column layout grid. Fine pointers only; touch and reduced motion keep
+ * the system cursor.
+ */
+export function Cursor() {
+  const dot = useRef<HTMLDivElement>(null);
+  const ring = useRef<HTMLDivElement>(null);
+  const label = useRef<HTMLSpanElement>(null);
+  const [grid, setGrid] = useState(false);
+
+  useEffect(() => {
+    const onKey = (e: KeyboardEvent) => {
+      const t = e.target as HTMLElement;
+      if (t.closest("input, textarea, [contenteditable]") || e.metaKey || e.ctrlKey || e.altKey) return;
+      if (e.key === "g" || e.key === "G") setGrid((v) => !v);
+    };
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, []);
+
+  useEffect(() => {
+    const fine = window.matchMedia("(pointer: fine)").matches;
+    const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    const els = [dot.current, ring.current, label.current];
+    if (!fine || reduced || els.some((e) => !e)) return;
+    const [d, r, l] = els as HTMLElement[];
+    const root = document.documentElement;
+    root.classList.add("has-cursor");
+
+    const pos = { x: -100, y: -100 };
+    const ringPos = { x: -100, y: -100 };
+    let raf = 0;
+
+    const loop = () => {
+      ringPos.x += (pos.x - ringPos.x) * 0.2;
+      ringPos.y += (pos.y - ringPos.y) * 0.2;
+      d.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
+      r.style.transform = `translate3d(${ringPos.x}px, ${ringPos.y}px, 0)`;
+      raf = requestAnimationFrame(loop);
+    };
+    raf = requestAnimationFrame(loop);
+
+    const onMove = (e: PointerEvent) => {
+      pos.x = e.clientX;
+      pos.y = e.clientY;
+      const target = e.target as Element | null;
+      const labelled = target?.closest<HTMLElement>("[data-cursor-label]");
+      const interactive = target?.closest("a, button, input, textarea, label, [data-cursor]");
+      const text = labelled?.dataset.cursorLabel ?? "";
+      l.textContent = text;
+      r.dataset.state = text ? "label" : interactive ? "hover" : "";
+      root.classList.toggle("cursor-text", Boolean(target?.closest("input, textarea")));
+    };
+    // Content moves under a still pointer while scrolling; drop stale hover labels.
+    const onScroll = () => {
+      if (!r.dataset.state) return;
+      r.dataset.state = "";
+      l.textContent = "";
+    };
+    const onDown = () => r.classList.add("is-down");
+    const onUp = () => r.classList.remove("is-down");
+    const onLeave = () => {
+      pos.x = pos.y = -100;
+    };
+
+    window.addEventListener("pointermove", onMove, { passive: true });
+    window.addEventListener("pointerdown", onDown);
+    window.addEventListener("pointerup", onUp);
+    window.addEventListener("scroll", onScroll, { passive: true });
+    document.documentElement.addEventListener("pointerleave", onLeave);
+    return () => {
+      window.removeEventListener("scroll", onScroll);
+      cancelAnimationFrame(raf);
+      root.classList.remove("has-cursor", "cursor-text");
+      window.removeEventListener("pointermove", onMove);
+      window.removeEventListener("pointerdown", onDown);
+      window.removeEventListener("pointerup", onUp);
+      document.documentElement.removeEventListener("pointerleave", onLeave);
+    };
+  }, []);
+
+  return (
+    <>
+      <div className={`grid-overlay${grid ? " is-on" : ""}`} aria-hidden="true">
+        <div className="grid-overlay__cols">
+          {Array.from({ length: 12 }, (_, i) => (
+            <span key={i} />
+          ))}
+        </div>
+        {grid && <p className="grid-overlay__hint">12 col · press G to hide</p>}
+      </div>
+      <div ref={ring} className="cursor-ring" aria-hidden="true">
+        <span ref={label} className="cursor-ring__label" />
+      </div>
+      <div ref={dot} className="cursor-dot" aria-hidden="true" />
+    </>
+  );
+}

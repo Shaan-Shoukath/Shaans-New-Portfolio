@@ -1,32 +1,25 @@
 import type { Metadata } from "next";
-import { ProjectsSection } from "@/components/sections/ProjectsSection";
+import { PageShell } from "@/components/layout/PageShell";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Projects } from "@/components/sections/Projects";
+import { getPortfolioContent } from "@/lib/content";
 import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = createPageMetadata({
   title: "Projects",
   description:
-    "Selected work by Shaan Shoukath across full-stack web apps, SaaS platforms, UAV systems, IoT dashboards, and AI projects.",
+    "Projects by Shaan Shoukath: SpaceWorks makerspace software, makerfaire.in, Arkairo autonomous drones, LMusic, plus eSIM and ISP billing products shipped at work.",
   path: "/projects",
-  keywords: [
-    "Shaan Shoukath projects",
-    "Shaan Shoukath work",
-    "full-stack projects",
-    "UAV projects",
-    "IoT projects",
-  ],
 });
 
-export default function ProjectsPage() {
+export default async function ProjectsPage() {
+  const { projects } = await getPortfolioContent();
   return (
-    <>
-      <JsonLd
-        data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Projects", path: "/projects" },
-        ])}
-      />
-      <ProjectsSection />
-    </>
+    <PageShell>
+      <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Projects", path: "/projects" }])} />
+      <Projects projects={projects} />
+    </PageShell>
   );
 }

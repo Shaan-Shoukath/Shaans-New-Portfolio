@@ -1,24 +1,28 @@
 import type { Metadata, Viewport } from "next";
-import { DM_Mono, Inter, Space_Grotesk } from "next/font/google";
+import { DM_Mono, Instrument_Sans, Instrument_Serif, Schibsted_Grotesk } from "next/font/google";
+import { INTRO_SKIP_SCRIPT } from "@/components/layout/IntroLoader";
 import { Toaster } from "@/components/ui/sonner";
 import { JsonLd } from "@/components/seo/JsonLd";
-import {
-  baseKeywords,
-  personJsonLd,
-  siteConfig,
-  websiteJsonLd,
-} from "@/lib/seo";
+import { personJsonLd, siteConfig, websiteJsonLd } from "@/lib/seo";
 import "./globals.css";
 
-const inter = Inter({
-  variable: "--font-sans",
+// Body: Instrument Sans (shares a foundry with the serif accent).
+const instrumentSans = Instrument_Sans({ variable: "--font-sans", subsets: ["latin"], display: "swap" });
+
+// Display: Schibsted Grotesk, a tight editorial grotesk.
+const schibsted = Schibsted_Grotesk({
+  variable: "--font-heading",
   subsets: ["latin"],
+  weight: ["500", "600", "700"],
   display: "swap",
 });
 
-const spaceGrotesk = Space_Grotesk({
-  variable: "--font-heading",
+// Editorial accent: one italic word per heading, never body copy.
+const instrumentSerif = Instrument_Serif({
+  variable: "--font-serif",
   subsets: ["latin"],
+  weight: "400",
+  style: ["normal", "italic"],
   display: "swap",
 });
 
@@ -32,40 +36,28 @@ const dmMono = DM_Mono({
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
   applicationName: siteConfig.name,
-  title: {
-    default: `${siteConfig.name} | Robotics, AI & Full-Stack Engineer`,
-    template: `%s | ${siteConfig.name}`,
-  },
+  title: { default: siteConfig.title, template: `%s | ${siteConfig.name}` },
   description: siteConfig.description,
-  keywords: baseKeywords,
   authors: [{ name: siteConfig.name, url: siteConfig.url }],
   creator: siteConfig.name,
   publisher: siteConfig.name,
-  category: "portfolio",
-  alternates: {
-    canonical: siteConfig.url,
-  },
+  category: "technology",
+  alternates: { canonical: "/" },
   openGraph: {
-    title: `${siteConfig.name} | Robotics, AI & Full-Stack Engineer`,
+    title: siteConfig.title,
     description: siteConfig.description,
     url: siteConfig.url,
     siteName: siteConfig.name,
-    images: [
-      {
-        url: siteConfig.ogImage,
-        width: 1200,
-        height: 630,
-        alt: `${siteConfig.name} portfolio preview`,
-      },
-    ],
     locale: "en_IN",
     type: "profile",
+    firstName: "Shaan",
+    lastName: "Shoukath",
+    username: "Shaan-Shoukath",
   },
   twitter: {
     card: "summary_large_image",
-    title: `${siteConfig.name} | Robotics, AI & Full-Stack Engineer`,
+    title: siteConfig.title,
     description: siteConfig.description,
-    images: [siteConfig.ogImage],
   },
   robots: {
     index: true,
@@ -78,10 +70,13 @@ export const metadata: Metadata = {
       "max-snippet": -1,
     },
   },
-  icons: {
-    icon: "/favicon.ico",
-    apple: "/icon.png",
+  verification: {
+    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION || undefined,
+    other: process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION
+      ? { "msvalidate.01": process.env.NEXT_PUBLIC_BING_SITE_VERIFICATION }
+      : undefined,
   },
+  other: { "llms-txt": `${siteConfig.url}/llms.txt` },
 };
 
 export const viewport: Viewport = {
@@ -91,50 +86,20 @@ export const viewport: Viewport = {
   colorScheme: "dark",
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const scrollResetScript = `
-    (() => {
-      try {
-        if ("scrollRestoration" in window.history) {
-          window.history.scrollRestoration = "manual";
-        }
-
-        const shouldReset = () =>
-          window.location.pathname === "/" && window.location.hash === "";
-
-        const reset = () => {
-          if (shouldReset()) window.scrollTo(0, 0);
-        };
-
-        reset();
-        window.addEventListener("pageshow", (event) => {
-          if (event.persisted) reset();
-        });
-      } catch {
-        // Keep boot resilient if a browser blocks history access.
-      }
-    })();
-  `;
-
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html
       lang="en-IN"
       suppressHydrationWarning
-      className={`${inter.variable} ${spaceGrotesk.variable} ${dmMono.variable} antialiased`}
+      className={`${instrumentSans.variable} ${schibsted.variable} ${instrumentSerif.variable} ${dmMono.variable} antialiased`}
     >
       <head>
-        <script dangerouslySetInnerHTML={{ __html: scrollResetScript }} />
+        <script dangerouslySetInnerHTML={{ __html: INTRO_SKIP_SCRIPT }} />
+        <link rel="alternate" type="text/plain" href="/llms.txt" title="llms.txt" />
       </head>
-      <body
-        suppressHydrationWarning
-        className="min-h-full bg-background text-foreground font-sans"
-      >
-        <JsonLd data={personJsonLd} />
-        <JsonLd data={websiteJsonLd} />
+      <body suppressHydrationWarning className="min-h-full bg-background text-foreground font-sans">
+        <JsonLd data={personJsonLd()} />
+        <JsonLd data={websiteJsonLd()} />
         {children}
         <Toaster richColors position="bottom-right" />
       </body>
