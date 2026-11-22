@@ -37,6 +37,9 @@ export function MotionRuntime() {
       return () => root.classList.remove("motion-reduced");
     }
 
+    // Mobile browser bars resize the viewport as they show/hide; don't re-measure for that.
+    ScrollTrigger.config({ ignoreMobileResize: true });
+
     // ── Smooth scroll ──
     let lenis: Lenis | null = null;
     if (finePointer) {
@@ -160,6 +163,26 @@ export function MotionRuntime() {
           onEnter: () => scramble(el),
         });
       });
+
+      // ── Bench light: one continuous dim instead of opaque sheets sliding over it ──
+      // Dims while the statement reads, comes back for the domains story, and fades
+      // out before the work band so its top edge never cuts through the drawing.
+      const stage = document.querySelector<HTMLElement>(".point-stage");
+      const statement = document.querySelector<HTMLElement>(".statement");
+      const domains = document.getElementById("domains");
+      const work = document.getElementById("work");
+      if (stage && statement && domains) {
+        const clamp = gsap.utils.clamp(0, 1);
+        const dim = () => {
+          const vh = window.innerHeight;
+          const into = (el: HTMLElement, span: number) => clamp((vh - el.getBoundingClientRect().top) / (vh * span));
+          const out = work ? into(work, 0.5) : 0;
+          const level = (1 - 0.82 * into(statement, 0.65) + 0.82 * into(domains, 0.6)) * (1 - out);
+          stage.style.setProperty("--bench", clamp(level).toFixed(3));
+        };
+        ScrollTrigger.create({ start: 0, end: "max", onUpdate: dim, onRefresh: dim });
+        cleanups.push(() => stage.style.removeProperty("--bench"));
+      }
 
       // ── Statement words drift up slightly as the paragraph scrubs ──
       gsap.utils.toArray<HTMLElement>(".statement__text").forEach((el) => {

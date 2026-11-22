@@ -59,8 +59,11 @@ export default function Workshop() {
     if (!host) return;
     const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const renderer = new WebGLRenderer({ antialias: true, alpha: true, powerPreference: "low-power" });
-    renderer.setPixelRatio(Math.min(window.devicePixelRatio, 1.75));
+    // Phones/tablets: fewer pixels and no MSAA. The thin outlines read the same at
+    // 1.25x on a 3x screen, and fill-rate is what drains mobile GPUs.
+    const touch = window.matchMedia("(pointer: coarse)").matches;
+    const renderer = new WebGLRenderer({ antialias: !touch, alpha: true, powerPreference: "low-power" });
+    renderer.setPixelRatio(Math.min(window.devicePixelRatio, touch ? 1.25 : 1.75));
     renderer.setClearColor(0x000000, 0);
     host.appendChild(renderer.domElement);
 
@@ -437,7 +440,8 @@ export default function Workshop() {
     start();
 
     window.addEventListener(SHAPE_EVENT, onShape);
-    window.addEventListener("pointermove", onPointer, { passive: true });
+    // Touch has no hover; finger drags would just jolt the camera mid-scroll.
+    if (!touch) window.addEventListener("pointermove", onPointer, { passive: true });
     document.addEventListener("visibilitychange", start);
     requestAnimationFrame(() => host.classList.add("is-ready"));
 

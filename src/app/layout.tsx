@@ -82,6 +82,8 @@ export const metadata: Metadata = {
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  // Lets landscape iPhones use the full width; the CSS pads with env(safe-area-inset-*).
+  viewportFit: "cover",
   themeColor: "#050505",
   colorScheme: "dark",
 };

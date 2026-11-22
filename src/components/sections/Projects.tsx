@@ -92,23 +92,41 @@ export function Projects({ projects }: { projects: Project[] }) {
       {/* Desktop: pinned and driven sideways by scroll (MotionRuntime). Phones: a plain stack. */}
       <div className="gallery" data-gallery>
         <ol className="gallery__track">
-          {panels.map((p, i) => (
-            <li key={p.key} className="panel" data-cursor-label={p.live || p.also ? "Visit" : p.code ? "Code" : undefined}>
-              <div className="panel__screen">
-                {p.image ? (
-                  <Image
-                    src={p.image}
-                    alt={`${p.title}: screenshot`}
-                    fill
-                    sizes="(max-width: 900px) 92vw, 34rem"
-                    className="panel__img"
-                    loading="eager"
-                    decoding="async"
-                  />
-                ) : (
-                  <span className="panel__grid" aria-hidden="true" />
-                )}
-              </div>
+          {panels.map((p, i) => {
+            const href = p.live ?? p.also?.[0]?.url ?? p.code;
+            const screen = p.image ? (
+              <Image
+                src={p.image}
+                alt={`${p.title}: screenshot`}
+                fill
+                sizes="(max-width: 900px) 92vw, 34rem"
+                className="panel__img"
+                // Only the first two are near the fold; the rest load as they approach.
+                loading={i < 2 ? "eager" : "lazy"}
+                decoding="async"
+              />
+            ) : (
+              <span className="panel__grid" aria-hidden="true" />
+            );
+            return (
+            <li key={p.key} className="panel">
+              {/* The screenshot opens the project too; the buttons below stay the accessible links. */}
+              {href ? (
+                <a
+                  href={href}
+                  target="_blank"
+                  rel="noopener"
+                  className="panel__screen"
+                  tabIndex={-1}
+                  aria-hidden="true"
+                  data-track={`${p.title} screenshot`}
+                  data-cursor-label={p.live || p.also ? "Visit" : "Code"}
+                >
+                  {screen}
+                </a>
+              ) : (
+                <div className="panel__screen">{screen}</div>
+              )}
               <div className="panel__body">
                 <p className="panel__meta">
                   <span className="panel__index">
@@ -123,7 +141,8 @@ export function Projects({ projects }: { projects: Project[] }) {
                 <Links live={p.live} code={p.code} title={p.title} also={p.also} />
               </div>
             </li>
-          ))}
+            );
+          })}
         </ol>
       </div>
 
