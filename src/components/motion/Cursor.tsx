@@ -36,10 +36,15 @@ export function Cursor() {
     const pos = { x: -100, y: -100 };
     const ringPos = { x: -100, y: -100 };
     let raf = 0;
+    let last = performance.now();
+    let entered = false;
 
-    const loop = () => {
-      ringPos.x += (pos.x - ringPos.x) * 0.2;
-      ringPos.y += (pos.y - ringPos.y) * 0.2;
+    const loop = (now: number) => {
+      // Time-based easing: the ring keeps up even when frames drop under load.
+      const k = 1 - Math.exp(-(now - last) / 45);
+      last = now;
+      ringPos.x += (pos.x - ringPos.x) * k;
+      ringPos.y += (pos.y - ringPos.y) * k;
       d.style.transform = `translate3d(${pos.x}px, ${pos.y}px, 0)`;
       r.style.transform = `translate3d(${ringPos.x}px, ${ringPos.y}px, 0)`;
       raf = requestAnimationFrame(loop);
@@ -49,6 +54,12 @@ export function Cursor() {
     const onMove = (e: PointerEvent) => {
       pos.x = e.clientX;
       pos.y = e.clientY;
+      if (!entered) {
+        // Snap on (re-)entry instead of flying in from off-screen.
+        entered = true;
+        ringPos.x = pos.x;
+        ringPos.y = pos.y;
+      }
       const target = e.target as Element | null;
       const labelled = target?.closest<HTMLElement>("[data-cursor-label]");
       const interactive = target?.closest("a, button, input, textarea, label, [data-cursor]");
@@ -67,6 +78,7 @@ export function Cursor() {
     const onUp = () => r.classList.remove("is-down");
     const onLeave = () => {
       pos.x = pos.y = -100;
+      entered = false;
     };
 
     window.addEventListener("pointermove", onMove, { passive: true });
