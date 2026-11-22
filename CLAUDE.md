@@ -22,13 +22,19 @@ Copy `.env.example` to `.env.local`:
 - `ADMIN_EMAIL` / `ADMIN_PASSWORD` — admin account.
 - Optional analytics: `NEXT_PUBLIC_CLARITY_ID`, `NEXT_PUBLIC_FIREBASE_API_KEY`, `_AUTH_DOMAIN`, `_PROJECT_ID`, `_STORAGE_BUCKET`, `_MESSAGING_SENDER_ID`, `_APP_ID`, `_MEASUREMENT_ID`.
 - Optional search console: `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION`, `NEXT_PUBLIC_BING_SITE_VERIFICATION`.
+- Optional `GITHUB_TOKEN`: a fine-grained token with public read-only access, used for the "On GitHub" block. Without it the block is hidden.
 
 ## Architecture
 
 ### Routes
 - `src/app/(main)/`: public pages. `page.tsx` (home), `about` (long-form + FAQ JSON-LD), `projects`, `skills`, `contact`, `blog`, `blog/[slug]`, `resume`. The layout adds `SiteHeader`, `IntroLoader`, `Cursor`, `MotionRuntime`, `Analytics` and loads `portfolio.css` (public-only styles).
-- `src/app/admin/`: Supabase CMS (About, Domains, Projects, Blogs, Experiences, HeroImages). It is protected by `src/middleware.ts`, `useAdminGuard` and RLS.
-- `src/app/llms.txt`, `src/app/llms-full.txt`: route handlers built by `src/lib/llms.ts`.
+- `src/app/admin/`: Supabase CMS for exactly what the site reads: Domains, Experience, Projects and Blogs. It is protected by `src/middleware.ts`, `useAdminGuard` and RLS.
+  - Every save, publish toggle and delete calls `refreshSite()` (`admin/actions.ts`, a server action that checks the Supabase session). It revalidates every page plus the feed, sitemap and llms routes, so edits go live at once instead of after the hourly ISR.
+  - The old About and Hero Images screens were removed: nothing on the revamped site read them. The intro lives in `site.ts`.
+  - Blog editor: Markdown with Write/Preview. The preview uses the same `PostBody` as the live page. There's a cover upload, and images can be inserted with the button, pasted or dropped; they go to Storage `portfolio/blog/`. `![alt](url "Caption")` adds a caption. A post's date is set when it is first published.
+- `src/app/llms.txt`, `src/app/llms-full.txt`: route handlers built by `src/lib/llms.ts`. They include the GitHub line, the most active repos and the post list.
+- `src/app/feed.xml`: RSS 2.0 of published posts. Every page links it through `alternates.types` in `createPageMetadata`.
+- Blog: `/blog` and `/blog/[slug]` are server-rendered from `getPublishedBlogs` / `getBlog` in `content.ts` (cookie-less, ISR 1h). `/blog` has `Blog` JSON-LD and each post has `BlogPosting`. Post Markdown renders through `src/components/blog/PostBody.tsx`: react-markdown + GFM with no raw HTML, sugar-high code highlighting (tokens themed in `post-body.css`), and lazy images with captions.
 - `robots.ts` (allows AI crawlers, blocks `/admin`), `sitemap.ts`, `opengraph-image.tsx` / `twitter-image.tsx` (generated share card), `not-found.tsx` (noindex, own title, Mini Shaan meme).
 - Every public page has exactly one `<h1>`. `SectionHead` takes `level` (h1 on `/projects` and `/contact`, h2 on home).
 
@@ -40,15 +46,19 @@ Copy `.env.example` to `.env.local`:
 - `supabase/migrations/008_portfolio_revamp.sql` is generated from `site.ts`. It is non-destructive: old rows are unpublished, never deleted, and it is safe to re-run. Regenerate it whenever `site.ts` changes and should be pushed to the DB.
 
 ### Home page sections (`src/components/sections/`)
-Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3D canvas) → `Timeline` work → `Timeline` community → `Projects` → `Contact`.
+Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3D canvas) → `Timeline` work → `Timeline` community → `Projects` → `Writing` (only when a post is published) → `Contact`.
 - `Chapter`: section opener with a label column and a title using one `<em>` serif accent word (`data-split="title"`).
 - `Hero`: "Engineering anything." headline (`data-split="hero"`), brief, CTAs, meta bar (status, `KochiClock`).
 - `Statement`: intro paragraph that lights up word by word on scroll.
 - `DomainsStory`: pinned scrollytelling. Scroll progress picks the active domain and calls `emitShape`, which drives the 3D camera.
 - `Timeline`: role rows (dates, location, products, tags). `featureLead` highlights the first current community role (TinkerHub).
-- `Projects`: at 1024px and up, a pinned horizontal gallery driven by scroll. Below that, the same track is a native swipe row (scroll-snap, the next card peeks in). The screenshot links to the project (`aria-hidden`, out of tab order; the pills stay the accessible links). Only the first two screenshots load eagerly. "More experiments" follows the gallery.
+- `Projects`: at 1024px and up, a pinned horizontal gallery driven by scroll. Below that, the same track is a native swipe row (scroll-snap, the next card peeks in). The screenshot links to the project (`aria-hidden`, out of tab order; the pills stay the accessible links). Only the first two screenshots load eagerly. "On GitHub" follows the gallery, then "More experiments".
+  - "On GitHub" (`src/lib/github.ts`, GraphQL, cached 24h): one mono sentence (contributions in the last year, public repos across the account and orgs), then up to 4 repo rows.
+  - It only counts public non-fork repos he has committed to, owned by `github.user` or one of `github.orgs` in `site.ts`. An org's popular repo he never touched must not count.
+  - Featured repos need at least `minCommits` (10) of his commits. They rank by stars, counting only stars at or above `minStars` (5), then by commits, with at most two per account.
+- `Writing`: post rows (date, reading time, tags, title, excerpt). The home page shows 3 (`limit`); `/blog` shows all with an h1 and an empty state.
 - `Contact`: red band, Gmail-draft form (no backend).
-- `Domains` (static list) is used only by `/skills`. `Marquee`, `BlogsSection` and `ResumeSection` are legacy or other-page components.
+- `Domains` (static list) is used only by `/skills`. `Marquee` and `ResumeSection` are legacy or other-page components.
 
 ### 3D workbench (`src/components/three/`)
 - `PointStage` mounts `Workshop` lazily: dynamic import after `requestIdleCallback`, and only with WebGL and no Save-Data. three.js stays in its own chunk.

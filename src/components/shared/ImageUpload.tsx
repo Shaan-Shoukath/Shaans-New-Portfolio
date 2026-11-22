@@ -8,6 +8,22 @@ import { Label } from "@/components/ui/label";
 import { Upload, Link, X, ImageIcon, Loader2 } from "lucide-react";
 import { toast } from "sonner";
 
+/** Uploads an image to public Supabase Storage and returns its URL. Throws on bad input or failure. */
+export async function uploadImage(
+  supabase: ReturnType<typeof createClient>,
+  file: File,
+  bucket = "portfolio",
+  folder = "uploads"
+): Promise<string> {
+  if (!file.type.startsWith("image/")) throw new Error("Please select an image file");
+  if (file.size > 10 * 1024 * 1024) throw new Error("File must be under 10 MB");
+  const ext = file.name.split(".").pop() ?? "jpg";
+  const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
+  const { error } = await supabase.storage.from(bucket).upload(filename, file, { upsert: false, contentType: file.type });
+  if (error) throw error;
+  return supabase.storage.from(bucket).getPublicUrl(filename).data.publicUrl;
+}
+
 interface ImageUploadProps {
   /** Current image URL value */
   value: string;
@@ -68,28 +84,9 @@ export function ImageUpload({
   const ac = accentMap[accent];
 
   async function uploadFile(file: File) {
-    if (!file.type.startsWith("image/")) {
-      toast.error("Please select an image file");
-      return;
-    }
-    if (file.size > 10 * 1024 * 1024) {
-      toast.error("File must be under 10 MB");
-      return;
-    }
-
     setUploading(true);
     try {
-      const ext = file.name.split(".").pop() ?? "jpg";
-      const filename = `${folder}/${Date.now()}-${Math.random().toString(36).slice(2)}.${ext}`;
-
-      const { error: uploadError } = await supabase.storage
-        .from(bucket)
-        .upload(filename, file, { upsert: false, contentType: file.type });
-
-      if (uploadError) throw uploadError;
-
-      const { data } = supabase.storage.from(bucket).getPublicUrl(filename);
-      onChange(data.publicUrl);
+      onChange(await uploadImage(supabase, file, bucket, folder));
       toast.success("Image uploaded!");
     } catch (err: unknown) {
       toast.error((err as Error).message || "Upload failed");

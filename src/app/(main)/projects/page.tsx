@@ -3,6 +3,7 @@ import { PageShell } from "@/components/layout/PageShell";
 import { JsonLd } from "@/components/seo/JsonLd";
 import { Projects } from "@/components/sections/Projects";
 import { getPortfolioContent } from "@/lib/content";
+import { getGitHubStats } from "@/lib/github";
 import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 
 export const revalidate = 3600;
@@ -15,11 +16,11 @@ export const metadata: Metadata = createPageMetadata({
 });
 
 export default async function ProjectsPage() {
-  const { projects } = await getPortfolioContent();
+  const [{ projects }, github] = await Promise.all([getPortfolioContent(), getGitHubStats()]);
   return (
     <PageShell>
       <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Projects", path: "/projects" }])} />
-      <Projects projects={projects} level="h1" />
+      <Projects projects={projects} level="h1" github={github} />
     </PageShell>
   );
 }

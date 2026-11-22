@@ -471,3 +471,30 @@ export const socialLinks = {
   resume:
     "https://github.com/Shaan-Shoukath/My-CV/blob/main/Resume-Shaan%20A.pdf",
 };
+
+/**
+ * GitHub stats (src/lib/github.ts). Repos are counted only where Shaan has
+ * committed, owned by his account or one of these orgs, so an org's popular
+ * repo he never touched can't inflate the numbers.
+ */
+export const github = {
+  user: "Shaan-Shoukath",
+  orgs: [
+    "SpaceWorks-Labs",
+    "tinkerhub",
+    "Maker-Faire-Kochi",
+    "VibeCheck-Q",
+    "Kunj-Company",
+    "Lascade-Co",
+    "LNO360",
+    "eesa-cusat",
+    "foss-cusat",
+    "ideologist-io",
+    "OXPEL-India-Limited",
+    "Nobody-Builds",
+  ],
+  /** Star counts below this are left off a row rather than shown as ★1. */
+  minStars: 5,
+  /** A repo needs this many of his commits to be featured. */
+  minCommits: 10,
+};

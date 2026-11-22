@@ -5,7 +5,7 @@ import {
   fallbackExperiences,
   fallbackProjects,
 } from "@/content/site";
-import type { Domain, Experience, Project } from "@/lib/types";
+import type { Blog, Domain, Experience, Project } from "@/lib/types";
 
 /**
  * Server-side content loader. Uses a cookie-less Supabase client so pages stay
@@ -101,3 +101,35 @@ export const getPortfolioContent = cache(
     };
   }
 );
+
+/** Published posts, newest first. Empty without Supabase or on error. */
+export const getPublishedBlogs = cache(async (): Promise<Blog[]> => {
+  const supabase = client();
+  if (!supabase) return [];
+  try {
+    const { data, error } = await supabase
+      .from("blogs")
+      .select("*")
+      .eq("published", true)
+      .order("created_at", { ascending: false });
+    return error || !data ? [] : (data as Blog[]).map((b) => ({ ...b, tags: b.tags ?? [] }));
+  } catch {
+    return [];
+  }
+});
+
+export const getBlog = cache(async (slug: string): Promise<Blog | null> => {
+  const supabase = client();
+  if (!supabase) return null;
+  try {
+    const { data } = await supabase
+      .from("blogs")
+      .select("*")
+      .eq("slug", slug)
+      .eq("published", true)
+      .maybeSingle();
+    return data ? { ...(data as Blog), tags: (data as Blog).tags ?? [] } : null;
+  } catch {
+    return null;
+  }
+});

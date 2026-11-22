@@ -47,6 +47,7 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
+import { refreshSite } from "../actions";
 import {
   Plus,
   Pencil,
@@ -152,6 +153,7 @@ export default function DomainsManager() {
       }
       setDialogOpen(false);
       void fetchDomains();
+      void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
     } catch (err: unknown) {
       toast.error((err as Error).message || "Failed to save");
     }
@@ -164,6 +166,7 @@ export default function DomainsManager() {
     } else {
       toast.success("Domain deleted");
       void fetchDomains();
+      void refreshSite().catch(() => toast.error("Saved, but the live site can take up to an hour to update"));
     }
   }
 

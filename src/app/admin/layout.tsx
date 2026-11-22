@@ -38,12 +38,10 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
   LayoutDashboard,
-  User,
   Layers,
   FolderKanban,
   BookOpen,
   Briefcase,
-  ImageIcon,
   LogOut,
   Menu,
   X,
@@ -53,8 +51,6 @@ import {
 // Navigation items for the admin sidebar
 const sidebarItems = [
   { label: "Dashboard", href: "/admin", icon: LayoutDashboard },
-  { label: "About", href: "/admin/about", icon: User },
-  { label: "Hero Images", href: "/admin/hero-images", icon: ImageIcon },
   { label: "Domains", href: "/admin/domains", icon: Layers },
   { label: "Experience", href: "/admin/experiences", icon: Briefcase },
   { label: "Projects", href: "/admin/projects", icon: FolderKanban },

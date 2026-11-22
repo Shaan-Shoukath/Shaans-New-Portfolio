@@ -127,7 +127,7 @@ export default function AdminDashboard() {
         </h3>
         <div className="grid grid-cols-1 sm:grid-cols-4 gap-3">
           {[
-            { label: "Edit About", href: "/admin/about", icon: Layers },
+            { label: "Edit Domains", href: "/admin/domains", icon: Layers },
             { label: "Add Experience", href: "/admin/experiences", icon: Briefcase },
             { label: "Manage Projects", href: "/admin/projects", icon: FolderKanban },
             { label: "Write a Post", href: "/admin/blogs", icon: BookOpen },
