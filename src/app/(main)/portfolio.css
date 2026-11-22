@@ -171,60 +171,60 @@ em {
   color: var(--signal);
 }
 
-/* ─── Cursor: crosshair guides + ring + coordinates ─── */
+/* ─── Cursor: one morphing dot, locked to the pointer (no trailing element) ─── */
 .has-cursor, .has-cursor * { cursor: none !important; }
 .has-cursor.cursor-text input, .has-cursor.cursor-text textarea { cursor: text !important; }
 
-.cursor-dot, .cursor-ring {
+.cursor {
   position: fixed;
   left: 0;
   top: 0;
   z-index: 160;
   pointer-events: none;
   opacity: 0;
-  transition: opacity 0.3s ease;
+  transition: opacity 0.2s ease;
 }
-.has-cursor :is(.cursor-dot, .cursor-ring) { opacity: 1; }
-
-.cursor-dot {
-  width: 6px;
-  height: 6px;
-  margin: -3px 0 0 -3px;
-  border-radius: 50%;
+.cursor.is-visible { opacity: 1; }
+.cursor-text .cursor { opacity: 0; }
+/* Dot and ring are one 40px circle scaled (transform/opacity only, no layout work);
+   the label is its own pill that scales in. */
+.cursor__shape, .cursor__label {
+  position: absolute;
+  left: 0;
+  top: 0;
+  translate: -50% -50%;
+  border-radius: 999px;
+  transition: scale 0.35s var(--ease-out), opacity 0.2s ease, background-color 0.25s ease;
+}
+.cursor__shape {
+  width: 40px;
+  height: 40px;
+  border: 1.5px solid var(--signal);
   background: var(--signal);
+  scale: 0.2;
 }
-
-.cursor-ring {
-  width: 36px;
-  height: 36px;
-  margin: -18px 0 0 -18px;
-  border: 1px solid rgba(236, 236, 234, 0.45);
-  border-radius: 50%;
+.cursor[data-state="hover"] .cursor__shape { scale: 1; background-color: rgba(225, 29, 42, 0.1); }
+.cursor[data-state="label"] .cursor__shape { scale: 0; opacity: 0; }
+.cursor__label {
   display: grid;
   place-items: center;
-  /* `scale` composes with the JS-driven translate, so size changes stay on the compositor. */
-  transition: opacity 0.3s ease, scale 0.4s var(--ease-out), background-color 0.3s ease, border-color 0.3s ease;
-}
-.cursor-ring[data-state="hover"] {
-  scale: 1.65;
-  border-color: var(--signal);
-  background: rgba(225, 29, 42, 0.12);
-}
-.cursor-ring[data-state="label"] {
-  scale: 2.45;
-  border-color: var(--signal);
-  background: var(--signal);
-}
-.cursor-ring[data-state="label"] .cursor-ring__label { scale: 0.41; }
-.cursor-ring.is-down { scale: 0.72; }
-.cursor-ring__label {
+  height: 34px;
+  padding-inline: 14px;
   white-space: nowrap;
+  background: var(--signal);
   font-family: var(--font-mono-ui);
   font-size: 0.72rem;
-  letter-spacing: 0.06em;
+  letter-spacing: 0.08em;
   text-transform: uppercase;
   color: #fff;
+  scale: 0.4;
+  opacity: 0;
 }
+.cursor[data-state="label"] .cursor__label { scale: 1; opacity: 1; }
+/* Pressed: each state shrinks from its own size. */
+.cursor.is-down .cursor__shape { scale: 0.16; }
+.cursor.is-down[data-state="hover"] .cursor__shape { scale: 0.82; }
+.cursor.is-down[data-state="label"] .cursor__label { scale: 0.9; }
 
 
 /* ─── Header ─── */
@@ -427,7 +427,8 @@ em {
     linear-gradient(to bottom, transparent 72%, var(--noir));
 }
 .point-field { position: absolute; inset: 0; opacity: 0; transition: opacity 1.6s var(--ease-out); }
-.point-field.is-ready { opacity: 1; }
+/* --bench is scroll-driven (MotionRuntime); a short linear transition just smooths frames. */
+.point-field.is-ready { opacity: var(--bench, 1); transition: opacity 0.12s linear; }
 .point-field canvas { display: block; width: 100% !important; height: 100% !important; }
 .stage > section { position: relative; z-index: 1; }
 
@@ -489,6 +490,8 @@ em {
   background: var(--noir);
   border-top: 1px solid var(--line);
 }
+/* With motion on, the bench dims behind the statement instead of a solid sheet covering it. */
+.js-motion .statement { background: transparent; border-top-color: transparent; }
 .statement .sec-head { margin-bottom: var(--s-7); }
 .statement__grid {
   max-width: var(--max);
@@ -827,14 +830,17 @@ em {
   color: var(--ink-3);
 }
 .more-list { list-style: none; padding: 0; margin: 0; }
+/* Text column + an action column sized to its buttons, so Visit + Code stay on one
+   line and every row's buttons end on the same right edge. */
 .more {
-  display: flex;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   align-items: center;
-  justify-content: space-between;
   gap: var(--s-5);
   padding-block: var(--s-5);
   border-top: 1px solid var(--line);
 }
+.more .project__links { flex-wrap: nowrap; justify-content: flex-end; }
 .more__title { font-family: var(--font-heading); font-size: 1.2rem; font-weight: 600; letter-spacing: -0.02em; }
 .more__text { margin-top: var(--s-1); color: var(--ink-2); font-size: 0.94rem; line-height: 1.55; max-width: 70ch; }
 
@@ -979,8 +985,13 @@ em {
 
 /* ─── Responsive ─── */
 @media (max-width: 1023px) {
-  .point-field.is-ready { opacity: 0.85; }
-  .story__pin { align-items: flex-end; padding-bottom: var(--s-6); background: linear-gradient(to top, rgba(7, 7, 7, 0.92) 45%, rgba(7, 7, 7, 0) 80%); }
+  .point-field.is-ready { opacity: calc(var(--bench, 1) * 0.85); }
+  /* A soft scrim behind the text block only, so the bench above stays visible. */
+  .story__pin {
+    align-items: flex-end;
+    padding-bottom: var(--s-6);
+    background: linear-gradient(to top, color-mix(in srgb, var(--noir) 88%, transparent) 30%, transparent 62%);
+  }
   .story__inner { width: 100%; }
   .story__title { font-size: clamp(1.6rem, 7vw, 2.4rem); }
 }
@@ -1021,7 +1032,8 @@ em {
 }
 
 @media (max-width: 640px) {
-  .more { flex-direction: column; align-items: flex-start; }
+  .more { grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+  .more .project__links { justify-content: flex-start; }
   .prose-page dl { grid-template-columns: 1fr; gap: 0.2rem; }
 }
 
@@ -1277,3 +1289,87 @@ em {
    stopped short of the last card. A real spacer keeps the end gutter. */
 .gallery__track::after { content: ""; flex: 0 0 1px; margin-left: calc(var(--gutter) - var(--col-gap) - 1px); }
 @media (max-width: 900px) { .gallery__track::after { display: none; } }
+
+/* ═══ Phones & tablets: every iPhone / Android size, portrait and landscape ═══ */
+
+/* iOS bumps text size on rotate unless told not to. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+
+/* Nothing may scroll sideways. `clip` (unlike `hidden`) keeps sticky children working. */
+main, .stage { overflow-x: clip; }
+
+/* The screenshot is a link (block, not inline) on cards that have one. */
+a.panel__screen { display: block; }
+
+/* Notched iPhones in landscape: keep the header and gutters clear of the cutout. */
+@supports (padding: max(0px)) {
+  .site-header {
+    padding-left: max(var(--gutter), env(safe-area-inset-left));
+    padding-right: max(var(--gutter), env(safe-area-inset-right));
+  }
+  .band, .statement, .hero, .story__pin, .prose-page {
+    padding-left: max(var(--gutter), env(safe-area-inset-left));
+    padding-right: max(var(--gutter), env(safe-area-inset-right));
+  }
+}
+
+/* Touch: no grey tap flash, but a clear pressed state; 44px minimum targets (Apple HIG / Material 48dp). */
+@media (pointer: coarse) {
+  a, button, summary { -webkit-tap-highlight-color: transparent; }
+  .link-pill, .statement__more, .rcard__links a, .contact__socials a, .site-footer a, .prose-page dd a {
+    min-height: 44px;
+  }
+  .statement__more, .contact__socials a, .site-footer a, .prose-page dd a { display: inline-flex; align-items: center; }
+  .rcard__links { row-gap: 0; }
+  .link-pill:active, .statement__more:active, .rcard__links a:active, .contact__socials a:active, .social:active {
+    opacity: 0.6;
+    transition: opacity 0s;
+  }
+  .panel:active { border-color: rgba(225, 29, 42, 0.5); }
+  /* A full-screen fixed noise layer costs a composite on every scroll frame; at 3.5% it isn't visible on a phone. */
+  .film-grain::after { display: none; }
+}
+
+/* Phones: tighter project cards (same design). */
+@media (max-width: 640px) {
+  .panel__screen { aspect-ratio: 16 / 9; margin: var(--s-2) var(--s-2) 0; }
+  .panel__body { gap: var(--s-2); padding: var(--s-4); }
+  .panel__title { font-size: 1.6rem; }
+  .panel__text { font-size: 0.98rem; line-height: 1.55; }
+}
+
+/* Phones held sideways (short screens): the pinned domain story must fit in ~320px. */
+@media (max-height: 520px) and (orientation: landscape) {
+  .story__pin { align-items: center; padding-top: var(--header-h); padding-bottom: var(--s-3); background: none; }
+  .story__inner { gap: var(--s-2); width: min(100%, 36rem); }
+  .story__title { font-size: 1.05rem; padding-block: 0.1rem; }
+  .story__item.is-active .story__title { font-size: 1.7rem; }
+  .story__item.is-active .story__detail { padding: var(--s-1) 0 var(--s-2) 2.2rem; gap: var(--s-1); }
+  .story__text { font-size: 0.92rem; line-height: 1.45; }
+  .story__item .tag-list { display: none; }
+  .hero { min-height: 100svh; }
+  .hero__text { bottom: var(--s-4); gap: var(--s-2); }
+  .hero__name { font-size: 1.5rem; }
+}
+
+/* Below the pinned desktop gallery (1024px+): the same sideways gallery, driven by
+   the finger. Native scroll-snap, the next card peeks in, edge to edge. */
+@media (max-width: 1023px) {
+  .gallery { margin-inline: calc(var(--gutter) * -1); overflow: visible; }
+  .gallery__track {
+    flex-direction: row;
+    width: auto;
+    gap: var(--s-3);
+    padding: 0 var(--gutter) var(--s-2);
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scroll-padding-inline: var(--gutter);
+    scrollbar-width: none;
+    will-change: auto; /* not one giant GPU layer: only the desktop track is transformed */
+  }
+  .gallery__track::-webkit-scrollbar { display: none; }
+  /* Flex end padding is dropped from the scroll width; a spacer keeps the end gutter. */
+  .gallery__track::after { display: block; content: ""; flex: 0 0 1px; margin-left: calc(var(--gutter) - var(--s-3) - 1px); }
+  .panel { width: min(84vw, 26rem); scroll-snap-align: start; }
+}

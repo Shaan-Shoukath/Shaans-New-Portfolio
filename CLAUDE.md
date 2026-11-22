@@ -45,13 +45,13 @@ Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3
 - `Statement`: intro paragraph that lights up word by word on scroll.
 - `DomainsStory`: pinned scrollytelling. Scroll progress picks the active domain and calls `emitShape`, which drives the 3D camera.
 - `Timeline`: role rows (dates, location, products, tags). `featureLead` highlights the first current community role (TinkerHub).
-- `Projects` + `ProjectHover`: editorial rows with a cursor-following spec card (desktop only), "Shipped at work", and "More experiments".
+- `Projects`: at 1024px and up, a pinned horizontal gallery driven by scroll. Below that, the same track is a native swipe row (scroll-snap, the next card peeks in). The screenshot links to the project (`aria-hidden`, out of tab order; the pills stay the accessible links). Only the first two screenshots load eagerly. "More experiments" follows the gallery.
 - `Contact`: red band, Gmail-draft form (no backend).
 - `Domains` (static list) is used only by `/skills`. `Marquee`, `BlogsSection` and `ResumeSection` are legacy or other-page components.
 
 ### 3D workbench (`src/components/three/`)
 - `PointStage` mounts `Workshop` lazily: dynamic import after `requestIdleCallback`, and only with WebGL and no Save-Data. three.js stays in its own chunk.
-- `Workshop.tsx`: one renderer drawing an outlined blueprint-noir bench (fills plus `EdgesGeometry` lines, fog, grid) with one object per station: server rack, laptop, phone, drone, AI hologram, ESP32 board.
+- `Workshop.tsx`: on touch devices it renders at a 1.25 pixel ratio with no antialiasing and no pointer parallax. One renderer drawing an outlined blueprint-noir bench (fills plus `EdgesGeometry` lines, fog, grid) with one object per station: server rack, laptop, phone, drone, AI hologram, ESP32 board.
   - The camera lerps between `SHOTS`, and the active station's edges take its accent.
   - Rendering pauses offscreen or when the tab is hidden, and draws static frames under reduced motion.
   - Teardown disposes every geometry and material.
@@ -64,7 +64,8 @@ Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3
   - Hero timeline held until the loader dispatches `INTRO_DONE`.
   - Magnetic (`data-magnetic`) and spotlight (`data-spotlight`) helpers.
   - Everything sits inside `gsap.context` and is reverted on unmount. Reduced motion skips it all.
-- `Cursor`: dot + trailing ring (fine pointers only). `data-cursor-label` shows a label.
+- `Cursor`: one red dot locked to the pointer (no trailing element). It becomes a ring over interactive elements and a labelled pill over `[data-cursor-label]`. Mouse/trackpad only (`(hover: hover) and (pointer: fine)`, re-checked on change); touch and reduced motion keep the system cursor. Right-click, blur, drag and window-leave are all handled.
+- Bench light: `MotionRuntime` writes `--bench` on `.point-stage` from scroll. The 3D field dims behind the statement, returns for the domains story, and fades out before the work band. The statement has no background while `js-motion` is set, so no opaque sheet slides over the bench.
 - Content is visible by default. The only pre-hidden element is the hero title (`html.js-motion`, set by the inline script in the root layout), and it has a CSS failsafe.
 
 ### Layout (`src/components/layout/`)
@@ -85,6 +86,15 @@ Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3
 - Public styles live in `src/app/(main)/portfolio.css`.
 - Theme: noir `#050505` / `#e8e8e8` with red `#dc2626`. Fonts: Space Grotesk (display), Inter (body), Instrument Serif italic (one accent word per heading), DM Mono (data such as dates and coordinates).
 - Caching: `next.config.ts` sends immutable headers for `/mini-shaan/*` (bump the filename when the art changes).
+
+### Mobile
+- Everything after the `Phones & tablets` banner at the end of `portfolio.css` is the mobile layer.
+  - `main` and `.stage` use `overflow-x: clip` (clip keeps sticky working).
+  - The viewport is `viewportFit: cover`, with safe-area padding on the header and gutters.
+  - On `(pointer: coarse)`: 44px minimum tap targets, pressed states, no tap flash, and no film grain.
+  - On short landscape (`max-height: 520px`): a compact domain story.
+- `ScrollTrigger.config({ ignoreMobileResize: true })` stops re-measuring when the iOS/Android browser bars move.
+- Check every phone width (320, 360, 375, 390, 430), landscape 844×390, and 768/1000/1280 before shipping layout changes.
 
 ### Conventions
 - Path alias `@/*` → `src/*`. shadcn/Base UI primitives live in `src/components/ui/`.
