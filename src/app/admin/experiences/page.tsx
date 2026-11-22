@@ -49,6 +49,7 @@ const typeColors: Record<string, string> = {
 type FormData = {
   title: string;
   company: string;
+  location: string;
   description: string;
   image_url: string;
   type: "professional" | "social" | "education" | "freelance";
@@ -62,6 +63,7 @@ type FormData = {
 const emptyForm: FormData = {
   title: "",
   company: "",
+  location: "",
   description: "",
   image_url: "",
   type: "professional",
@@ -105,6 +107,7 @@ export default function AdminExperiencesPage() {
     setForm({
       title: exp.title,
       company: exp.company,
+      location: exp.location || "",
       description: exp.description || "",
       image_url: exp.image_url || "",
       type: exp.type,
@@ -128,6 +131,7 @@ export default function AdminExperiencesPage() {
     const payload = {
       title: form.title,
       company: form.company,
+      location: form.location || null,
       description: form.description || null,
       image_url: form.image_url || null,
       type: form.type,
@@ -248,6 +252,15 @@ export default function AdminExperiencesPage() {
               />
             </div>
             <div className="space-y-2">
+              <Label className="text-xs text-white/50 uppercase tracking-wider">Location</Label>
+              <Input
+                value={form.location}
+                onChange={(e) => setForm({ ...form, location: e.target.value })}
+                placeholder="e.g. Kochi, Kerala or Remote"
+                className="bg-white/3 border-white/6"
+              />
+            </div>
+            <div className="space-y-2">
               <Label className="text-xs text-white/50 uppercase tracking-wider">Type</Label>
               <Select
                 value={form.type}
@@ -260,7 +273,7 @@ export default function AdminExperiencesPage() {
                 </SelectTrigger>
                 <SelectContent className="bg-[#0a0a0a] border-white/10">
                   <SelectItem value="professional">Professional</SelectItem>
-                  <SelectItem value="social">Social</SelectItem>
+                  <SelectItem value="social">Community</SelectItem>
                   <SelectItem value="education">Education</SelectItem>
                   <SelectItem value="freelance">Freelance</SelectItem>
                 </SelectContent>
@@ -408,7 +421,7 @@ export default function AdminExperiencesPage() {
                   )}
                 </div>
                 <p className="text-xs text-muted-foreground">
-                  {exp.company} · {exp.start_date}
+                  {exp.company}{exp.location ? ` · ${exp.location}` : ""} · {exp.start_date}
                   {exp.end_date ? ` — ${exp.end_date}` : " — Present"}
                 </p>
                 <p className="text-xs text-white/20 mt-1 capitalize">{exp.type}</p>

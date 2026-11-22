@@ -1,47 +1,27 @@
 import type { Metadata } from "next";
-import { Footer } from "@/components/layout/Footer";
-import { Navbar } from "@/components/layout/Navbar";
-import { ScrollProgress } from "@/components/layout/ScrollProgress";
-import { IoTSection } from "@/components/scroll/IoTSection";
-import { AppDevSection } from "@/components/scroll/AppDevSection";
-import { UAVSection } from "@/components/scroll/UAVSection";
-import { WebDevSection } from "@/components/scroll/WebDevSection";
+import { PageShell } from "@/components/layout/PageShell";
 import { JsonLd } from "@/components/seo/JsonLd";
+import { Domains } from "@/components/sections/Domains";
+import { getPortfolioContent } from "@/lib/content";
 import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
+
+export const revalidate = 3600;
 
 export const metadata: Metadata = createPageMetadata({
   title: "Skills",
   description:
-    "Technical skills and engineering domains for Shaan Shoukath: web development, app development, UAV and robotics, IoT, embedded systems, and AI.",
+    "Shaan Shoukath's skills: backend (Python, Django, Node.js, PostgreSQL), web and mobile apps, drones and robotics (ROS 2, ArduPilot), AI and ML, IoT and embedded.",
   path: "/skills",
-  keywords: [
-    "Shaan Shoukath skills",
-    "Shaan Shoukath web development",
-    "Shaan Shoukath app development",
-    "Shaan Shoukath UAV",
-    "Shaan Shoukath IoT",
-    "Shaan Shoukath AI",
-  ],
 });
 
-export default function SkillsPage() {
+export default async function SkillsPage() {
+  const { domains } = await getPortfolioContent();
   return (
-    <>
-      <JsonLd
-        data={breadcrumbJsonLd([
-          { name: "Home", path: "/" },
-          { name: "Skills", path: "/skills" },
-        ])}
-      />
-      <ScrollProgress />
-      <Navbar />
-      <main className="flex-1">
-        <UAVSection />
-        <WebDevSection />
-        <AppDevSection />
-        <IoTSection />
-      </main>
-      <Footer />
-    </>
+    <PageShell>
+      <JsonLd data={breadcrumbJsonLd([{ name: "Home", path: "/" }, { name: "Skills", path: "/skills" }])} />
+      <div className="skills-page">
+        <Domains domains={domains} />
+      </div>
+    </PageShell>
   );
 }

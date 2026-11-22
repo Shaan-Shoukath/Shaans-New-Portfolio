@@ -1,46 +1,45 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/seo/JsonLd";
-import {
-  createPageMetadata,
-  profilePageJsonLd,
-  siteConfig,
-} from "@/lib/seo";
-import { HomeClient } from "./HomeClient";
+import { CommunityLog } from "@/components/sections/CommunityLog";
+import { Contact } from "@/components/sections/Contact";
+import { DomainsStory } from "@/components/sections/DomainsStory";
+import { Hero } from "@/components/sections/Hero";
+import { Projects } from "@/components/sections/Projects";
+import { Statement } from "@/components/sections/Statement";
+import { WorkCases } from "@/components/sections/WorkCases";
+import { PointStage } from "@/components/three/PointStage";
+import { profile } from "@/content/site";
+import { getPortfolioContent } from "@/lib/content";
+import { createPageMetadata, homeJsonLd, siteConfig } from "@/lib/seo";
+
+// Static HTML, rebuilt from Supabase at most hourly (ISR).
+export const revalidate = 3600;
 
 export const metadata: Metadata = createPageMetadata({
-  title: siteConfig.name,
   description: siteConfig.description,
   path: "/",
   type: "profile",
-  keywords: [
-    "official Shaan Shoukath",
-    "Shaan Shoukath developer",
-    "Shaan Shoukath portfolio",
-    "Shaan Shoukath robotics engineer Kochi",
-    "Shaan Shoukath drone engineer",
-    "Shaan Shoukath ROS 2",
-    "Shaan Shoukath ArduPilot",
-    "Shaan Shoukath geospatial AI",
-    "Shaan Shoukath embedded systems",
-    "Shaan Shoukath full-stack developer",
-    "Shaan Shoukath Flutter developer",
-    "Shaan Shoukath fintech",
-  ],
 });
 
-export default function HomePage() {
+export default async function HomePage() {
+  const content = await getPortfolioContent();
+  const now = [...content.work, ...content.community]
+    .filter((e) => !e.end_date && (profile.currentRoles.some((r) => r.company === e.company) || e.type === "social"))
+    .map((e) => ({ role: e.title, org: e.company, since: e.start_date }));
+
   return (
-    <>
-      <JsonLd data={profilePageJsonLd("/")} />
-      <h1 className="sr-only">
-        Shaan Shoukath - Multidisciplinary Engineer in Kochi, Kerala
-      </h1>
-      <p className="sr-only">
-        Shaan Shoukath is a Kochi, Kerala engineer working across autonomous
-        drones and robotics, geospatial AI, edge and embedded systems, computer
-        vision, full-stack web and mobile software, telecom, and fintech.
-      </p>
-      <HomeClient />
-    </>
+    <main id="main">
+      <JsonLd data={homeJsonLd(content)} />
+      <div className="stage">
+        <PointStage />
+        <Hero />
+        <Statement text={profile.intro} now={now} />
+        <DomainsStory domains={content.domains} />
+      </div>
+      <WorkCases items={content.work} />
+      <CommunityLog items={content.community} />
+      <Projects projects={content.projects} />
+      <Contact />
+    </main>
   );
 }

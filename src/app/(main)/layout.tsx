@@ -1,14 +1,23 @@
-import { BottomNav } from "@/components/layout/BottomNav";
+import { Analytics } from "@/components/analytics/Analytics";
+import { IntroLoader } from "@/components/layout/IntroLoader";
+import { SiteHeader } from "@/components/layout/SiteHeader";
+import { Cursor } from "@/components/motion/Cursor";
+import { MotionRuntime } from "@/components/motion/MotionRuntime";
+import "./portfolio.css";
 
-export default function MainLayout({
-  children,
-}: {
-  children: React.ReactNode;
-}) {
+export default function MainLayout({ children }: { children: React.ReactNode }) {
   return (
     <div className="film-grain">
+      <a href="#main" className="skip-link">
+        Skip to content
+      </a>
+      <div className="scroll-progress" aria-hidden="true" />
+      <SiteHeader />
       {children}
-      <BottomNav />
+      <IntroLoader />
+      <Cursor />
+      <MotionRuntime />
+      <Analytics />
     </div>
   );
 }

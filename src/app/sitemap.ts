@@ -1,6 +1,6 @@
 import type { MetadataRoute } from "next";
 import { createClient as createSupabaseClient } from "@supabase/supabase-js";
-import { absoluteUrl } from "@/lib/seo";
+import { SITE_UPDATED, absoluteUrl } from "@/lib/seo";
 
 export const revalidate = 3600;
 
@@ -10,12 +10,12 @@ const staticRoutes: Array<{
   priority: number;
 }> = [
   { path: "/", changeFrequency: "weekly", priority: 1 },
-  { path: "/about", changeFrequency: "monthly", priority: 0.95 },
-  { path: "/projects", changeFrequency: "monthly", priority: 0.9 },
-  { path: "/skills", changeFrequency: "monthly", priority: 0.85 },
-  { path: "/blog", changeFrequency: "weekly", priority: 0.8 },
-  { path: "/resume", changeFrequency: "monthly", priority: 0.75 },
-  { path: "/contact", changeFrequency: "yearly", priority: 0.7 },
+  { path: "/about", changeFrequency: "monthly", priority: 0.9 },
+  { path: "/projects", changeFrequency: "monthly", priority: 0.85 },
+  { path: "/skills", changeFrequency: "monthly", priority: 0.7 },
+  { path: "/blog", changeFrequency: "weekly", priority: 0.7 },
+  { path: "/resume", changeFrequency: "monthly", priority: 0.6 },
+  { path: "/contact", changeFrequency: "yearly", priority: 0.5 },
 ];
 
 async function getPublishedBlogRoutes() {
@@ -56,13 +56,13 @@ async function getPublishedBlogRoutes() {
 }
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
+  const updated = new Date(SITE_UPDATED);
   const blogRoutes = await getPublishedBlogRoutes();
 
   return [
     ...staticRoutes.map((route) => ({
       url: absoluteUrl(route.path),
-      lastModified: now,
+      lastModified: updated,
       changeFrequency: route.changeFrequency,
       priority: route.priority,
     })),

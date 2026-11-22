@@ -6,7 +6,7 @@ import { breadcrumbJsonLd, createPageMetadata } from "@/lib/seo";
 export const metadata: Metadata = createPageMetadata({
   title: "Blog",
   description:
-    "Articles and notes from Shaan Shoukath on software engineering, full-stack development, AI, IoT, UAV systems, and product building.",
+    "Articles and notes from Shaan Shoukath on software engineering, backend systems, AI, IoT, drones and building products.",
   path: "/blog",
   keywords: [
     "Shaan Shoukath blog",

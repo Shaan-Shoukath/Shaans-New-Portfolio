@@ -56,6 +56,7 @@ export interface Experience {
   id: string;
   title: string;
   company: string;
+  location: string | null;
   description: string | null;
   image_url: string | null;
   type: "professional" | "social" | "education" | "freelance";
