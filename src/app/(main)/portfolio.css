@@ -350,7 +350,7 @@ em {
 .btn--ghost:hover { border-color: var(--ink); }
 .btn--block { width: 100%; }
 
-/* ─── Mini Shaan sprite (loader only) ─── */
+/* ─── Mini Shaan sprite (intro loader + the 404 meme) ─── */
 .mini-shaan {
   --ms-h: calc(var(--ms-w) * 156 / 144);
   --row: 0;
@@ -370,6 +370,8 @@ em {
 .mini-shaan[data-state="wave"] { --row: 3; animation: ms-4 0.8s steps(4) infinite; }
 .mini-shaan[data-state="jump"] { --row: 4; animation: ms-5 0.9s steps(5) infinite; }
 .mini-shaan[data-state="think"] { --row: 8; animation: ms-6 1.4s steps(6) infinite; }
+.mini-shaan[data-state="facepalm"] { --row: 5; animation: ms-8 1.6s steps(8) infinite; }
+.mini-shaan[data-state="wait"] { --row: 6; animation: ms-6 1.3s steps(6) infinite; }
 @keyframes ms-4 { to { background-position-x: calc(var(--ms-w) * -4); } }
 @keyframes ms-5 { to { background-position-x: calc(var(--ms-w) * -5); } }
 @keyframes ms-6 { to { background-position-x: calc(var(--ms-w) * -6); } }
@@ -981,7 +983,35 @@ em {
 .domain .tag-list { font-family: var(--font-mono-ui); font-size: var(--t-meta); color: var(--ink-3); }
 
 .not-found { min-height: 100svh; display: grid; place-items: center; text-align: center; padding: var(--s-6) var(--gutter); }
-.not-found__inner { display: grid; justify-items: center; gap: var(--s-5); }
+.not-found__inner { display: grid; justify-items: center; gap: var(--s-5); max-width: 40rem; }
+.not-found__title { font-size: clamp(1.8rem, 4.5vw, 2.8rem); line-height: 1; }
+.not-found__code { font-family: var(--font-mono-ui); font-size: var(--t-meta); letter-spacing: 0.08em; text-transform: uppercase; color: var(--signal); }
+
+/* 404 meme: two-panel reaction, Mini Shaan on both sides. */
+.meme {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  width: min(100%, 34rem);
+  margin: var(--s-2) 0 var(--s-3);
+  border: var(--card-border);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  background: var(--card-bg);
+}
+.meme__panel { display: grid; justify-items: center; align-content: end; gap: var(--s-3); padding: var(--s-5) var(--s-4) var(--s-4); }
+.meme__panel + .meme__panel { border-left: 1px solid var(--line-strong); }
+.meme__panel--bad { background: rgba(225, 29, 42, 0.08); }
+.meme__caption {
+  font-family: var(--font-heading);
+  font-weight: 600;
+  font-size: 0.98rem;
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+  color: var(--ink);
+  text-wrap: balance;
+}
+.meme__panel--bad .meme__caption { color: var(--signal); }
+@media (max-width: 420px) { .meme__panel { padding-inline: var(--s-2); } .meme__caption { font-size: 0.9rem; } .meme .mini-shaan { --ms-w: 112px !important; } }
 
 /* ─── Responsive ─── */
 @media (max-width: 1023px) {

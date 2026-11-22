@@ -49,7 +49,7 @@ function Links({
   );
 }
 
-export function Projects({ projects }: { projects: Project[] }) {
+export function Projects({ projects, level }: { projects: Project[]; level?: "h1" | "h2" }) {
   const featured = projects.filter((p) => p.featured);
   const more = projects.filter((p) => !p.featured);
 
@@ -87,7 +87,7 @@ export function Projects({ projects }: { projects: Project[] }) {
 
   return (
     <section id="projects" className="band band--projects" aria-labelledby="projects-title">
-      <SectionHead id="projects" label="Projects" title="Things I've built" lede="Open-source tools, hardware builds and the products I ship at work." />
+      <SectionHead level={level} id="projects" label="Projects" title="Things I've built" lede="Open-source tools, hardware builds and the products I ship at work." />
 
       {/* Desktop: pinned and driven sideways by scroll (MotionRuntime). Phones: a plain stack. */}
       <div className="gallery" data-gallery>

@@ -29,7 +29,8 @@ Copy `.env.example` to `.env.local`:
 - `src/app/(main)/`: public pages. `page.tsx` (home), `about` (long-form + FAQ JSON-LD), `projects`, `skills`, `contact`, `blog`, `blog/[slug]`, `resume`. The layout adds `SiteHeader`, `IntroLoader`, `Cursor`, `MotionRuntime`, `Analytics` and loads `portfolio.css` (public-only styles).
 - `src/app/admin/`: Supabase CMS (About, Domains, Projects, Blogs, Experiences, HeroImages). It is protected by `src/middleware.ts`, `useAdminGuard` and RLS.
 - `src/app/llms.txt`, `src/app/llms-full.txt`: route handlers built by `src/lib/llms.ts`.
-- `robots.ts` (allows AI crawlers, blocks `/admin`), `sitemap.ts`, `opengraph-image.tsx` / `twitter-image.tsx` (generated share card), `not-found.tsx`.
+- `robots.ts` (allows AI crawlers, blocks `/admin`), `sitemap.ts`, `opengraph-image.tsx` / `twitter-image.tsx` (generated share card), `not-found.tsx` (noindex, own title, Mini Shaan meme).
+- Every public page has exactly one `<h1>`. `SectionHead` takes `level` (h1 on `/projects` and `/contact`, h2 on home).
 
 ### Content and data
 - **`src/content/site.ts` is canonical content.** It holds `profile` (intro, brief, current roles), `fallbackExperiences`, `fallbackProjects` (featured = the repos pinned on GitHub), `fallbackDomains`, `socialLinks`, and `workProducts` (products per company, keyed by experience company name and shown on roles and in "Shipped at work").
@@ -70,7 +71,7 @@ Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3
 
 ### Layout (`src/components/layout/`)
 - `SiteHeader`: wordmark, section links (scroll via `scrollToId`), "Let's talk" CTA, mobile menu. It hides on scroll down.
-- `IntroLoader`: first visit per session only. Mini Shaan runs along a progress bar (~1.5s), then the curtain lifts. `INTRO_SKIP_SCRIPT` in the root layout marks repeat visits before paint. **Mini Shaan appears only in the loader.** The sprite is `public/mini-shaan/sheet-v1.webp` (8×9 cells, 144×156), animated by CSS `steps()` in `MiniShaan.tsx`.
+- `IntroLoader`: first visit per session only. Mini Shaan runs along a progress bar (~1.5s), then the curtain lifts. `INTRO_SKIP_SCRIPT` in the root layout marks repeat visits before paint. **Mini Shaan appears only in the loader and in the 404 meme** (`src/app/not-found.tsx`: two panels, `wait` shrug then `facepalm`). The sprite is `public/mini-shaan/sheet-v1.webp` (8×9 cells, 144×156), animated by CSS `steps()` in `MiniShaan.tsx`.
 - `PageShell`: `<main>` wrapper for standalone pages.
 
 ### SEO / GEO

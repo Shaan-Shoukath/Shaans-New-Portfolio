@@ -36,7 +36,7 @@ export function BlogsSection() {
 
   return (
     <SectionWrapper id="blogs">
-      <AnimatedHeading subtitle="Thoughts, tutorials, and insights on building software">
+      <AnimatedHeading as="h1" subtitle="Thoughts, tutorials, and insights on building software">
         Latest Writings
       </AnimatedHeading>
 
