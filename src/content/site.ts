@@ -65,7 +65,7 @@ export const fallbackExperiences: Experience[] = [
     location: null,
     type: "professional",
     start_date: "May 2024",
-    end_date: null,
+    end_date: "Jun 2024",
     description:
       "Built responsive UIs with React and Tailwind CSS, integrated REST APIs and managed version control with Git.",
     tags: ["React", "Tailwind CSS", "REST API", "Git"],
