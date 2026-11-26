@@ -46,6 +46,7 @@ Copy `.env.example` to `.env.local`:
 - Pages using it export `revalidate = 3600` (ISR). Every word is in the HTML, with no client-side fetching on public pages.
 - Experience `type: "social"` is labelled "Community" in the admin. `location` is a free-text column (migration 008).
 - `supabase/migrations/008_portfolio_revamp.sql` is generated from `site.ts`. It is non-destructive: old rows are unpublished, never deleted, and it is safe to re-run. Regenerate it whenever `site.ts` changes and should be pushed to the DB.
+- Migrations are tracked by the Supabase CLI. The project is linked as `qmvqdmannocfkohbhtku` ("Portfolio"). 001–008 were marked applied with `migration repair` on 2026-11-26, because they ran before tracking existed. For DB changes, add a new numbered migration (e.g. `009_oxpel_end_date.sql`), then run `supabase db push --remote --dry-run` and `supabase db push --remote`. Don't edit an already-applied file and expect it to re-run. Keep 008 in sync with `site.ts` anyway, as the full re-seed reference.
 
 ### Home page sections (`src/components/sections/`)
 Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3D canvas) → `Timeline` work → `Timeline` community → `Projects` → `Writing` (only when a post is published) → `Contact`.
