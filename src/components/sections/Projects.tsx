@@ -1,7 +1,7 @@
 import { SectionHead } from "./SectionHead";
 import { ArrowUpRight, Github } from "lucide-react";
 import Image from "next/image";
-import { github as gh, productImages, projectMeta, workProducts } from "@/content/site";
+import { github as gh, productImages, projectExtras, workProducts } from "@/content/site";
 import type { GitHubStats } from "@/lib/github";
 import type { Project } from "@/lib/types";
 
@@ -109,8 +109,8 @@ export function Projects({
       live: p.live_url,
       code: p.github_url,
       kind: "Open source & side builds",
-      image: p.image_url ?? projectMeta[p.id]?.image,
-      role: projectMeta[p.id]?.role,
+      image: p.image_url ?? projectExtras(p).image,
+      role: projectExtras(p).role,
     })),
     ...Object.entries(workProducts)
       .filter(([company]) => company === "Lascade" || company === "LNO Technologies")

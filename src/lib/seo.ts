@@ -1,5 +1,5 @@
 import type { Metadata } from "next";
-import { productImages, profile, projectMeta, socialLinks, workProducts } from "@/content/site";
+import { productImages, profile, projectExtras, socialLinks, workProducts } from "@/content/site";
 import type { PortfolioContent } from "@/lib/content";
 import { isCurrent } from "@/lib/content";
 
@@ -202,17 +202,20 @@ export function homeJsonLd(content: PortfolioContent) {
       }))
   );
 
-  const projects = content.projects.map((p) => ({
-    "@type": "SoftwareSourceCode",
-    name: p.title,
-    description: p.description ?? undefined,
-    url: p.live_url ?? p.github_url ?? undefined,
-    codeRepository: p.github_url ?? undefined,
-    keywords: p.tech_stack.join(", "),
-    image: (p.image_url ?? projectMeta[p.id]?.image) ? absoluteUrl((p.image_url ?? projectMeta[p.id]?.image)!) : undefined,
-    creativeWorkStatus: projectMeta[p.id]?.role,
-    author: { "@id": PERSON_ID },
-  }));
+  const projects = content.projects.map((p) => {
+    const image = p.image_url ?? projectExtras(p).image;
+    return {
+      "@type": "SoftwareSourceCode",
+      name: p.title,
+      description: p.description ?? undefined,
+      url: p.live_url ?? p.github_url ?? undefined,
+      codeRepository: p.github_url ?? undefined,
+      keywords: p.tech_stack.join(", "),
+      image: image ? absoluteUrl(image) : undefined,
+      creativeWorkStatus: projectExtras(p).role,
+      author: { "@id": PERSON_ID },
+    };
+  });
 
   return {
     "@context": "https://schema.org",

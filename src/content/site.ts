@@ -329,6 +329,11 @@ export const projectMeta: Record<string, { image?: string; role?: string }> = {
   lmusic: { image: img("lmusic.webp"), role: "Co-owner · Kunj Company" },
 };
 
+/** CMS rows use UUIDs, so fall back to matching the site.ts project by title. */
+export function projectExtras(p: Pick<Project, "id" | "title">): { image?: string; role?: string } {
+  return projectMeta[p.id] ?? projectMeta[fallbackProjects.find((f) => f.title.toLowerCase() === p.title.toLowerCase())?.id ?? ""] ?? {};
+}
+
 /** Screenshots for products I ship at work, keyed by product name. */
 export const productImages: Record<string, string> = {
   Mixroutes: img("mixroutes.webp"),
