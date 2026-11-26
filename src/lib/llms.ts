@@ -1,4 +1,4 @@
-import { profile, projectMeta, socialLinks, workProducts } from "@/content/site";
+import { profile, projectExtras, socialLinks, workProducts } from "@/content/site";
 import { excerpt } from "@/lib/blog";
 import { getPortfolioContent, getPublishedBlogs, isCurrent } from "@/lib/content";
 import { getGitHubStats } from "@/lib/github";
@@ -40,6 +40,7 @@ export async function buildLlmsTxt(full: boolean) {
 
   lines.push("## Key pages", "");
   lines.push(`- [About Shaan Shoukath](${u}/about): who he is, roles with dates, domains, FAQ`);
+  lines.push(`- [Career story](${u}/simple): Shaan's work, projects and community told as one story, with screenshots`);
   lines.push(`- [Home](${u}/): overview, work, community, projects`);
   lines.push(`- [Projects](${u}/projects): open-source and shipped work`);
   lines.push(`- [Skills](${u}/skills): engineering domains and tools`);
@@ -60,7 +61,7 @@ export async function buildLlmsTxt(full: boolean) {
   lines.push("", "## Projects", "");
   for (const p of c.projects) {
     const link = p.live_url ?? p.github_url;
-    const role = projectMeta[p.id]?.role;
+    const role = projectExtras(p).role;
     const desc = `${role ? ` (my role: ${role})` : ""}${p.description ? `: ${p.description}` : ""}`;
     lines.push(link ? `- [${p.title}](${link})${desc}` : `- ${p.title}${desc}`);
     if (full && p.tech_stack.length) lines.push(`  Stack: ${p.tech_stack.join(", ")}`);

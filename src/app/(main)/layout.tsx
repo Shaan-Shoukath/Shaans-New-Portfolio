@@ -3,6 +3,7 @@ import { IntroLoader } from "@/components/layout/IntroLoader";
 import { SiteHeader } from "@/components/layout/SiteHeader";
 import { Cursor } from "@/components/motion/Cursor";
 import { MotionRuntime } from "@/components/motion/MotionRuntime";
+import { socialLinks } from "@/content/site";
 import "./portfolio.css";
 
 export default function MainLayout({ children }: { children: React.ReactNode }) {
@@ -12,7 +13,7 @@ export default function MainLayout({ children }: { children: React.ReactNode }) 
         Skip to content
       </a>
       <div className="scroll-progress" aria-hidden="true" />
-      <SiteHeader />
+      <SiteHeader resumeUrl={socialLinks.resume} />
       {children}
       <IntroLoader />
       <Cursor />

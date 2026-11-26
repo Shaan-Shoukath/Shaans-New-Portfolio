@@ -27,11 +27,12 @@ export function DomainsStory({ domains }: { domains: Domain[] }) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
+    const pin = el.querySelector<HTMLElement>(".story__pin");
     let raf = 0;
     const update = () => {
       raf = 0;
       const r = el.getBoundingClientRect();
-      const travel = r.height - window.innerHeight;
+      const travel = r.height - (pin?.offsetHeight ?? window.innerHeight);
       const p = travel > 0 ? Math.min(Math.max(-r.top / travel, 0), 0.9999) : 0;
       setActive(Math.floor(p * domains.length));
       setInView(r.top < window.innerHeight * 0.5 && r.bottom > window.innerHeight * 0.5);

@@ -27,11 +27,13 @@ Copy `.env.example` to `.env.local`:
 ## Architecture
 
 ### Routes
-- `src/app/(main)/`: public pages. `page.tsx` (home), `about` (long-form + FAQ JSON-LD), `projects`, `skills`, `contact`, `blog`, `blog/[slug]`, `resume`. The layout adds `SiteHeader`, `IntroLoader`, `Cursor`, `MotionRuntime`, `Analytics` and loads `portfolio.css` (public-only styles).
+- `src/app/(main)/`: public pages. `page.tsx` (home), `about` (long-form + FAQ JSON-LD), `projects`, `skills`, `contact`, `blog`, `blog/[slug]`, `resume`, `simple`. The layout adds `SiteHeader`, `IntroLoader`, `Cursor`, `MotionRuntime`, `Analytics` and loads `portfolio.css` (public-only styles).
 - `src/app/admin/`: Supabase CMS for exactly what the site reads: Domains, Experience, Projects and Blogs. It is protected by `src/middleware.ts`, `useAdminGuard` and RLS.
   - Every save, publish toggle and delete calls `refreshSite()` (`admin/actions.ts`, a server action that checks the Supabase session). It revalidates every page plus the feed, sitemap and llms routes, so edits go live at once instead of after the hourly ISR.
   - The old About and Hero Images screens were removed: nothing on the revamped site read them. The intro lives in `site.ts`.
   - Blog editor: Markdown with Write/Preview. The preview uses the same `PostBody` as the live page. There's a cover upload, and images can be inserted with the button, pasted or dropped; they go to Storage `portfolio/blog/`. `![alt](url "Caption")` adds a caption. A post's date is set when it is first published.
+- `/simple`: hidden "career story" (linked from no nav, only the sitemap and both llms files). It's a one-column, fuadsan.in-style page: bench banner with "Engineering anything." in HTML, intro, then chapters `#story-now`, `-before`, `-built`, `-community`, `-domains`, `-contact`. Everything comes from `getPortfolioContent` and `site.ts`. JSON-LD is a breadcrumb plus a ProfilePage pointing at `#person`. `/about` stays the fact sheet + FAQ.
+  - Banner: `public/simple/bench-banner.webp` (2400×840) and `bench-banner-mobile.webp` (1400×760, ≤640px via `<picture>` + `getImageProps`) are static renders of the real Workshop. To regenerate: headless Chromium, 2400×1000 viewport, `reducedMotion: 'reduce'` (skips the loader, static frame), wait for `.point-field.is-ready canvas`, hide `.site-header, .hero__text, .scroll-progress`, screenshot `.point-stage`. Crop y 60–900 (desktop) and x 520–1920 / y 100–860 (mobile), then `cwebp -q 80`.
 - `src/app/llms.txt`, `src/app/llms-full.txt`: route handlers built by `src/lib/llms.ts`. They include the GitHub line, the most active repos and the post list.
 - `src/app/feed.xml`: RSS 2.0 of published posts. Every page links it through `alternates.types` in `createPageMetadata`.
 - Blog: `/blog` and `/blog/[slug]` are server-rendered from `getPublishedBlogs` / `getBlog` in `content.ts` (cookie-less, ISR 1h). `/blog` has `Blog` JSON-LD and each post has `BlogPosting`. Post Markdown renders through `src/components/blog/PostBody.tsx`: react-markdown + GFM with no raw HTML, sugar-high code highlighting (tokens themed in `post-body.css`), and lazy images with captions.
@@ -81,6 +83,8 @@ Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3
 
 ### Layout (`src/components/layout/`)
 - `SiteHeader`: wordmark, section links (scroll via `scrollToId`), "Let's talk" CTA, mobile menu. It hides on scroll down.
+  - The solid background and blur live on `.site-header::before`. `backdrop-filter` on the header itself would make it the containing block of the fixed menu overlay, which then collapses to header height after scrolling.
+  - Phone menu (≤900px): the closed nav is `inert`. While open, the header's siblings are `inert`, Tab wraps inside the header, and Escape closes and refocuses the button. Phone-only extras are `.site-header__more` (Blog, Resume, Contact) and a `Shaan Shoukath` home link on non-home pages.
 - `IntroLoader`: first visit per session only. Mini Shaan runs along a progress bar (~1.5s), then the curtain lifts. `INTRO_SKIP_SCRIPT` in the root layout marks repeat visits before paint. **Mini Shaan appears only in the loader and in the 404 meme** (`src/app/not-found.tsx`: two panels, `wait` shrug then `facepalm`). The sprite is `public/mini-shaan/sheet-v1.webp` (8×9 cells, 144×156), animated by CSS `steps()` in `MiniShaan.tsx`.
 - `PageShell`: `<main>` wrapper for standalone pages.
 
@@ -105,6 +109,8 @@ Order: `Hero` → `Statement` → `DomainsStory` (all inside `.stage` with the 3
   - On `(pointer: coarse)`: 44px minimum tap targets, pressed states, no tap flash, and no film grain.
   - On short landscape (`max-height: 520px`): a compact domain story.
 - `ScrollTrigger.config({ ignoreMobileResize: true })` stops re-measuring when the iOS/Android browser bars move.
+- Domain story on ≤1023px: the text block sits on its own opaque panel (`.story__inner`) so the bench never runs through copy. On ≤640px the story is `count × 50svh + 100svh`. `DomainsStory` measures travel against the pin's real height, not `innerHeight`.
+- Project screenshots and credits resolve through `projectExtras(p)` (`site.ts`): it uses the id, then falls back to the title, because CMS rows have UUIDs.
 - Check every phone width (320, 360, 375, 390, 430), landscape 844×390, and 768/1000/1280 before shipping layout changes.
 
 ### Conventions
